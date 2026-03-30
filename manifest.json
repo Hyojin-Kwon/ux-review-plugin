@@ -1,0 +1,19 @@
+{
+  "name": "UX Review with AI",
+  "id": "1619188209338629277",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": [
+      "https://api.anthropic.com",
+      "https://api.openai.com",
+      "https://bedrock-runtime.ap-northeast-1.amazonaws.com"
+    ],
+    "reasoning": "Claude/OpenAI API 및 사내 GenAI Gateway를 통한 UX 검증 요청"
+  }
+}

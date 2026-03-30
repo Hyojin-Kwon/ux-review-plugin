@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 12px;
+    background: #2c2c2c;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    color: #e0e0e0;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #3a3a3a;
+    flex-shrink: 0;
+    padding: 0 12px 0 20px;
+  }
+
+  .tabs-spacer { flex: 1; }
+
+  .btn-clear-all {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .btn-clear-all:hover { background: #3a3a3a; color: #ccc; }
+
+  .tab {
+    padding: 11px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #888;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: #ccc; }
+
+  .tab.active {
+    color: #06C755;
+    border-bottom-color: #06C755;
+  }
+
+  /* ── Content ── */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .content-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  .content-scroll::-webkit-scrollbar { width: 4px; }
+  .content-scroll::-webkit-scrollbar-thumb { background: #555; border-radius: 2px; }
+
+  .content-footer {
+    flex-shrink: 0;
+    padding: 12px 20px 20px;
+    border-top: 1px solid #3a3a3a;
+    background: #2c2c2c;
+  }
+
+  /* ── Frames Grid ── */
+  .selection-info {
+    padding: 16px;
+    background: #363636;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    min-height: 80px;
+  }
+
+  .empty-state {
+    color: #666;
+    text-align: center;
+    padding: 28px 16px;
+    font-size: 12px;
+  }
+
+  .empty-state span {
+    display: block;
+    font-size: 11px;
+    color: #555;
+    margin-top: 6px;
+  }
+
+  .frame-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .frame-card { cursor: default; }
+
+  .frame-thumb {
+    width: 100%;
+    height: 90px;
+    background: #2a2a2a;
+    border: 1.5px solid #4a4a4a;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .frame-thumb img {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .frame-thumb-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .thumb-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #444;
+    border-top-color: #06C755;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  .frame-number {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 20px;
+    height: 20px;
+    background: #06C755;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  .btn-remove-frame {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.55);
+    color: #ccc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: background 0.15s;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .btn-remove-frame:hover { background: rgba(200,50,50,0.8); color: #fff; }
+
+  .frame-meta { margin-top: 8px; text-align: center; }
+
+  .frame-name {
+    font-size: 11px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    color: #bbb;
+  }
+
+  /* ── Section ── */
+  .section { margin-bottom: 20px; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #999;
+    margin-bottom: 8px;
+  }
+
+  /* ── Form Elements ── */
+  select, textarea, input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: inherit;
+    background: #333;
+    color: #e0e0e0;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  select:focus, textarea:focus, input[type="text"]:focus { border-color: #06C755; }
+  select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 36px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  select option { background: #333; }
+  textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+  /* ── Market Chips ── */
+  .chip-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .chip {
+    padding: 6px 14px;
+    border: 1px solid #444;
+    border-radius: 100px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    color: #bbb;
+  }
+
+  .chip:hover { border-color: #06C755; color: #ddd; }
+
+  .chip.selected {
+    background: #06C755;
+    color: #fff;
+    border-color: #06C755;
+  }
+
+  /* ── Button ── */
+  .btn {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-primary { background: #06C755; color: #fff; }
+  .btn-primary:hover { background: #05b34c; }
+  .btn-primary:disabled { background: #444; color: #666; cursor: not-allowed; }
+
+  .btn-secondary { background: #3a3a3a; color: #ccc; border: 1px solid #4a4a4a; }
+  .btn-secondary:hover { background: #444; }
+
+  .btn-ghost {
+    background: transparent;
+    border: none;
+    color: #999;
+    padding: 8px;
+    font-size: 11px;
+    width: auto;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  .btn-ghost:hover { color: #06C755; }
+
+  /* ── Result ── */
+  .result-area { display: none; }
+  .result-area.visible { display: block; }
+
+  .result-card {
+    background: #363636;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .result-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #444;
+  }
+
+  .result-card-header h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .result-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #06C755;
+    border-radius: 50%;
+  }
+
+  .result-status.error { background: #ff6b6b; }
+
+  .result-actions { display: flex; gap: 4px; }
+
+  .result-content {
+    padding: 16px;
+    font-size: 12px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 360px;
+    overflow-y: auto;
+    color: #ccc;
+  }
+
+  .result-content::-webkit-scrollbar { width: 4px; }
+  .result-content::-webkit-scrollbar-thumb { background: #555; border-radius: 2px; }
+
+  .result-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #444;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  /* ── Loading ── */
+  .loading { display: none; text-align: center; padding: 40px 20px; }
+  .loading.visible { display: block; }
+
+  .spinner {
+    width: 28px;
+    height: 28px;
+    border: 2.5px solid #444;
+    border-top-color: #06C755;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 14px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text { font-size: 12px; color: #888; }
+  .loading-sub { font-size: 11px; color: #666; margin-top: 4px; }
+
+  /* ── Context Sections ── */
+  .context-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 10px 0 6px;
+    user-select: none;
+  }
+
+  .context-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e0e0e0;
+  }
+
+  .context-toggle {
+    font-size: 12px;
+    color: #666;
+    transition: transform 0.2s;
+  }
+
+  .context-section-header.collapsed .context-toggle { transform: rotate(-90deg); }
+
+  .context-section-body {
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+    max-height: 300px;
+  }
+
+  .context-section-body.collapsed { max-height: 0; }
+
+  .context-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: inherit;
+    background: #333;
+    color: #e0e0e0;
+    outline: none;
+    transition: border-color 0.15s;
+    resize: vertical;
+    line-height: 1.6;
+    margin-top: 6px;
+  }
+
+  .context-field:focus { border-color: #06C755; }
+
+  .context-hint {
+    font-size: 11px;
+    color: #777;
+    line-height: 1.5;
+    margin-top: 2px;
+  }
+
+  /* ── Settings ── */
+  .settings-group {
+    background: #363636;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .settings-group-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .settings-row { margin-bottom: 14px; }
+  .settings-row:last-child { margin-bottom: 0; }
+
+  .settings-row label {
+    display: block;
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .settings-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(6, 199, 85, 0.06);
+    border: 1px solid rgba(6, 199, 85, 0.15);
+    border-radius: 8px;
+    font-size: 11px;
+    color: #06C755;
+    margin-bottom: 16px;
+    transition: all 0.2s;
+  }
+
+  .settings-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: #06C755;
+    transition: background 0.2s;
+  }
+
+  /* ── Preset Bar ── */
+  .preset-bar {
+    padding: 12px 16px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 1px solid #3a3a3a;
+    flex-shrink: 0;
+  }
+
+  .preset-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .preset-row select { flex: 1; }
+
+  .btn-preset-action {
+    flex-shrink: 0;
+    width: 32px;
+    height: 34px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background: transparent;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .btn-preset-action:hover { border-color: #ff6b6b; color: #ff6b6b; background: rgba(255,107,107,0.08); }
+
+  .preset-new-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .preset-new-row input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: inherit;
+    background: #333;
+    color: #e0e0e0;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .preset-new-row input:focus { border-color: #06C755; }
+  .preset-new-row input::placeholder { color: #555; }
+
+  .btn-preset-save {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background: #06C755;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .btn-preset-save:hover { background: #05a847; }
+
+  /* Active preset badge (review tab) */
+  #active-preset-section {
+    padding: 0 16px 4px;
+    display: none;
+  }
+
+  .active-preset-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #06C755;
+    background: rgba(6,199,85,0.1);
+    border-radius: 100px;
+    padding: 3px 10px;
+  }
+
+  /* ── Result Feedback ── */
+  .result-feedback {
+    padding: 12px 16px;
+    border-top: 1px solid #3a3a3a;
+  }
+
+  .result-feedback-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    margin-bottom: 6px;
+  }
+
+  #result-feedback-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: inherit;
+    background: #2c2c2c;
+    color: #e0e0e0;
+    outline: none;
+    resize: none;
+    line-height: 1.6;
+    transition: border-color 0.15s;
+    min-height: 72px;
+  }
+  #result-feedback-input:focus { border-color: #06C755; }
+  #result-feedback-input::placeholder { color: #555; }
+</style>
+</head>
+<body>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="review" data-i18n="tab_review">검증</div>
+    <div class="tab" data-tab="context" data-i18n="tab_context">컨텍스트</div>
+    <div class="tab" data-tab="settings" data-i18n="tab_settings">설정</div>
+    <div class="tabs-spacer"></div>
+    <button class="btn-clear-all" id="btn-clear-all" title="프레임 목록 초기화">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ════════ Tab: Review ════════ -->
+  <div class="content" id="tab-review">
+    <div class="content-scroll">
+
+      <!-- Frames -->
+      <div class="selection-info" id="selection-info"></div>
+
+      <!-- Active preset badge -->
+      <div id="active-preset-section">
+        <span class="active-preset-badge" id="active-preset-badge"></span>
+      </div>
+
+      <!-- Options -->
+      <div class="section">
+        <div class="section-label" data-i18n="label_review_type">검증 유형</div>
+        <select id="review-type">
+          <option value="screen" data-i18n="review_type_screen">화면 단위 UX 리뷰</option>
+          <option value="flow" data-i18n="review_type_flow">플로우 검증</option>
+          <option value="localization" data-i18n="review_type_localization">시장별 비교 검증</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <div class="section-label" data-i18n="label_target_market">타겟 시장</div>
+        <div class="chip-group">
+          <div class="chip selected" data-market="JP" data-i18n="market_jp">일본</div>
+          <div class="chip" data-market="TH" data-i18n="market_th">태국</div>
+          <div class="chip" data-market="TW" data-i18n="market_tw">대만</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label" data-i18n="label_additional_context">추가 맥락 (선택)</div>
+        <textarea id="additional-context" data-i18n-ph="placeholder_additional_context" placeholder="특별히 검증받고 싶은 포인트가 있으면 입력하세요..."></textarea>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-text" data-i18n="loading_text">AI가 화면을 분석하고 있습니다...</div>
+        <div class="loading-sub" id="loading-sub"></div>
+      </div>
+
+      <!-- Result -->
+      <div class="result-area" id="result-area">
+        <div class="result-card">
+          <div class="result-card-header">
+            <h3><span class="result-status" id="result-status"></span> <span id="result-title"></span></h3>
+            <div class="result-actions">
+              <button class="btn-ghost" id="btn-copy" title="복사">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="result-content" id="result-content"></div>
+          <div class="result-feedback" id="result-feedback" style="display:none">
+            <div class="result-feedback-label" data-i18n="label_feedback">피드백</div>
+            <textarea id="result-feedback-input" data-i18n-ph="placeholder_feedback" placeholder="검증 결과에 대한 피드백을 입력하세요..."></textarea>
+          </div>
+          <div class="result-footer">
+            <button class="btn btn-secondary" id="btn-reset" style="width:auto;padding:8px 20px;font-size:12px;" data-i18n="btn_new_review">새 검증</button>
+            <button class="btn btn-primary" id="btn-re-review" style="width:auto;padding:8px 20px;font-size:12px;display:none" disabled data-i18n="btn_re_review">재검증</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="content-footer">
+      <button class="btn btn-primary" id="btn-review" disabled data-i18n="btn_run_review">UX 검증 실행</button>
+    </div>
+  </div>
+
+  <!-- ════════ Tab: Context ════════ -->
+  <div class="content" id="tab-context" style="display:none">
+
+    <!-- Preset bar -->
+    <div class="preset-bar">
+      <div class="preset-row">
+        <select id="preset-select"></select>
+        <button class="btn-preset-action" id="btn-preset-delete" style="display:none" title="프리셋 삭제">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
+          </svg>
+        </button>
+      </div>
+      <div class="preset-new-row" id="preset-new-row" style="display:none">
+        <input type="text" id="preset-name-input" />
+        <button class="btn-preset-save" id="btn-preset-save" data-i18n="btn_preset_save">저장</button>
+      </div>
+    </div>
+
+    <div class="content-scroll">
+
+      <div class="section">
+        <div class="context-section-header" data-toggle="ctx-principles">
+          <span class="context-section-title" data-i18n="ctx_principles_title">UX 원칙</span>
+          <span class="context-toggle">▾</span>
+        </div>
+        <p class="context-hint" data-i18n="ctx_principles_hint">검증 시 기준으로 적용할 UX 원칙을 입력하세요.</p>
+        <div class="context-section-body" id="ctx-principles">
+          <textarea class="context-field" id="field-principles" rows="5" data-i18n-ph="ctx_principles_placeholder" placeholder="예) 정보 위계: 가장 중요한 정보가 시각적으로 먼저 인지되어야 한다."></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="context-section-header" data-toggle="ctx-accessibility">
+          <span class="context-section-title" data-i18n="ctx_accessibility_title">접근성 기준</span>
+          <span class="context-toggle">▾</span>
+        </div>
+        <p class="context-hint" data-i18n="ctx_accessibility_hint">텍스트 크기, 터치 타겟, 색상 대비 등 접근성 규칙을 입력하세요.</p>
+        <div class="context-section-body" id="ctx-accessibility">
+          <textarea class="context-field" id="field-accessibility" rows="3" data-i18n-ph="ctx_accessibility_placeholder" placeholder="예) 텍스트 최소 크기: 12sp&#10;터치 타겟 최소: 44x44pt"></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="context-section-header" data-toggle="ctx-scenarios">
+          <span class="context-section-title" data-i18n="ctx_scenarios_title">유저 시나리오</span>
+          <span class="context-toggle">▾</span>
+        </div>
+        <p class="context-hint" data-i18n="ctx_scenarios_hint">검증 대상 화면별로 유저, 진입 맥락, 기대 행동을 정리하세요.</p>
+        <div class="context-section-body" id="ctx-scenarios">
+          <textarea class="context-field" id="field-scenarios" rows="6" data-i18n-ph="ctx_scenarios_placeholder" placeholder="예) [홈 탭]&#10;유저: 기존 사용자 (일 1회 이상 접속)&#10;진입 맥락: 앱 실행 직후 첫 화면&#10;기대 행동: 미읽 메시지 확인 → 채팅방 진입"></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="context-section-header" data-toggle="ctx-market">
+          <span class="context-section-title" data-i18n="ctx_market_title">시장별 고려사항</span>
+          <span class="context-toggle">▾</span>
+        </div>
+        <p class="context-hint" data-i18n="ctx_market_hint">타겟 시장별 사용자 특성과 UI 선호도를 입력하세요.</p>
+        <div class="context-section-body" id="ctx-market">
+          <textarea class="context-field" id="field-market" rows="4" data-i18n-ph="ctx_market_placeholder" placeholder="예) JP: 정보 밀도 허용도 높음. 텍스트 중심 UI 선호."></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="context-section-header" data-toggle="ctx-extra">
+          <span class="context-section-title" data-i18n="ctx_extra_title">기타 제약 조건</span>
+          <span class="context-toggle">▾</span>
+        </div>
+        <p class="context-hint" data-i18n="ctx_extra_hint">추가 디자인 제약이나 프로젝트 특이사항이 있으면 입력하세요.</p>
+        <div class="context-section-body" id="ctx-extra">
+          <textarea class="context-field" id="field-extra" rows="3" data-i18n-ph="ctx_extra_placeholder" placeholder="예) 하단 탭바 고정, 다크모드 미지원 등"></textarea>
+        </div>
+      </div>
+
+    </div>
+    <div class="content-footer">
+      <button class="btn btn-primary" id="btn-save-context">컨텍스트 저장</button>
+    </div>
+  </div>
+
+  <!-- ════════ Tab: Settings ════════ -->
+  <div class="content" id="tab-settings" style="display:none">
+    <div class="content-scroll">
+
+      <div class="settings-status" id="settings-status">
+        <span class="settings-status-dot" id="status-dot"></span>
+        <span id="status-text">API 연결 설정이 필요합니다</span>
+      </div>
+
+      <!-- Connection -->
+      <div class="settings-group">
+        <div class="settings-group-title" data-i18n="settings_group_api">API 연결</div>
+        <div class="settings-row">
+          <label data-i18n="label_provider">프로바이더</label>
+          <select id="api-mode">
+            <option value="anthropic">Anthropic API (Direct)</option>
+            <option value="openai">OpenAI API (Direct)</option>
+            <option value="gateway" data-i18n="opt_gateway">사내 GenAI Gateway</option>
+            <option value="bedrock" data-i18n="opt_bedrock">AWS Bedrock (사내 프록시)</option>
+          </select>
+        </div>
+        <div class="settings-row" id="section-apikey" style="display:none">
+          <label data-i18n="label_api_key">API Key</label>
+          <input type="text" id="api-key" placeholder="sk-ant-..." />
+        </div>
+        <div class="settings-row" id="section-openai-key" style="display:none">
+          <label data-i18n="label_openai_api_key">OpenAI API Key</label>
+          <input type="text" id="openai-api-key" placeholder="sk-..." />
+        </div>
+        <div class="settings-row" id="section-gateway" style="display:none">
+          <label data-i18n="label_gateway_url">Gateway URL</label>
+          <input type="text" id="gateway-url" placeholder="https://your-gateway.internal/v1" />
+          <label style="margin-top:10px" data-i18n="label_gateway_pat">PAT 토큰</label>
+          <input type="text" id="gateway-pat" placeholder="pat-..." style="margin-top:6px" />
+        </div>
+        <div class="settings-row" id="section-bedrock" style="display:none">
+          <label data-i18n="label_bedrock_url">Bedrock Proxy URL</label>
+          <input type="text" id="bedrock-proxy-url" placeholder="https://your-proxy.internal/v1/messages" />
+        </div>
+      </div>
+
+      <!-- Model -->
+      <div class="settings-group">
+        <div class="settings-group-title" data-i18n="settings_group_model">모델</div>
+        <div class="settings-row">
+          <label data-i18n="label_model">검증에 사용할 모델</label>
+          <select id="model-select">
+            <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+            <option value="claude-opus-4-20250514">Claude Opus 4</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="settings-group">
+        <div class="settings-group-title" data-i18n="settings_group_export">Export 설정</div>
+        <div class="settings-row">
+          <label data-i18n="label_export_scale">스크린샷 해상도</label>
+          <select id="export-scale">
+            <option value="1" selected data-i18n="export_1x">1x (권장, 가벼운 검증)</option>
+            <option value="1.5">1.5x</option>
+            <option value="2" data-i18n="export_2x">2x (고화질)</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <label data-i18n="label_max_frames">최대 프레임 수</label>
+          <select id="max-frames-select">
+            <option value="3" data-i18n="max_frames_3">3장</option>
+            <option value="6" data-i18n="max_frames_6">6장</option>
+            <option value="8" selected data-i18n="max_frames_8">8장 (기본)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Language -->
+      <div class="settings-group">
+        <div class="settings-group-title" data-i18n="settings_group_language">언어 / Language</div>
+        <div class="settings-row">
+          <label data-i18n="label_language">표시 언어</label>
+          <select id="lang-select">
+            <option value="ko">한국어</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+    <div class="content-footer">
+      <button class="btn btn-primary" id="btn-save-settings" data-i18n="btn_save_settings">설정 저장</button>
+    </div>
+  </div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let selectedFrames = [];
+let lastReviewParams = null;  // { frames, reviewType, markets, additionalContext }
+let lastResultText = "";      // 가장 최근 검증 결과 (재검증 시 컨텍스트로 포함)
+let presets = {};             // { name: { principles, accessibility, scenarios, market, extra } }
+let activePreset = null;      // 현재 선택된 프리셋 이름
+let settings = {
+  apiMode: "anthropic",
+  apiKey: "",
+  bedrockProxyUrl: "",
+  openaiApiKey: "",
+  gatewayUrl: "",
+  gatewayPat: "",
+  model: "claude-sonnet-4-20250514",
+  exportScale: "1",
+  maxFrames: 8,
+  lang: "ko",
+};
+let contextData = {
+  principles: "- 정보 위계: 화면 내 가장 중요한 정보가 시각적으로 가장 먼저 인지되어야 한다.\n- 태스크 효율: 유저의 핵심 태스크는 최소 단계(1-2탭)로 완료 가능해야 한다.\n- 인지 부하 최소화: 한 화면에서 유저가 판단해야 할 선택지는 3-5개 이내.\n- 일관성: LDS 컴포넌트와 패턴을 따르며, 화면 간 동일 기능은 동일 패턴.",
+  accessibility: "- 텍스트 최소 크기: 12sp\n- 터치 타겟 최소: 44x44pt\n- 색상 대비: WCAG AA (4.5:1)",
+  scenarios: "",
+  market: "- JP: 정보 밀도 허용도 높음. 텍스트 중심. 가격/혜택 상세 노출 가능.\n- TH: 비주얼/컬러풀 선호. 프로모션 임팩트 중요. 텍스트 간결하게.\n- TW: JP와 유사. Traditional Chinese 특성상 텍스트 영역 여유 필요.",
+  extra: "",
+};
+const storageCallbacks = {};
+
+// ── i18n ───────────────────────────────────────────────────────────────────
+const i18n = {
+  ko: {
+    tab_review: "검증", tab_context: "컨텍스트", tab_settings: "설정",
+    label_review_type: "검증 유형", label_target_market: "타겟 시장",
+    label_additional_context: "추가 맥락 (선택)",
+    review_type_screen: "화면 단위 UX 리뷰", review_type_flow: "플로우 검증",
+    review_type_localization: "시장별 비교 검증",
+    market_jp: "일본", market_th: "태국", market_tw: "대만",
+    placeholder_additional_context: "특별히 검증받고 싶은 포인트가 있으면 입력하세요...",
+    btn_run_review: "UX 검증 실행", btn_new_review: "새 검증", btn_re_review: "재검증",
+    loading_text: "AI가 화면을 분석하고 있습니다...",
+    loading_sub: (n) => `${n}장의 스크린샷을 검토 중`,
+    result_complete: "검증 완료", result_error: "오류 발생",
+    label_feedback: "피드백",
+    placeholder_feedback: "검증 결과에 대한 피드백을 입력하세요. 예) 정보 위계 분석은 맞지만 CTA 배치는 의도된 디자인입니다. 다른 관점에서 재분석해주세요.",
+    saved_ok: "저장됨 ✓",
+    empty_state: "피그마에서 프레임을 선택하세요", empty_state_sub: "최대 8개까지 선택 가능합니다",
+    ctx_principles_title: "UX 원칙", ctx_principles_hint: "검증 시 기준으로 적용할 UX 원칙을 입력하세요.",
+    ctx_principles_placeholder: "예) 정보 위계: 가장 중요한 정보가 시각적으로 먼저 인지되어야 한다.",
+    ctx_accessibility_title: "접근성 기준", ctx_accessibility_hint: "텍스트 크기, 터치 타겟, 색상 대비 등 접근성 규칙을 입력하세요.",
+    ctx_accessibility_placeholder: "예) 텍스트 최소 크기: 12sp\n터치 타겟 최소: 44x44pt",
+    ctx_scenarios_title: "유저 시나리오", ctx_scenarios_hint: "검증 대상 화면별로 유저, 진입 맥락, 기대 행동을 정리하세요.",
+    ctx_scenarios_placeholder: "예) [홈 탭]\n유저: 기존 사용자 (일 1회 이상 접속)\n진입 맥락: 앱 실행 직후 첫 화면\n기대 행동: 미읽 메시지 확인 → 채팅방 진입",
+    ctx_market_title: "시장별 고려사항", ctx_market_hint: "타겟 시장별 사용자 특성과 UI 선호도를 입력하세요.",
+    ctx_market_placeholder: "예) JP: 정보 밀도 허용도 높음. 텍스트 중심 UI 선호.",
+    ctx_extra_title: "기타 제약 조건", ctx_extra_hint: "추가 디자인 제약이나 프로젝트 특이사항이 있으면 입력하세요.",
+    ctx_extra_placeholder: "예) 하단 탭바 고정, 다크모드 미지원 등",
+    btn_save_context: "컨텍스트 저장",
+    btn_update_preset: "프리셋 업데이트",
+    btn_preset_save: "저장",
+    preset_none: "── 프리셋 없음 ──",
+    preset_new: "➕ 새 프리셋 만들기",
+    preset_name_placeholder: "프리셋 이름 (예: LINE Messenger)",
+    preset_confirm_delete: (n) => `"${n}" 프리셋을 삭제하시겠습니까?`,
+    active_preset_label: (n) => `컨텍스트: ${n}`,
+    settings_group_api: "API 연결", label_provider: "프로바이더",
+    label_api_key: "API Key", label_openai_api_key: "OpenAI API Key",
+    label_gateway_url: "Gateway URL", label_gateway_pat: "PAT 토큰",
+    label_bedrock_url: "Bedrock Proxy URL",
+    opt_gateway: "사내 GenAI Gateway", opt_bedrock: "AWS Bedrock (사내 프록시)",
+    settings_group_model: "모델", label_model: "검증에 사용할 모델",
+    settings_group_export: "Export 설정", label_export_scale: "스크린샷 해상도",
+    export_1x: "1x (권장, 가벼운 검증)", export_2x: "2x (고화질)",
+    label_max_frames: "최대 프레임 수",
+    max_frames_3: "3장", max_frames_6: "6장", max_frames_8: "8장 (기본)",
+    settings_group_language: "언어 / Language", label_language: "표시 언어",
+    btn_save_settings: "설정 저장",
+    status_anthropic_ok: "Anthropic API 연결됨", status_openai_ok: "OpenAI API 연결됨",
+    status_gateway_ok: "GenAI Gateway 설정됨", status_bedrock_ok: "Bedrock 프록시 설정됨",
+    status_need_anthropic: "Anthropic API Key를 입력해주세요",
+    status_need_openai: "OpenAI API Key를 입력해주세요",
+    status_need_gateway_url: "Gateway URL을 입력해주세요",
+    status_need_gateway_pat: "PAT 토큰을 입력해주세요",
+    status_need_bedrock: "Bedrock 프록시 URL을 입력해주세요",
+    prompt_lang_instruction: "검증 결과는 반드시 한국어로 작성해주세요.",
+  },
+  en: {
+    tab_review: "Review", tab_context: "Context", tab_settings: "Settings",
+    label_review_type: "Review Type", label_target_market: "Target Market",
+    label_additional_context: "Additional Context (optional)",
+    review_type_screen: "Screen UX Review", review_type_flow: "Flow Validation",
+    review_type_localization: "Market Comparison",
+    market_jp: "Japan", market_th: "Thailand", market_tw: "Taiwan",
+    placeholder_additional_context: "Enter specific points you want to validate...",
+    btn_run_review: "Run UX Review", btn_new_review: "New Review", btn_re_review: "Re-review",
+    loading_text: "AI is analyzing the screens...",
+    loading_sub: (n) => `Reviewing ${n} screenshot${n > 1 ? "s" : ""}`,
+    result_complete: "Review Complete", result_error: "Error",
+    label_feedback: "Feedback",
+    placeholder_feedback: "Enter feedback on the review. e.g.) The information hierarchy is correct, but the CTA placement is intentional. Please re-analyze from a different perspective.",
+    saved_ok: "Saved ✓",
+    empty_state: "Select frames in Figma", empty_state_sub: "Up to 8 frames can be selected",
+    ctx_principles_title: "UX Principles", ctx_principles_hint: "Enter UX principles to apply as review criteria.",
+    ctx_principles_placeholder: "e.g.) Information hierarchy: the most important information should be perceived first.",
+    ctx_accessibility_title: "Accessibility", ctx_accessibility_hint: "Enter rules for text size, touch targets, color contrast, etc.",
+    ctx_accessibility_placeholder: "e.g.) Minimum text size: 12sp\nMinimum touch target: 44x44pt",
+    ctx_scenarios_title: "User Scenarios", ctx_scenarios_hint: "Summarize user, entry context, and expected behavior per screen.",
+    ctx_scenarios_placeholder: "e.g.) [Home Tab]\nUser: Existing user (1+ visits/day)\nEntry: First screen after app launch\nExpected: Check unread messages → enter chat",
+    ctx_market_title: "Market Considerations", ctx_market_hint: "Enter user traits and UI preferences per target market.",
+    ctx_market_placeholder: "e.g.) JP: High tolerance for information density. Text-heavy UI preferred.",
+    ctx_extra_title: "Other Constraints", ctx_extra_hint: "Enter additional design constraints or project-specific notes.",
+    ctx_extra_placeholder: "e.g.) Fixed bottom tab bar, no dark mode support",
+    btn_save_context: "Save Context",
+    btn_update_preset: "Update Preset",
+    btn_preset_save: "Save",
+    preset_none: "── No Preset ──",
+    preset_new: "➕ New Preset",
+    preset_name_placeholder: "Preset name (e.g. LINE Messenger)",
+    preset_confirm_delete: (n) => `Delete preset "${n}"?`,
+    active_preset_label: (n) => `Context: ${n}`,
+    settings_group_api: "API Connection", label_provider: "Provider",
+    label_api_key: "API Key", label_openai_api_key: "OpenAI API Key",
+    label_gateway_url: "Gateway URL", label_gateway_pat: "PAT Token",
+    label_bedrock_url: "Bedrock Proxy URL",
+    opt_gateway: "Internal GenAI Gateway", opt_bedrock: "AWS Bedrock (Internal Proxy)",
+    settings_group_model: "Model", label_model: "Model for review",
+    settings_group_export: "Export Settings", label_export_scale: "Screenshot resolution",
+    export_1x: "1x (recommended, lightweight)", export_2x: "2x (high quality)",
+    label_max_frames: "Max frames",
+    max_frames_3: "3 frames", max_frames_6: "6 frames", max_frames_8: "8 frames (default)",
+    settings_group_language: "Language / 언어", label_language: "Display language",
+    btn_save_settings: "Save Settings",
+    status_anthropic_ok: "Anthropic API connected", status_openai_ok: "OpenAI API connected",
+    status_gateway_ok: "GenAI Gateway configured", status_bedrock_ok: "Bedrock proxy configured",
+    status_need_anthropic: "Please enter your Anthropic API Key",
+    status_need_openai: "Please enter your OpenAI API Key",
+    status_need_gateway_url: "Please enter the Gateway URL",
+    status_need_gateway_pat: "Please enter the PAT token",
+    status_need_bedrock: "Please enter the Bedrock proxy URL",
+    prompt_lang_instruction: "Please write all review results in English.",
+  },
+};
+
+function t(key) {
+  return (i18n[settings.lang] || i18n.ko)[key] || key;
+}
+
+function applyI18n() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const val = t(el.dataset.i18n);
+    if (val) el.textContent = val;
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
+    const val = t(el.dataset.i18nPh);
+    if (val) el.placeholder = val;
+  });
+  const emptyState = document.querySelector(".empty-state");
+  if (emptyState) {
+    emptyState.innerHTML = `${t("empty_state")}<span>${t("empty_state_sub")}</span>`;
+  }
+  // Context save button label depends on active preset
+  document.getElementById("btn-save-context").textContent =
+    activePreset ? t("btn_update_preset") : t("btn_save_context");
+  // Preset name input placeholder
+  const presetNameInput = document.getElementById("preset-name-input");
+  if (presetNameInput) presetNameInput.placeholder = t("preset_name_placeholder");
+  renderPresetDropdown();
+  updateSettingsStatus();
+}
+
+// ── Storage helpers ────────────────────────────────────────────────────────
+function storageSet(key, value) {
+  parent.postMessage({ pluginMessage: { type: "storage-set", key, value } }, "*");
+}
+
+function storageGet(key) {
+  return new Promise((resolve) => {
+    storageCallbacks[key] = resolve;
+    parent.postMessage({ pluginMessage: { type: "storage-get", key } }, "*");
+  });
+}
+
+// ── Figma message receiver ─────────────────────────────────────────────────
+window.onmessage = (event) => {
+  const msg = event.data.pluginMessage;
+  if (!msg) return;
+
+  if (msg.type === "selection-cleared") {
+    // 캔버스 빈 곳 클릭 시 기존 목록 유지 — 아무것도 하지 않음
+  }
+
+  if (msg.type === "selection-changed") {
+    // 이미 등록된 프레임은 건너뛰고 새 프레임만 누적 추가
+    const existingIds = new Set(selectedFrames.map((f) => f.id));
+    const toAdd = msg.frames
+      .filter((f) => !existingIds.has(f.id))
+      .slice(0, (settings.maxFrames || 8) - selectedFrames.length);
+
+    if (toAdd.length === 0) return;
+
+    selectedFrames = [...selectedFrames, ...toAdd];
+    appendFrameCards(toAdd);
+    updateReviewBtn();
+  }
+
+  if (msg.type === "previews-done") {
+    updateFramePreviews(msg.frames);
+  }
+
+  if (msg.type === "export-done") {
+    runAPICall(msg.frames);
+  }
+
+  if (msg.type === "export-error") {
+    showLoading(false);
+    showError("Export 실패: " + msg.error);
+  }
+
+  if (msg.type === "storage-get-done") {
+    const cb = storageCallbacks[msg.key];
+    if (cb) { cb(msg.value); delete storageCallbacks[msg.key]; }
+  }
+};
+
+// ── Frame rendering ────────────────────────────────────────────────────────
+function renderEmptyState() {
+  document.getElementById("selection-info").innerHTML =
+    `<div class="empty-state">${t("empty_state")}<span>${t("empty_state_sub")}</span></div>`;
+}
+
+function appendFrameCards(frames) {
+  // 그리드 컨테이너가 없으면 처음 생성
+  let list = document.getElementById("frame-list");
+  if (!list) {
+    document.getElementById("selection-info").innerHTML =
+      `<div class="frame-list" id="frame-list"></div>`;
+    list = document.getElementById("frame-list");
+  }
+
+  frames.forEach((f) => {
+    const index = selectedFrames.findIndex((sf) => sf.id === f.id);
+    const card = document.createElement("div");
+    card.className = "frame-card";
+    card.dataset.frameId = f.id;
+    card.innerHTML = `
+      <div class="frame-thumb">
+        <span class="frame-number">${index + 1}</span>
+        <img alt="${escapeHtml(f.name)}" />
+        <div class="frame-thumb-placeholder"><div class="thumb-spinner"></div></div>
+        <button class="btn-remove-frame" title="이 프레임 제거">
+          <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
+          </svg>
+        </button>
+      </div>
+      <div class="frame-meta"><span class="frame-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</span></div>
+    `;
+    card.querySelector(".btn-remove-frame").addEventListener("click", () => removeFrame(f.id));
+    list.appendChild(card);
+  });
+}
+
+function updateFramePreviews(frames) {
+  frames.forEach((f) => {
+    const card = document.querySelector(`.frame-card[data-frame-id="${f.id}"]`);
+    if (!card) return;
+    const img = card.querySelector("img");
+    const placeholder = card.querySelector(".frame-thumb-placeholder");
+    img.onload = () => { img.style.display = "block"; placeholder.style.display = "none"; };
+    img.src = `data:image/png;base64,${f.imageBase64}`;
+  });
+}
+
+function removeFrame(frameId) {
+  selectedFrames = selectedFrames.filter((f) => f.id !== frameId);
+  const card = document.querySelector(`.frame-card[data-frame-id="${frameId}"]`);
+  if (card) card.remove();
+
+  if (selectedFrames.length === 0) {
+    renderEmptyState();
+  } else {
+    renumberFrames();
+  }
+  updateReviewBtn();
+}
+
+function renumberFrames() {
+  document.querySelectorAll(".frame-card").forEach((card, i) => {
+    card.querySelector(".frame-number").textContent = i + 1;
+  });
+}
+
+function updateReviewBtn() {
+  document.getElementById("btn-review").disabled = selectedFrames.length === 0;
+}
+
+// ── Review ─────────────────────────────────────────────────────────────────
+document.getElementById("btn-review").addEventListener("click", () => {
+  if (selectedFrames.length === 0) return;
+
+  showLoading(true);
+  hideResult();
+
+  const scale = parseFloat(settings.exportScale) || 1;
+  parent.postMessage({
+    pluginMessage: {
+      type: "export-frames-for-review",
+      frameIds: selectedFrames.map((f) => f.id),
+      scale,
+    },
+  }, "*");
+});
+
+async function runAPICall(exportedFrames) {
+  try {
+    const reviewType = document.getElementById("review-type").value;
+    const markets = [...document.querySelectorAll(".chip.selected")].map((c) => c.dataset.market);
+    const additionalContext = document.getElementById("additional-context").value.trim();
+
+    lastReviewParams = { frames: exportedFrames, reviewType, markets, additionalContext };
+
+    const resultText = await callAPI(exportedFrames, reviewType, markets, additionalContext);
+    showLoading(false);
+    showResult(resultText, false);
+  } catch (err) {
+    showLoading(false);
+    showError(err.message);
+  }
+}
+
+// ── API router ─────────────────────────────────────────────────────────────
+async function callAPI(frames, reviewType, markets, additionalContext) {
+  const { apiMode } = settings;
+  if (apiMode === "openai" || apiMode === "gateway") {
+    return callOpenAICompatAPI(frames, reviewType, markets, additionalContext);
+  }
+  return callClaudeAPI(frames, reviewType, markets, additionalContext);
+}
+
+// ── Anthropic / Bedrock ─────────────────────────────────────────────────────
+async function callClaudeAPI(frames, reviewType, markets, additionalContext) {
+  const { apiMode, apiKey, bedrockProxyUrl, model } = settings;
+
+  const endpoint = apiMode === "anthropic"
+    ? "https://api.anthropic.com/v1/messages"
+    : bedrockProxyUrl;
+
+  if (!endpoint) throw new Error("API 엔드포인트가 설정되지 않았습니다. 설정 탭을 확인해주세요.");
+  if (apiMode === "anthropic" && !apiKey) throw new Error("API Key가 입력되지 않았습니다. 설정 탭을 확인해주세요.");
+
+  const systemPrompt = buildSystemPrompt();
+  const userPrompt = buildUserPrompt(reviewType, markets, additionalContext, frames);
+
+  const content = [
+    ...frames.map((f) => ({
+      type: "image",
+      source: { type: "base64", media_type: "image/png", data: f.imageBase64 },
+    })),
+    { type: "text", text: userPrompt },
+  ];
+
+  const headers = {
+    "Content-Type": "application/json",
+    "anthropic-version": "2023-06-01",
+    "anthropic-dangerous-direct-browser-access": "true",
+  };
+  if (apiMode === "anthropic") headers["x-api-key"] = apiKey;
+
+  let response;
+  try {
+    response = await fetch(endpoint, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        model,
+        max_tokens: 2048,
+        system: systemPrompt,
+        messages: [{ role: "user", content }],
+      }),
+    });
+  } catch (networkErr) {
+    throw new Error(
+      `네트워크 오류: ${networkErr.message}\n\n` +
+      `요청 URL: ${endpoint}\n` +
+      `확인 사항:\n` +
+      `• manifest.json의 networkAccess.allowedDomains에 해당 도메인이 있는지\n` +
+      `• 피그마 플러그인을 재시작했는지 (manifest 변경 시 재시작 필요)`
+    );
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (_) {
+    throw new Error(`응답 파싱 실패 (HTTP ${response.status})`);
+  }
+
+  if (!response.ok) {
+    throw new Error(`API 오류 (HTTP ${response.status})\n${data.error?.message || JSON.stringify(data)}`);
+  }
+  return data.content[0].text;
+}
+
+// ── OpenAI / GenAI Gateway (OpenAI-compatible) ──────────────────────────────
+async function callOpenAICompatAPI(frames, reviewType, markets, additionalContext) {
+  const { apiMode, openaiApiKey, gatewayUrl, gatewayPat, model } = settings;
+
+  let endpoint, authToken;
+  if (apiMode === "openai") {
+    endpoint = "https://api.openai.com/v1/chat/completions";
+    authToken = openaiApiKey;
+    if (!authToken) throw new Error("OpenAI API Key가 입력되지 않았습니다. 설정 탭을 확인해주세요.");
+  } else {
+    // gateway — OpenAI-compatible endpoint
+    const base = gatewayUrl.replace(/\/$/, "");
+    endpoint = `${base}/chat/completions`;
+    authToken = gatewayPat;
+    if (!base) throw new Error("Gateway URL이 입력되지 않았습니다. 설정 탭을 확인해주세요.");
+    if (!authToken) throw new Error("PAT 토큰이 입력되지 않았습니다. 설정 탭을 확인해주세요.");
+  }
+
+  const systemPrompt = buildSystemPrompt();
+  const userPrompt = buildUserPrompt(reviewType, markets, additionalContext, frames);
+
+  const userContent = [
+    ...frames.map((f) => ({
+      type: "image_url",
+      image_url: { url: `data:image/png;base64,${f.imageBase64}` },
+    })),
+    { type: "text", text: userPrompt },
+  ];
+
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${authToken}`,
+  };
+
+  let response;
+  try {
+    response = await fetch(endpoint, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        model,
+        max_tokens: 2048,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userContent },
+        ],
+      }),
+    });
+  } catch (networkErr) {
+    throw new Error(
+      `네트워크 오류: ${networkErr.message}\n\n` +
+      `요청 URL: ${endpoint}\n` +
+      `확인 사항:\n` +
+      `• manifest.json의 networkAccess.allowedDomains에 해당 도메인이 있는지\n` +
+      `• 피그마 플러그인을 재시작했는지 (manifest 변경 시 재시작 필요)`
+    );
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (_) {
+    throw new Error(`응답 파싱 실패 (HTTP ${response.status})`);
+  }
+
+  if (!response.ok) {
+    throw new Error(`API 오류 (HTTP ${response.status})\n${data.error?.message || JSON.stringify(data)}`);
+  }
+  return data.choices[0].message.content;
+}
+
+function buildSystemPrompt() {
+  const parts = [
+    `You are a mobile app UX expert. Analyze the provided screenshots and write a UX review. ${t("prompt_lang_instruction")}`,
+  ];
+  if (contextData.principles) parts.push(`## UX 원칙\n${contextData.principles}`);
+  if (contextData.accessibility) parts.push(`## 접근성 기준\n${contextData.accessibility}`);
+  if (contextData.scenarios) parts.push(`## 유저 시나리오\n${contextData.scenarios}`);
+  if (contextData.market) parts.push(`## 시장별 고려사항\n${contextData.market}`);
+  if (contextData.extra) parts.push(`## 기타 제약 조건\n${contextData.extra}`);
+  return parts.join("\n\n");
+}
+
+function buildUserPrompt(reviewType, markets, additionalContext, frames) {
+  const typeLabel = { screen: "화면 단위 UX 리뷰", flow: "플로우 검증", localization: "시장별 비교 검증" };
+  const typeInstructions = {
+    screen: "위 화면에 대해 다음을 분석해주세요:\n1. 정보 위계 및 시각적 우선순위\n2. 태스크 완수 효율성 (탭 수, 이동 거리)\n3. 인지 부하 (선택지 수, 정보량)\n4. 주요 마찰 지점\n5. 개선 제안 (우선순위순)",
+    flow: "위 화면들의 플로우를 분석해주세요:\n1. 전체 단계 수 및 적절성\n2. 화면 간 연결성 및 맥락 유지\n3. 이탈 가능 지점\n4. 불필요한 단계 또는 누락된 피드백\n5. 개선 제안",
+    localization: "위 화면에 대해 시장별 적합성을 비교해주세요:\n1. 각 시장 기준 정보 밀도 적합성\n2. 시각적 스타일 적합성\n3. 텍스트/레이아웃 적합성\n4. 시장별 주요 리스크\n5. 시장별 개선 제안",
+  };
+
+  let prompt = `검증 유형: ${typeLabel[reviewType] || reviewType}\n`;
+  if (markets.length > 0) prompt += `타겟 시장: ${markets.join(", ")}\n`;
+  prompt += `분석 대상 (${frames.length}장): ${frames.map((f) => f.name).join(" → ")}\n\n`;
+  if (additionalContext) prompt += `추가 맥락:\n${additionalContext}\n\n`;
+  prompt += typeInstructions[reviewType] || "";
+  return prompt;
+}
+
+// ── Preset helpers ─────────────────────────────────────────────────────────
+function readContextFields() {
+  return {
+    principles:    document.getElementById("field-principles").value,
+    accessibility: document.getElementById("field-accessibility").value,
+    scenarios:     document.getElementById("field-scenarios").value,
+    market:        document.getElementById("field-market").value,
+    extra:         document.getElementById("field-extra").value,
+  };
+}
+
+function fillContextFields(data = {}) {
+  document.getElementById("field-principles").value    = data.principles    || "";
+  document.getElementById("field-accessibility").value = data.accessibility || "";
+  document.getElementById("field-scenarios").value     = data.scenarios     || "";
+  document.getElementById("field-market").value        = data.market        || "";
+  document.getElementById("field-extra").value         = data.extra         || "";
+}
+
+function renderPresetDropdown() {
+  const sel = document.getElementById("preset-select");
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML =
+    `<option value="">${t("preset_none")}</option>` +
+    `<option value="__new__">${t("preset_new")}</option>` +
+    Object.keys(presets)
+      .map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`)
+      .join("");
+  if ([...sel.options].some((o) => o.value === cur)) sel.value = cur;
+}
+
+function setPresetMode(value) {
+  const isNew      = value === "__new__";
+  const isExisting = value !== "" && !isNew;
+
+  document.getElementById("preset-new-row").style.display    = isNew      ? "flex"  : "none";
+  document.getElementById("btn-preset-delete").style.display = isExisting ? "flex"  : "none";
+
+  activePreset = isExisting ? value : null;
+
+  document.getElementById("btn-save-context").textContent =
+    isExisting ? t("btn_update_preset") : t("btn_save_context");
+
+  updateActivePresetBadge();
+}
+
+function updateActivePresetBadge() {
+  const section = document.getElementById("active-preset-section");
+  const badge   = document.getElementById("active-preset-badge");
+  if (activePreset) {
+    badge.textContent = t("active_preset_label")(activePreset);
+    section.style.display = "block";
+  } else {
+    section.style.display = "none";
+  }
+}
+
+// ── UI helpers ─────────────────────────────────────────────────────────────
+function showLoading(visible) {
+  document.getElementById("loading").className = visible ? "loading visible" : "loading";
+  document.getElementById("btn-review").disabled = visible || selectedFrames.length === 0;
+  if (visible) {
+    document.getElementById("loading-text").textContent = t("loading_text");
+    document.getElementById("loading-sub").textContent =
+      t("loading_sub")(selectedFrames.length);
+  }
+}
+
+function showResult(text, isError) {
+  document.getElementById("result-status").className = isError ? "result-status error" : "result-status";
+  document.getElementById("result-title").textContent  = isError ? t("result_error") : t("result_complete");
+  document.getElementById("result-content").textContent = text;
+  document.getElementById("result-area").className = "result-area visible";
+
+  const feedbackArea = document.getElementById("result-feedback");
+  const reReviewBtn  = document.getElementById("btn-re-review");
+  if (!isError) {
+    lastResultText = text;
+    feedbackArea.style.display = "block";
+    reReviewBtn.style.display  = "block";
+  } else {
+    feedbackArea.style.display = "none";
+    reReviewBtn.style.display  = "none";
+  }
+
+  setTimeout(() => {
+    document.getElementById("result-area").scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 100);
+}
+
+function showError(message) {
+  showResult(message, true);
+}
+
+function hideResult() {
+  document.getElementById("result-area").className = "result-area";
+}
+
+// ── Settings UI ────────────────────────────────────────────────────────────
+function applySettings() {
+  const mode = settings.apiMode || "anthropic";
+  document.getElementById("api-mode").value = mode;
+  document.getElementById("api-key").value = settings.apiKey || "";
+  document.getElementById("bedrock-proxy-url").value = settings.bedrockProxyUrl || "";
+  document.getElementById("openai-api-key").value = settings.openaiApiKey || "";
+  document.getElementById("gateway-url").value = settings.gatewayUrl || "";
+  document.getElementById("gateway-pat").value = settings.gatewayPat || "";
+  document.getElementById("export-scale").value = settings.exportScale || "1";
+  document.getElementById("max-frames-select").value = String(settings.maxFrames || 8);
+  document.getElementById("lang-select").value = settings.lang || "ko";
+  toggleApiFields(mode); // rebuilds model options
+  if (settings.model) document.getElementById("model-select").value = settings.model;
+  applyI18n();
+}
+
+function applyContext() {
+  document.getElementById("field-principles").value = contextData.principles || "";
+  document.getElementById("field-accessibility").value = contextData.accessibility || "";
+  document.getElementById("field-scenarios").value = contextData.scenarios || "";
+  document.getElementById("field-market").value = contextData.market || "";
+  document.getElementById("field-extra").value = contextData.extra || "";
+}
+
+function toggleApiFields(mode) {
+  document.getElementById("section-apikey").style.display     = mode === "anthropic" ? "block" : "none";
+  document.getElementById("section-openai-key").style.display = mode === "openai"    ? "block" : "none";
+  document.getElementById("section-gateway").style.display    = mode === "gateway"   ? "block" : "none";
+  document.getElementById("section-bedrock").style.display    = mode === "bedrock"   ? "block" : "none";
+  updateModelOptions(mode);
+}
+
+function updateModelOptions(mode) {
+  const sel = document.getElementById("model-select");
+  const prev = sel.value;
+  sel.innerHTML = "";
+  const opts =
+    mode === "openai" ? [
+      { value: "gpt-4o",   label: "GPT-4o" },
+      { value: "gpt-4.1",  label: "GPT-4.1" },
+    ] :
+    mode === "gateway" ? [
+      { value: "gpt-4o",                     label: "GPT-4o" },
+      { value: "gpt-4.1",                    label: "GPT-4.1" },
+      { value: "claude-sonnet-4-6",           label: "Claude Sonnet 4.6" },
+      { value: "claude-opus-4-6",             label: "Claude Opus 4.6" },
+    ] :
+    /* anthropic / bedrock */ [
+      { value: "claude-sonnet-4-20250514",    label: "Claude Sonnet 4" },
+      { value: "claude-opus-4-20250514",      label: "Claude Opus 4" },
+    ];
+  opts.forEach(({ value, label }) => {
+    const opt = document.createElement("option");
+    opt.value = value;
+    opt.textContent = label;
+    sel.appendChild(opt);
+  });
+  if ([...sel.options].some((o) => o.value === prev)) sel.value = prev;
+}
+
+function updateSettingsStatus() {
+  const dotEl = document.getElementById("status-dot");
+  const textEl = document.getElementById("status-text");
+  const wrapEl = document.getElementById("settings-status");
+
+  let ok = false;
+  let label = "";
+  const m = settings.apiMode;
+
+  if (m === "anthropic" && settings.apiKey) {
+    ok = true; label = t("status_anthropic_ok");
+  } else if (m === "openai" && settings.openaiApiKey) {
+    ok = true; label = t("status_openai_ok");
+  } else if (m === "gateway" && settings.gatewayUrl && settings.gatewayPat) {
+    ok = true; label = t("status_gateway_ok");
+  } else if (m === "bedrock" && settings.bedrockProxyUrl) {
+    ok = true; label = t("status_bedrock_ok");
+  } else if (m === "anthropic") {
+    label = t("status_need_anthropic");
+  } else if (m === "openai") {
+    label = t("status_need_openai");
+  } else if (m === "gateway") {
+    label = settings.gatewayUrl ? t("status_need_gateway_pat") : t("status_need_gateway_url");
+  } else {
+    label = t("status_need_bedrock");
+  }
+
+  const color = ok ? "#06C755" : "#ff6b6b";
+  const bg = ok ? "rgba(6,199,85,0.06)" : "rgba(255,107,107,0.06)";
+  const border = ok ? "rgba(6,199,85,0.15)" : "rgba(255,107,107,0.15)";
+
+  wrapEl.style.cssText = `background:${bg};border-color:${border};color:${color};`;
+  dotEl.style.background = color;
+  textEl.textContent = label;
+}
+
+function showSaved(btnId, i18nKey) {
+  const btn = document.getElementById(btnId);
+  btn.textContent = t("saved_ok");
+  setTimeout(() => (btn.textContent = t(i18nKey)), 1500);
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+// ── Event listeners ────────────────────────────────────────────────────────
+
+// Tab switching
+document.querySelectorAll(".tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+    tab.classList.add("active");
+    document.querySelectorAll(".content").forEach((c) => (c.style.display = "none"));
+    document.getElementById(`tab-${tab.dataset.tab}`).style.display = "flex";
+  });
+});
+
+// Market chip toggle
+document.querySelectorAll(".chip").forEach((chip) => {
+  chip.addEventListener("click", () => chip.classList.toggle("selected"));
+});
+
+// API mode toggle
+document.getElementById("api-mode").addEventListener("change", function () {
+  toggleApiFields(this.value);
+});
+
+// Language toggle (preview immediately, saved on 설정 저장)
+document.getElementById("lang-select").addEventListener("change", function () {
+  settings.lang = this.value;
+  applyI18n();
+});
+
+// 전체 초기화 공통 함수
+function clearAll() {
+  selectedFrames = [];
+  renderEmptyState();
+  updateReviewBtn();
+  hideResult();
+  showLoading(false);
+}
+
+// 탭 영역 초기화 버튼
+document.getElementById("btn-clear-all").addEventListener("click", clearAll);
+
+// 검증 결과 하단 "새 검증" 버튼
+document.getElementById("btn-reset").addEventListener("click", clearAll);
+
+// 피드백 입력에 따라 재검증 버튼 활성화
+document.getElementById("result-feedback-input").addEventListener("input", function () {
+  document.getElementById("btn-re-review").disabled = this.value.trim() === "";
+});
+
+// 재검증
+document.getElementById("btn-re-review").addEventListener("click", runReReview);
+
+async function runReReview() {
+  if (!lastReviewParams) return;
+
+  const feedback = document.getElementById("result-feedback-input").value.trim();
+  if (!feedback) return;
+
+  const { frames, reviewType, markets, additionalContext } = lastReviewParams;
+
+  let reContext = (additionalContext || "");
+  if (lastResultText) {
+    reContext += (reContext ? "\n\n" : "") + "## 이전 분석 결과:\n" + lastResultText;
+  }
+  reContext += (reContext ? "\n\n" : "") +
+    "## 디자이너 피드백:\n" + feedback +
+    "\n\n위 피드백을 반영하여 재분석해주세요.";
+
+  document.getElementById("result-feedback-input").value = "";
+  document.getElementById("btn-re-review").disabled = true;
+
+  showLoading(true);
+  hideResult();
+
+  try {
+    const resultText = await callAPI(frames, reviewType, markets, reContext);
+    showLoading(false);
+    showResult(resultText, false);
+  } catch (err) {
+    showLoading(false);
+    showError(err.message);
+  }
+}
+
+// Copy
+const COPY_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const CHECK_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06C755" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+const FAIL_ICON  = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+function flashCopyBtn(success) {
+  const btn = document.getElementById("btn-copy");
+  btn.innerHTML = success ? CHECK_ICON : FAIL_ICON;
+  setTimeout(() => { btn.innerHTML = COPY_ICON; }, 1500);
+}
+
+async function copyToClipboard(text) {
+  // 1) navigator.clipboard (modern)
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_) { /* fall through */ }
+  }
+  // 2) execCommand fallback
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  } catch (_) {
+    return false;
+  }
+}
+
+document.getElementById("btn-copy").addEventListener("click", async () => {
+  const text = document.getElementById("result-content").textContent;
+  try {
+    const ok = await copyToClipboard(text);
+    flashCopyBtn(ok);
+  } catch (_) {
+    flashCopyBtn(false);
+  }
+});
+
+// Context toggle
+document.querySelectorAll(".context-section-header").forEach((header) => {
+  header.addEventListener("click", () => {
+    const body = document.getElementById(header.dataset.toggle);
+    header.classList.toggle("collapsed");
+    body.classList.toggle("collapsed");
+  });
+});
+
+// ── Preset events ──────────────────────────────────────────────────────────
+document.getElementById("preset-select").addEventListener("change", function () {
+  const value = this.value;
+  if (value === "__new__" || value === "") {
+    setPresetMode(value);
+    return;
+  }
+  // Existing preset — load into fields
+  const data = presets[value];
+  if (data) {
+    fillContextFields(data);
+    contextData = { ...contextData, ...data };
+  }
+  setPresetMode(value);
+});
+
+document.getElementById("btn-preset-save").addEventListener("click", async () => {
+  const name = document.getElementById("preset-name-input").value.trim();
+  if (!name) return;
+  presets[name] = readContextFields();
+  await storageSet("ux-review-presets", presets);
+  document.getElementById("preset-name-input").value = "";
+  renderPresetDropdown();
+  document.getElementById("preset-select").value = name;
+  setPresetMode(name);
+  const btn = document.getElementById("btn-preset-save");
+  btn.textContent = t("saved_ok");
+  setTimeout(() => { btn.textContent = t("btn_preset_save"); }, 1500);
+});
+
+document.getElementById("btn-preset-delete").addEventListener("click", async () => {
+  if (!activePreset) return;
+  const msg = t("preset_confirm_delete")(activePreset);
+  // Figma iframe: use a custom inline confirm via window.confirm fallback
+  // eslint-disable-next-line no-alert
+  if (typeof window.confirm === "function" && !window.confirm(msg)) return;
+  delete presets[activePreset];
+  await storageSet("ux-review-presets", presets);
+  renderPresetDropdown();
+  document.getElementById("preset-select").value = "";
+  setPresetMode("");
+});
+
+// Save context
+document.getElementById("btn-save-context").addEventListener("click", async () => {
+  const data = readContextFields();
+  contextData = { ...contextData, ...data };
+  storageSet("ux-review-context", contextData);
+  if (activePreset) {
+    presets[activePreset] = data;
+    await storageSet("ux-review-presets", presets);
+  }
+  showSaved("btn-save-context", activePreset ? "btn_update_preset" : "btn_save_context");
+});
+
+// Save settings
+document.getElementById("btn-save-settings").addEventListener("click", () => {
+  settings = {
+    apiMode: document.getElementById("api-mode").value,
+    apiKey: document.getElementById("api-key").value,
+    bedrockProxyUrl: document.getElementById("bedrock-proxy-url").value,
+    openaiApiKey: document.getElementById("openai-api-key").value,
+    gatewayUrl: document.getElementById("gateway-url").value,
+    gatewayPat: document.getElementById("gateway-pat").value,
+    model: document.getElementById("model-select").value,
+    exportScale: document.getElementById("export-scale").value,
+    maxFrames: parseInt(document.getElementById("max-frames-select").value, 10),
+    lang: document.getElementById("lang-select").value,
+  };
+  storageSet("ux-review-settings", settings);
+  applyI18n();
+  showSaved("btn-save-settings", "btn_save_settings");
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────
+async function init() {
+  renderEmptyState();
+  applyContext(); // 기본값 먼저 표시
+
+  const savedSettings = await storageGet("ux-review-settings");
+  if (savedSettings) { settings = { ...settings, ...savedSettings }; }
+  applySettings(); // calls applyI18n() → renderPresetDropdown() internally
+
+  const savedContext = await storageGet("ux-review-context");
+  if (savedContext) { contextData = { ...contextData, ...savedContext }; applyContext(); }
+
+  const savedPresets = await storageGet("ux-review-presets");
+  if (savedPresets) { presets = savedPresets; }
+  renderPresetDropdown();
+}
+
+init();
+</script>
+</body>
+</html>
