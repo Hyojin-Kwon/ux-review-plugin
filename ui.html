@@ -403,7 +403,7 @@
   <div class="tabs">
     <div class="tab-group">
       <div class="tab active" data-tab="review" data-i18n="tab_review">UX Review</div>
-      <div class="tab" data-tab="ab" data-i18n="tab_ab">A/B 비교</div>
+      <div class="tab" data-tab="ab" data-i18n="tab_ab">A/B 비교 시뮬레이션</div>
     </div>
     <div style="flex:1"></div>
     <button class="btn-icon" id="btn-tab-settings" data-tab="settings" title="설정">
@@ -568,6 +568,7 @@
           <div class="ab-zone zone-a" id="ab-zone-a" data-group="a" tabindex="0">
             <span class="ab-zone-empty" data-i18n="ab_zone_hint">Figma에서 프레임 선택 → A/B에 배정</span>
           </div>
+          <textarea id="ab-desc-a" class="ab-desc" rows="2" placeholder="A안 설명 (선택): 이 시안의 특징, 가설..." style="margin-top:8px;border-color:rgba(59,130,246,0.35)"></textarea>
         </div>
         <div class="ab-group">
           <div class="ab-group-header">
@@ -578,16 +579,45 @@
           <div class="ab-zone zone-b" id="ab-zone-b" data-group="b" tabindex="0">
             <span class="ab-zone-empty" data-i18n="ab_zone_hint">Figma에서 프레임 선택 → A/B에 배정</span>
           </div>
+          <textarea id="ab-desc-b" class="ab-desc" rows="2" placeholder="B안 설명 (선택): 이 시안의 특징, 가설..." style="margin-top:8px;border-color:rgba(245,158,11,0.35)"></textarea>
         </div>
       </div>
 
-      <!-- 시장 칩 -->
+      <!-- 페르소나 설정 -->
       <div class="section">
         <div class="section-label" data-i18n="label_target_market">타겟 시장</div>
-        <div class="chip-group">
+        <div class="chip-group" style="margin-bottom:10px">
           <div class="chip selected ab-market-chip" data-market="JP" data-i18n="market_jp">일본</div>
           <div class="chip ab-market-chip" data-market="TH" data-i18n="market_th">태국</div>
           <div class="chip ab-market-chip" data-market="TW" data-i18n="market_tw">대만</div>
+        </div>
+        <div class="section-label">연령대</div>
+        <div class="chip-group" style="margin-bottom:10px">
+          <div class="chip ab-age-chip" data-age="10대">10대</div>
+          <div class="chip selected ab-age-chip" data-age="20대">20대</div>
+          <div class="chip selected ab-age-chip" data-age="30대">30대</div>
+          <div class="chip ab-age-chip" data-age="40대+">40대+</div>
+        </div>
+        <div class="section-label">사용 패턴</div>
+        <div class="chip-group" style="margin-bottom:10px">
+          <div class="chip ab-pattern-chip" data-pattern="라이트">라이트</div>
+          <div class="chip selected ab-pattern-chip" data-pattern="미디엄">미디엄</div>
+          <div class="chip ab-pattern-chip" data-pattern="헤비">헤비</div>
+        </div>
+        <div class="section-label">구독 경험</div>
+        <div class="chip-group">
+          <div class="chip selected ab-sub-chip" data-sub="있음">있음</div>
+          <div class="chip ab-sub-chip" data-sub="없음">없음</div>
+        </div>
+      </div>
+
+      <!-- 표본 수 -->
+      <div class="section">
+        <div class="section-label">표본 수</div>
+        <div class="chip-group">
+          <div class="chip ab-sample-chip" data-size="1000">1,000명</div>
+          <div class="chip selected ab-sample-chip" data-size="5000">5,000명</div>
+          <div class="chip ab-sample-chip" data-size="10000">10,000명</div>
         </div>
       </div>
 
@@ -951,7 +981,7 @@ let abCtx = {
 // ══════════════════════════════════════════════════════
 const i18n = {
   ko: {
-    tab_review:"UX Review", tab_ab:"A/B 비교", tab_settings:"설정",
+    tab_review:"UX Review", tab_ab:"A/B 비교 시뮬레이션", tab_settings:"설정",
     subtab_screen:"화면 단위", subtab_flow:"플로우", subtab_localization:"시장별 비교",
     ab_mode_screen:"화면 비교", ab_mode_flow:"플로우 비교", ab_mode_simulation:"시뮬레이션",
     label_target_market:"타겟 시장", label_additional_context:"추가 맥락 (선택)",
@@ -1004,7 +1034,7 @@ const i18n = {
     prompt_lang:"검증 결과는 반드시 한국어로 작성해주세요.",
   },
   en: {
-    tab_review:"UX Review", tab_ab:"A/B", tab_settings:"Settings",
+    tab_review:"UX Review", tab_ab:"A/B Simulation", tab_settings:"Settings",
     subtab_screen:"Screen", subtab_flow:"Flow", subtab_localization:"Market",
     ab_mode_screen:"Screen Compare", ab_mode_flow:"Flow Compare", ab_mode_simulation:"Simulation",
     label_target_market:"Target Market", label_additional_context:"Additional Context (optional)",
@@ -1506,7 +1536,20 @@ function setActiveAbGroup(group) {
   zone.addEventListener("focus", () => setActiveAbGroup(group));
 });
 
-document.querySelectorAll(".ab-market-chip").forEach((c) => c.addEventListener("click",()=>c.classList.toggle("selected")));
+document.querySelectorAll(".ab-market-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
+document.querySelectorAll(".ab-age-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
+document.querySelectorAll(".ab-pattern-chip").forEach((c) => c.addEventListener("click", () => {
+  document.querySelectorAll(".ab-pattern-chip").forEach((x) => x.classList.remove("selected"));
+  c.classList.add("selected");
+}));
+document.querySelectorAll(".ab-sub-chip").forEach((c) => c.addEventListener("click", () => {
+  document.querySelectorAll(".ab-sub-chip").forEach((x) => x.classList.remove("selected"));
+  c.classList.add("selected");
+}));
+document.querySelectorAll(".ab-sample-chip").forEach((c) => c.addEventListener("click", () => {
+  document.querySelectorAll(".ab-sample-chip").forEach((x) => x.classList.remove("selected"));
+  c.classList.add("selected");
+}));
 
 // Simulation chips
 document.querySelectorAll(".sim-market-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
@@ -1535,22 +1578,34 @@ document.getElementById("btn-ab-run").addEventListener("click", () => {
   parent.postMessage({ pluginMessage:{ type:"export-frames-for-review", frameIds:[...abFrames.a,...abFrames.b].map((f)=>f.id), scale:parseFloat(settings.exportScale)||1 } }, "*");
 });
 
+function getABPersona() {
+  return {
+    markets:         [...document.querySelectorAll(".ab-market-chip.selected")].map((c) => c.dataset.market),
+    ageGroups:       [...document.querySelectorAll(".ab-age-chip.selected")].map((c) => c.dataset.age),
+    usagePattern:    document.querySelector(".ab-pattern-chip.selected")?.dataset.pattern || "",
+    subscriptionExp: document.querySelector(".ab-sub-chip.selected")?.dataset.sub || "",
+    sampleSize:      document.querySelector(".ab-sample-chip.selected")?.dataset.size || "5000",
+    descA:           document.getElementById("ab-desc-a").value.trim(),
+    descB:           document.getElementById("ab-desc-b").value.trim(),
+  };
+}
+
 async function runABAnalysis(framesA, framesB) {
   showABLoading(true); hideABResult();
   const additionalContext = document.getElementById("ab-additional-context").value.trim();
-  const markets = [...document.querySelectorAll(".ab-market-chip.selected")].map((c)=>c.dataset.market);
-  lastABParams = { framesA, framesB, mode: activeAbMode, markets, additionalContext };
+  const persona = getABPersona();
+  lastABParams = { framesA, framesB, mode: activeAbMode, persona, additionalContext };
   try {
-    const raw = await callABAPI(framesA, framesB, activeAbMode, markets, additionalContext);
+    const raw = await callABAPI(framesA, framesB, activeAbMode, persona, additionalContext);
     showABLoading(false); renderABResult(raw);
   } catch(err) { showABLoading(false); showABError(err.message); }
 }
 
-async function callABAPI(framesA, framesB, mode, markets, additionalContext) {
+async function callABAPI(framesA, framesB, mode, persona, additionalContext) {
   const { apiMode } = settings;
   const allFrames = [...framesA,...framesB];
   const sysPrompt  = buildABSystemPrompt();
-  const userPrompt = buildABUserPrompt(framesA, framesB, mode, markets, additionalContext);
+  const userPrompt = buildABUserPrompt(framesA, framesB, mode, persona, additionalContext);
   if (apiMode==="openai"||apiMode==="gateway") return callOAICompat(allFrames, sysPrompt, userPrompt, true);
   return callClaudeAPI(allFrames, sysPrompt, userPrompt, 3000);
 }
@@ -1579,14 +1634,23 @@ function buildABSystemPrompt() {
   return parts.join("\n\n");
 }
 
-function buildABUserPrompt(framesA, framesB, mode, markets, additionalContext) {
+function buildABUserPrompt(framesA, framesB, mode, persona, additionalContext) {
+  const { markets, ageGroups, usagePattern, subscriptionExp, sampleSize, descA, descB } = persona;
   const order = [
     ...framesA.map((f,i)=>`이미지 ${i+1}: [Group A] ${f.name}`),
     ...framesB.map((f,i)=>`이미지 ${framesA.length+i+1}: [Group B] ${f.name}`),
   ].join("\n");
   let p = `비교 유형: ${mode==="flow"?"플로우 variant 비교":"화면 단위 A/B 비교"}\n`;
-  if (markets.length) p += `타겟 시장: ${markets.join(", ")}\n`;
+  // 페르소나
+  if (markets.length)    p += `타겟 시장: ${markets.join(", ")}\n`;
+  if (ageGroups.length)  p += `연령대: ${ageGroups.join(", ")}\n`;
+  if (usagePattern)      p += `사용 패턴: ${usagePattern}\n`;
+  if (subscriptionExp)   p += `구독 경험: ${subscriptionExp}\n`;
+  if (sampleSize)        p += `표본 수 기준: ${parseInt(sampleSize).toLocaleString()}명\n`;
   p += `\n이미지 순서:\n${order}\n\n`;
+  if (descA) p += `A안 설명: ${descA}\n`;
+  if (descB) p += `B안 설명: ${descB}\n`;
+  if (descA || descB) p += "\n";
   if (additionalContext) p += `추가 맥락:\n${additionalContext}\n\n`;
   p += mode==="flow" ? "Group A와 B는 각각 하나의 플로우 variant입니다. 전체 UX 흐름을 비교하세요." : "동일 화면의 두 디자인 방향입니다. [Group A] / [Group B]를 구분해 비교하세요.";
   return p;
@@ -1673,7 +1737,7 @@ document.getElementById("ab-btn-re-review").addEventListener("click", async () =
   if (!lastABParams) return;
   const feedback = document.getElementById("ab-result-feedback-input").value.trim();
   if (!feedback) return;
-  const { framesA, framesB, mode, markets, additionalContext } = lastABParams;
+  const { framesA, framesB, mode, persona, additionalContext } = lastABParams;
   let ctx = additionalContext || "";
   if (lastABResultText) ctx += `\n\n## 이전 분석 결과:\n${lastABResultText}`;
   ctx += `\n\n## 디자이너 피드백:\n${feedback}\n\n위 피드백을 반영하여 재분석해주세요.`;
@@ -1681,7 +1745,7 @@ document.getElementById("ab-btn-re-review").addEventListener("click", async () =
   document.getElementById("ab-btn-re-review").disabled = true;
   showABLoading(true); hideABResult();
   try {
-    const raw = await callABAPI(framesA, framesB, mode, markets, ctx);
+    const raw = await callABAPI(framesA, framesB, mode, persona, ctx);
     showABLoading(false); renderABResult(raw);
   } catch(e) { showABLoading(false); showABError(e.message); }
 });
@@ -2031,7 +2095,15 @@ document.getElementById("btn-clear-all").addEventListener("click", () => {
 document.getElementById("btn-clear-ab").addEventListener("click", () => {
   abFrames = {a:[],b:[]};
   renderABZone("a"); renderABZone("b");
+  document.getElementById("ab-desc-a").value = "";
+  document.getElementById("ab-desc-b").value = "";
   updateABBtn(); hideABResult(); showABLoading(false);
+  // 시뮬레이션 결과도 초기화
+  document.getElementById("sim-result-area").className = "ab-result-area";
+  document.getElementById("sim-loading").className = "loading";
+  document.getElementById("sim-winner-banner").style.display = "none";
+  document.getElementById("sim-funnel-section").style.display = "none";
+  document.getElementById("sim-risks-section").style.display = "none";
 });
 document.getElementById("btn-reset").addEventListener("click", () => {
   selectedFrames=[]; renderEmptyState(); updateReviewBtn(); hideResult(); showLoading(false);
