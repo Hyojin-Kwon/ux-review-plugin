@@ -367,6 +367,17 @@
   .pill-tie   { background: rgba(100,100,100,0.18); color: #777; }
   .pill-lose  { background: transparent; color: #555; }
 
+  /* ══ Simulation Styles ══ */
+  .sim-section { background: #363636; border-radius: 8px; padding: 13px; margin-bottom: 12px; }
+  .sim-section-title { font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 10px; }
+  .sim-chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sim-funnel-rows .ab-row:last-child { border-bottom: none; }
+  .sim-risks-list { list-style: none; padding: 0; }
+  .sim-risks-list li { font-size: 11px; color: #ccc; padding: 6px 0; border-bottom: 1px solid #383838; }
+  .sim-risks-list li:last-child { border-bottom: none; }
+  .sim-risks-list li::before { content: "⚠ "; color: #f59e0b; }
+  .sim-disclaimer { font-size: 10px; color: #555; text-align: center; padding: 8px 0 4px; font-style: italic; }
+
   /* ══ Settings ══ */
   .settings-group { background: #363636; border-radius: 8px; padding: 13px; margin-bottom: 12px; }
   .settings-group-title { font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 12px; }
@@ -534,6 +545,7 @@
     <div class="subtabs">
       <div class="subtab active" data-abtab="screen" data-i18n="ab_mode_screen">화면 비교</div>
       <div class="subtab" data-abtab="flow" data-i18n="ab_mode_flow">플로우 비교</div>
+      <div class="subtab" data-abtab="simulation">시뮬레이션</div>
       <div class="subtabs-spacer"></div>
       <button class="btn-clear" id="btn-clear-ab" title="초기화">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -543,6 +555,7 @@
     </div>
 
     <div class="content-scroll">
+      <div id="ab-compare-section">
 
       <!-- Group A / B -->
       <div class="ab-groups">
@@ -669,9 +682,138 @@
         </div>
       </div>
 
+      </div><!-- /ab-compare-section -->
+
+      <!-- ── Simulation Section ── -->
+      <div id="ab-sim-section" style="display:none">
+
+        <!-- 1. 테스트 정보 -->
+        <div class="sim-section">
+          <div class="sim-section-title">테스트 정보</div>
+          <div class="section-label">테스트명</div>
+          <input type="text" id="sim-test-name" placeholder="예) 구독 유도 팝업 A/B" style="margin-bottom:10px"/>
+          <div class="section-label">테스트 목적</div>
+          <textarea id="sim-test-purpose" rows="2" placeholder="예) 구독 전환율 향상을 위한 CTA 문구 최적화"></textarea>
+        </div>
+
+        <!-- 2. 페르소나 설정 -->
+        <div class="sim-section">
+          <div class="sim-section-title">페르소나 설정</div>
+          <div class="section-label">타겟 시장</div>
+          <div class="sim-chip-group" style="margin-bottom:12px">
+            <div class="chip selected sim-market-chip" data-market="JP">일본</div>
+            <div class="chip sim-market-chip" data-market="TH">태국</div>
+            <div class="chip sim-market-chip" data-market="TW">대만</div>
+          </div>
+          <div class="section-label">연령대</div>
+          <div class="sim-chip-group" style="margin-bottom:12px">
+            <div class="chip sim-age-chip" data-age="10대">10대</div>
+            <div class="chip selected sim-age-chip" data-age="20대">20대</div>
+            <div class="chip selected sim-age-chip" data-age="30대">30대</div>
+            <div class="chip sim-age-chip" data-age="40대+">40대+</div>
+          </div>
+          <div class="section-label">사용 패턴</div>
+          <div class="sim-chip-group" style="margin-bottom:12px">
+            <div class="chip sim-pattern-chip" data-pattern="라이트">라이트</div>
+            <div class="chip selected sim-pattern-chip" data-pattern="미디엄">미디엄</div>
+            <div class="chip sim-pattern-chip" data-pattern="헤비">헤비</div>
+          </div>
+          <div class="section-label">구독 경험</div>
+          <div class="sim-chip-group" style="margin-bottom:12px">
+            <div class="chip selected sim-sub-chip" data-sub="있음">있음</div>
+            <div class="chip sim-sub-chip" data-sub="없음">없음</div>
+          </div>
+          <div class="section-label">추가 조건 (선택)</div>
+          <textarea id="sim-persona-extra" rows="2" placeholder="예) 1년 이상 앱 사용자, 결제 경험 있음"></textarea>
+        </div>
+
+        <!-- 3. 표본 수 -->
+        <div class="sim-section">
+          <div class="sim-section-title">표본 수</div>
+          <div class="sim-chip-group">
+            <div class="chip sim-sample-chip" data-size="1000">1,000명</div>
+            <div class="chip selected sim-sample-chip" data-size="5000">5,000명</div>
+            <div class="chip sim-sample-chip" data-size="10000">10,000명</div>
+          </div>
+        </div>
+
+        <!-- 4. A안 / B안 -->
+        <div class="sim-section">
+          <div class="sim-section-title">A안 / B안 설명</div>
+          <div class="section-label" style="color:#93c5fd">A안</div>
+          <textarea id="sim-desc-a" rows="3" placeholder="예) CTA: '지금 구독하기' / 할인율 강조" style="margin-bottom:10px;border-color:rgba(59,130,246,0.35)"></textarea>
+          <div class="section-label" style="color:#fcd34d">B안</div>
+          <textarea id="sim-desc-b" rows="3" placeholder="예) CTA: '무료 체험 시작' / 혜택 강조" style="border-color:rgba(245,158,11,0.35)"></textarea>
+        </div>
+
+        <!-- 5. 추가 맥락 -->
+        <div class="sim-section">
+          <div class="sim-section-title">추가 맥락 (선택)</div>
+          <textarea id="sim-extra-context" rows="3" placeholder="예) 현재 전환율 2.3%, 경쟁사 평균 3.1%, 이전 테스트 결과..."></textarea>
+        </div>
+
+        <!-- Simulation Loading -->
+        <div class="loading" id="sim-loading">
+          <div class="spinner"></div>
+          <div class="loading-text">시뮬레이션을 실행하고 있습니다...</div>
+          <div class="loading-sub">페르소나 집단을 분석 중입니다</div>
+        </div>
+
+        <!-- Simulation Result -->
+        <div class="ab-result-area" id="sim-result-area">
+          <div class="ab-winner-banner" id="sim-winner-banner" style="display:none">
+            <div class="ab-winner-icon" id="sim-winner-icon"></div>
+            <div>
+              <div class="ab-winner-label" id="sim-winner-label"></div>
+              <div class="ab-winner-sub" id="sim-winner-sub"></div>
+            </div>
+          </div>
+
+          <!-- 퍼널 테이블 -->
+          <div id="sim-funnel-section" style="display:none;margin-bottom:10px">
+            <div class="ab-scorecard">
+              <div class="ab-scorecard-header">
+                <span class="ab-scorecard-title">퍼널 단계별 예상 수치</span>
+                <span style="width:60px;text-align:right;font-size:10px;font-weight:700;color:#93c5fd">A</span>
+                <span style="width:60px;text-align:right;font-size:10px;font-weight:700;color:#fcd34d">B</span>
+              </div>
+              <div id="sim-funnel-rows" class="sim-funnel-rows"></div>
+            </div>
+          </div>
+
+          <!-- 리스크 -->
+          <div id="sim-risks-section" style="display:none;margin-bottom:10px">
+            <div class="result-card">
+              <div class="result-card-header"><h3>리스크</h3></div>
+              <ul class="sim-risks-list" id="sim-risks-list"></ul>
+            </div>
+          </div>
+
+          <!-- 상세 분석 -->
+          <div class="result-card">
+            <div class="result-card-header">
+              <h3><span class="result-status" id="sim-result-status"></span>상세 분석</h3>
+              <div class="result-actions">
+                <button class="btn-ghost" id="sim-btn-copy" title="복사">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="result-content" id="sim-detail-content"></div>
+            <div class="sim-disclaimer">※ 이 결과는 AI 추정치이며 실제 데이터가 아닙니다</div>
+            <div class="result-footer">
+              <button class="btn btn-secondary" id="sim-btn-reset" style="width:auto;padding:7px 16px;font-size:12px;">새 시뮬레이션</button>
+              <button class="btn btn-secondary" id="sim-btn-report" style="width:auto;padding:7px 16px;font-size:12px;">리포트 생성</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /ab-sim-section -->
+
     </div>
     <div class="content-footer">
       <button class="btn btn-primary" id="btn-ab-run" disabled data-i18n="btn_run_ab">A/B 비교 실행</button>
+      <button class="btn btn-primary" id="btn-sim-run" style="display:none">시뮬레이션 실행</button>
     </div>
   </div>
 
@@ -777,7 +919,8 @@ let lastResultText   = "";
 let lastABParams     = null;
 let lastABResultText = "";
 let activeSubtab    = "screen";   // screen | flow | localization
-let activeAbMode    = "screen";   // screen | flow
+let activeAbMode    = "screen";   // screen | flow | simulation
+let simParams       = null;
 let abFrames        = { a: [], b: [] };
 let activeAbGroup   = "a";
 const storageCallbacks = {};
@@ -810,7 +953,7 @@ const i18n = {
   ko: {
     tab_review:"UX Review", tab_ab:"A/B 비교", tab_settings:"설정",
     subtab_screen:"화면 단위", subtab_flow:"플로우", subtab_localization:"시장별 비교",
-    ab_mode_screen:"화면 비교", ab_mode_flow:"플로우 비교",
+    ab_mode_screen:"화면 비교", ab_mode_flow:"플로우 비교", ab_mode_simulation:"시뮬레이션",
     label_target_market:"타겟 시장", label_additional_context:"추가 맥락 (선택)",
     placeholder_additional_context:"특별히 검증받고 싶은 포인트가 있으면 입력하세요...",
     ab_placeholder_context:"비교 시 집중할 포인트를 입력하세요...",
@@ -863,7 +1006,7 @@ const i18n = {
   en: {
     tab_review:"UX Review", tab_ab:"A/B", tab_settings:"Settings",
     subtab_screen:"Screen", subtab_flow:"Flow", subtab_localization:"Market",
-    ab_mode_screen:"Screen Compare", ab_mode_flow:"Flow Compare",
+    ab_mode_screen:"Screen Compare", ab_mode_flow:"Flow Compare", ab_mode_simulation:"Simulation",
     label_target_market:"Target Market", label_additional_context:"Additional Context (optional)",
     placeholder_additional_context:"Enter specific points you want to validate...",
     ab_placeholder_context:"Enter focus points for comparison...",
@@ -1058,8 +1201,17 @@ document.querySelectorAll(".subtab[data-abtab]").forEach((st) => {
     document.querySelectorAll(".subtab[data-abtab]").forEach((s) => s.classList.remove("active"));
     st.classList.add("active");
     activeAbMode = st.dataset.abtab;
+    updateAbTabView();
   });
 });
+
+function updateAbTabView() {
+  const isSim = activeAbMode === "simulation";
+  document.getElementById("ab-compare-section").style.display = isSim ? "none" : "block";
+  document.getElementById("ab-sim-section").style.display     = isSim ? "block" : "none";
+  document.getElementById("btn-ab-run").style.display         = isSim ? "none" : "";
+  document.getElementById("btn-sim-run").style.display        = isSim ? "" : "none";
+}
 
 
 // ══════════════════════════════════════════════════════
@@ -1356,6 +1508,22 @@ function setActiveAbGroup(group) {
 
 document.querySelectorAll(".ab-market-chip").forEach((c) => c.addEventListener("click",()=>c.classList.toggle("selected")));
 
+// Simulation chips
+document.querySelectorAll(".sim-market-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
+document.querySelectorAll(".sim-age-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
+document.querySelectorAll(".sim-pattern-chip").forEach((c) => c.addEventListener("click", () => {
+  document.querySelectorAll(".sim-pattern-chip").forEach((x) => x.classList.remove("selected"));
+  c.classList.add("selected");
+}));
+document.querySelectorAll(".sim-sub-chip").forEach((c) => c.addEventListener("click", () => {
+  document.querySelectorAll(".sim-sub-chip").forEach((x) => x.classList.remove("selected"));
+  c.classList.add("selected");
+}));
+document.querySelectorAll(".sim-sample-chip").forEach((c) => c.addEventListener("click", () => {
+  document.querySelectorAll(".sim-sample-chip").forEach((x) => x.classList.remove("selected"));
+  c.classList.add("selected");
+}));
+
 
 // ══════════════════════════════════════════════════════
 // A/B: Run + API
@@ -1517,6 +1685,170 @@ document.getElementById("ab-btn-re-review").addEventListener("click", async () =
     showABLoading(false); renderABResult(raw);
   } catch(e) { showABLoading(false); showABError(e.message); }
 });
+
+
+// ══════════════════════════════════════════════════════
+// SIMULATION
+// ══════════════════════════════════════════════════════
+document.getElementById("btn-sim-run").addEventListener("click", runSimulation);
+
+document.getElementById("sim-btn-reset").addEventListener("click", () => {
+  document.getElementById("sim-result-area").className = "ab-result-area";
+  document.getElementById("sim-loading").className = "loading";
+  document.getElementById("sim-winner-banner").style.display = "none";
+  document.getElementById("sim-funnel-section").style.display = "none";
+  document.getElementById("sim-risks-section").style.display = "none";
+});
+
+document.getElementById("sim-btn-copy").addEventListener("click", makeCopyHandler("sim-btn-copy", "sim-detail-content"));
+
+document.getElementById("sim-btn-report").addEventListener("click", async () => {
+  const winner  = document.getElementById("sim-winner-label").textContent;
+  const reason  = document.getElementById("sim-winner-sub").textContent;
+  const detail  = document.getElementById("sim-detail-content").textContent;
+  if (!detail) return;
+  const lines = [`# A/B 시뮬레이션 리포트`, ``, `## 결과`, `${winner}`, reason ? `> ${reason}` : "", ``, `## 상세 분석`, detail];
+  await copyToClipboard(lines.join("\n"));
+  const btn = document.getElementById("sim-btn-report");
+  btn.textContent = "복사됨 ✓";
+  setTimeout(() => { btn.textContent = "리포트 생성"; }, 1500);
+});
+
+async function runSimulation() {
+  const params = getSimParams();
+  if (!params.descA || !params.descB) { alert("A안과 B안 설명을 입력해주세요."); return; }
+  simParams = params;
+  showSimLoading(true);
+  document.getElementById("sim-result-area").className = "ab-result-area";
+  try {
+    const raw = await callSimAPI(params);
+    showSimLoading(false);
+    renderSimResult(raw);
+  } catch(err) { showSimLoading(false); showSimError(err.message); }
+}
+
+function getSimParams() {
+  return {
+    testName:        document.getElementById("sim-test-name").value.trim(),
+    testPurpose:     document.getElementById("sim-test-purpose").value.trim(),
+    markets:         [...document.querySelectorAll(".sim-market-chip.selected")].map((c) => c.dataset.market),
+    ageGroups:       [...document.querySelectorAll(".sim-age-chip.selected")].map((c) => c.dataset.age),
+    usagePattern:    document.querySelector(".sim-pattern-chip.selected")?.dataset.pattern || "",
+    subscriptionExp: document.querySelector(".sim-sub-chip.selected")?.dataset.sub || "",
+    personaExtra:    document.getElementById("sim-persona-extra").value.trim(),
+    sampleSize:      document.querySelector(".sim-sample-chip.selected")?.dataset.size || "5000",
+    descA:           document.getElementById("sim-desc-a").value.trim(),
+    descB:           document.getElementById("sim-desc-b").value.trim(),
+    extraContext:    document.getElementById("sim-extra-context").value.trim(),
+  };
+}
+
+async function callSimAPI(params) {
+  const sysPrompt  = buildSimSystemPrompt();
+  const userPrompt = buildSimUserPrompt(params);
+  const { apiMode } = settings;
+  if (apiMode === "openai" || apiMode === "gateway") return callOAICompat([], sysPrompt, userPrompt, true);
+  return callClaudeAPI([], sysPrompt, userPrompt, 3000);
+}
+
+function buildSimSystemPrompt() {
+  return `당신은 모바일 앱 제품 설계 및 사용자 행동 분석 전문가입니다.
+주어진 A/B 테스트 시나리오와 페르소나 조건을 바탕으로, 표본 집단의 퍼널 단계별 예상 행동을 논리적으로 추정합니다.
+
+반드시 아래 JSON 형식으로만 응답하세요. 마크다운, 전처리 설명 없이 JSON만 출력하세요:
+{
+  "winner": "A" | "B",
+  "winner_reason": "한줄 요약 (50자 이내)",
+  "funnel": [
+    { "step": "단계명", "a": 숫자, "b": 숫자, "note": "짧은 설명" }
+  ],
+  "risks": ["리스크 설명1", "리스크 설명2"],
+  "detail": "상세 분석 텍스트 (\\n으로 줄바꿈, 300-500자)"
+}
+
+규칙:
+- funnel의 모든 수치는 표본 수 기준 절대 인원(명), 정수
+- funnel은 최소 3단계, 최대 7단계
+- risks는 2-4개
+- detail에 "이 결과는 AI 추정치이며 실제 데이터가 아닙니다"를 반드시 포함
+- 한국어로 출력`;
+}
+
+function buildSimUserPrompt(params) {
+  let p = "";
+  if (params.testName)    p += `테스트명: ${params.testName}\n`;
+  if (params.testPurpose) p += `테스트 목적: ${params.testPurpose}\n`;
+  p += `\n## 페르소나\n`;
+  if (params.markets.length)    p += `- 타겟 시장: ${params.markets.join(", ")}\n`;
+  if (params.ageGroups.length)  p += `- 연령대: ${params.ageGroups.join(", ")}\n`;
+  if (params.usagePattern)      p += `- 사용 패턴: ${params.usagePattern}\n`;
+  if (params.subscriptionExp)   p += `- 구독 경험: ${params.subscriptionExp}\n`;
+  if (params.personaExtra)      p += `- 추가 조건: ${params.personaExtra}\n`;
+  p += `\n표본 수: ${parseInt(params.sampleSize).toLocaleString()}명\n`;
+  p += `\n## A안\n${params.descA}\n`;
+  p += `\n## B안\n${params.descB}\n`;
+  if (params.extraContext) p += `\n## 추가 맥락\n${params.extraContext}\n`;
+  p += `\n위 조건으로 A/B 전환 시뮬레이션을 수행하고 퍼널 단계별 예상 수치를 산출해주세요.`;
+  return p;
+}
+
+function showSimLoading(v) {
+  document.getElementById("sim-loading").className = v ? "loading visible" : "loading";
+  document.getElementById("btn-sim-run").disabled = v;
+}
+
+function renderSimResult(rawText) {
+  let parsed;
+  try { parsed = JSON.parse(rawText.replace(/```json|```/g, "").trim()); }
+  catch(_) { showSimError(rawText); return; }
+
+  const winner = (parsed.winner || "A").toUpperCase();
+  const banner = document.getElementById("sim-winner-banner");
+  banner.className = `ab-winner-banner ${winner === "A" ? "winner-a" : "winner-b"}`;
+  banner.style.display = "flex";
+  document.getElementById("sim-winner-icon").textContent  = winner === "A" ? "🅐" : "🅑";
+  document.getElementById("sim-winner-label").textContent = winner === "A" ? "A안 우세" : "B안 우세";
+  document.getElementById("sim-winner-sub").textContent   = parsed.winner_reason || "";
+
+  // Funnel rows
+  const funnelRows = document.getElementById("sim-funnel-rows");
+  funnelRows.innerHTML = "";
+  (parsed.funnel || []).forEach((row) => {
+    const div = document.createElement("div");
+    div.className = "ab-row";
+    div.innerHTML = `
+      <div style="flex:1">
+        <div class="ab-row-name">${escapeHtml(row.step)}</div>
+        ${row.note ? `<div class="ab-row-note">${escapeHtml(row.note)}</div>` : ""}
+      </div>
+      <div style="width:60px;text-align:right;font-size:12px;font-weight:600;color:#93c5fd">${(row.a||0).toLocaleString()}</div>
+      <div style="width:60px;text-align:right;font-size:12px;font-weight:600;color:#fcd34d">${(row.b||0).toLocaleString()}</div>`;
+    funnelRows.appendChild(div);
+  });
+  document.getElementById("sim-funnel-section").style.display = "block";
+
+  // Risks
+  const riskList = document.getElementById("sim-risks-list");
+  riskList.innerHTML = "";
+  (parsed.risks || []).forEach((r) => {
+    const li = document.createElement("li"); li.textContent = r; riskList.appendChild(li);
+  });
+  document.getElementById("sim-risks-section").style.display = (parsed.risks||[]).length ? "block" : "none";
+
+  document.getElementById("sim-result-status").className = "result-status";
+  document.getElementById("sim-detail-content").textContent = (parsed.detail || "").replace(/\\n/g, "\n");
+  document.getElementById("sim-result-area").className = "ab-result-area visible";
+  setTimeout(() => document.getElementById("sim-result-area").scrollIntoView({ behavior:"smooth", block:"start" }), 100);
+}
+
+function showSimError(msg) {
+  document.getElementById("sim-winner-banner").style.display = "none";
+  document.getElementById("sim-funnel-section").style.display = "none";
+  document.getElementById("sim-risks-section").style.display = "none";
+  document.getElementById("sim-result-status").className = "result-status error";
+  document.getElementById("sim-detail-content").textContent = msg;
+  document.getElementById("sim-result-area").className = "ab-result-area visible";
+}
 
 
 // ══════════════════════════════════════════════════════
