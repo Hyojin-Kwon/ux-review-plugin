@@ -268,7 +268,7 @@
   .ctx-field::placeholder { color: #555; }
   .ctx-panel-footer {
     padding: 9px 13px; border-top: 1px solid #333;
-    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 8px;
   }
   .ctx-preset-row { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
   .ctx-preset-select {
@@ -282,6 +282,14 @@
   }
   .ctx-preset-select:focus { border-color: #06C755; }
   .ctx-preset-select option { background: #333; }
+  .ctx-preset-name-input {
+    flex: 1; min-width: 0; padding: 5px 9px;
+    border: 1px solid #3a3a3a; border-radius: 7px;
+    font-size: 11px; font-family: inherit;
+    background: #2c2c2c; color: #e0e0e0; outline: none;
+  }
+  .ctx-preset-name-input:focus { border-color: #06C755; }
+  .ctx-preset-name-input::placeholder { color: #555; }
   .btn-preset-save-as {
     padding: 5px 10px; border: 1px solid #3a3a3a; border-radius: 7px;
     background: transparent; color: #888; font-size: 11px;
@@ -383,6 +391,31 @@
 /* ══ Settings ══ */
   .settings-group { background: #363636; border-radius: 8px; padding: 13px; margin-bottom: 12px; }
   .settings-group-title { font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 12px; }
+  .preset-mgr-empty { font-size: 11px; color: #555; text-align: center; padding: 14px 0; }
+  .preset-mgr-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 0; border-bottom: 1px solid #3a3a3a;
+  }
+  .preset-mgr-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .preset-mgr-row:first-child { padding-top: 0; }
+  .preset-mgr-name {
+    flex: 1; font-size: 12px; color: #e0e0e0; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+  }
+  .preset-mgr-name-input {
+    flex: 1; background: #2c2c2c; border: 1px solid #06C755; border-radius: 5px;
+    color: #e0e0e0; font-size: 12px; padding: 3px 7px; outline: none;
+  }
+  .preset-mgr-btn {
+    flex-shrink: 0; border: none; border-radius: 5px; cursor: pointer;
+    font-size: 11px; font-weight: 500; padding: 4px 8px; transition: all 0.15s;
+  }
+  .preset-mgr-btn.edit { background: #444; color: #ccc; }
+  .preset-mgr-btn.edit:hover { background: #555; color: #fff; }
+  .preset-mgr-btn.save { background: rgba(6,199,85,0.15); color: #06C755; }
+  .preset-mgr-btn.save:hover { background: rgba(6,199,85,0.25); }
+  .preset-mgr-btn.del { background: transparent; color: #666; }
+  .preset-mgr-btn.del:hover { background: rgba(255,107,107,0.12); color: #ff6b6b; }
   .settings-row { margin-bottom: 11px; }
   .settings-row:last-child { margin-bottom: 0; }
   #section-apikey, #section-openai-key, #section-gateway, #section-bedrock { margin-top: 11px; margin-bottom: 0; }
@@ -445,7 +478,7 @@
       <div class="section" id="section-market">
         <div class="section-label" data-i18n="label_target_market">타겟 시장</div>
         <div class="chip-group">
-          <div class="chip selected" data-market="JP" data-i18n="market_jp">일본</div>
+          <div class="chip" data-market="JP" data-i18n="market_jp">일본</div>
           <div class="chip" data-market="TH" data-i18n="market_th">태국</div>
           <div class="chip" data-market="TW" data-i18n="market_tw">대만</div>
         </div>
@@ -494,9 +527,9 @@
               <select class="ctx-preset-select" id="review-preset-select">
                 <option value="">프리셋 선택...</option>
               </select>
-              <button class="btn-preset-save-as" id="btn-review-preset-save-as">프리셋으로 저장</button>
+              <input type="text" class="ctx-preset-name-input" id="review-preset-name-input" placeholder="프리셋 이름 (선택)">
+              <button class="btn-ctx-save" id="btn-save-review-ctx">저장</button>
             </div>
-            <button class="btn-ctx-save" id="btn-save-review-ctx" data-i18n="ctx_btn_save">저장</button>
           </div>
         </div>
       </div>
@@ -527,6 +560,7 @@
           <div class="result-footer">
             <button class="btn btn-secondary" id="btn-reset" style="width:auto;padding:7px 16px;font-size:12px;" data-i18n="btn_new_review">새 검증</button>
             <button class="btn btn-primary" id="btn-re-review" style="width:auto;padding:7px 16px;font-size:12px;display:none" disabled data-i18n="btn_re_review">재검증</button>
+            <button class="btn btn-secondary" id="btn-report" style="width:auto;padding:7px 16px;font-size:12px;display:none">리포트 생성</button>
           </div>
         </div>
       </div>
@@ -587,27 +621,27 @@
       <!-- 페르소나 설정 -->
       <div class="section">
         <div class="section-label" data-i18n="label_target_market">타겟 시장</div>
-        <div class="chip-group" style="margin-bottom:10px">
-          <div class="chip selected ab-market-chip" data-market="JP" data-i18n="market_jp">일본</div>
+        <div class="chip-group" style="margin-bottom:20px">
+          <div class="chip ab-market-chip" data-market="JP" data-i18n="market_jp">일본</div>
           <div class="chip ab-market-chip" data-market="TH" data-i18n="market_th">태국</div>
           <div class="chip ab-market-chip" data-market="TW" data-i18n="market_tw">대만</div>
         </div>
         <div class="section-label">연령대</div>
-        <div class="chip-group" style="margin-bottom:10px">
+        <div class="chip-group" style="margin-bottom:20px">
           <div class="chip ab-age-chip" data-age="10대">10대</div>
-          <div class="chip selected ab-age-chip" data-age="20대">20대</div>
-          <div class="chip selected ab-age-chip" data-age="30대">30대</div>
+          <div class="chip ab-age-chip" data-age="20대">20대</div>
+          <div class="chip ab-age-chip" data-age="30대">30대</div>
           <div class="chip ab-age-chip" data-age="40대+">40대+</div>
         </div>
         <div class="section-label">사용 패턴</div>
-        <div class="chip-group" style="margin-bottom:10px">
+        <div class="chip-group" style="margin-bottom:20px">
           <div class="chip ab-pattern-chip" data-pattern="라이트">라이트</div>
-          <div class="chip selected ab-pattern-chip" data-pattern="미디엄">미디엄</div>
+          <div class="chip ab-pattern-chip" data-pattern="미디엄">미디엄</div>
           <div class="chip ab-pattern-chip" data-pattern="헤비">헤비</div>
         </div>
         <div class="section-label">구독 경험</div>
         <div class="chip-group">
-          <div class="chip selected ab-sub-chip" data-sub="있음">있음</div>
+          <div class="chip ab-sub-chip" data-sub="있음">있음</div>
           <div class="chip ab-sub-chip" data-sub="없음">없음</div>
         </div>
       </div>
@@ -617,7 +651,7 @@
         <div class="section-label">표본 수</div>
         <div class="chip-group">
           <div class="chip ab-sample-chip" data-size="1000">1,000명</div>
-          <div class="chip selected ab-sample-chip" data-size="5000">5,000명</div>
+          <div class="chip ab-sample-chip" data-size="5000">5,000명</div>
           <div class="chip ab-sample-chip" data-size="10000">10,000명</div>
         </div>
       </div>
@@ -661,9 +695,9 @@
               <select class="ctx-preset-select" id="ab-preset-select">
                 <option value="">프리셋 선택...</option>
               </select>
-              <button class="btn-preset-save-as" id="btn-ab-preset-save-as">프리셋으로 저장</button>
+              <input type="text" class="ctx-preset-name-input" id="ab-preset-name-input" placeholder="프리셋 이름 (선택)">
+              <button class="btn-ctx-save" id="btn-save-ab-ctx">저장</button>
             </div>
-            <button class="btn-ctx-save" id="btn-save-ab-ctx" data-i18n="ctx_btn_save">저장</button>
           </div>
         </div>
       </div>
@@ -720,6 +754,7 @@
           <div class="result-footer">
             <button class="btn btn-secondary" id="ab-btn-reset" style="width:auto;padding:7px 16px;font-size:12px;" data-i18n="btn_new_review">새 검증</button>
             <button class="btn btn-primary" id="ab-btn-re-review" style="width:auto;padding:7px 16px;font-size:12px;display:none" disabled data-i18n="btn_re_review">재검증</button>
+            <button class="btn btn-secondary" id="ab-btn-report" style="width:auto;padding:7px 16px;font-size:12px;display:none">리포트 생성</button>
           </div>
         </div>
       </div>
@@ -818,6 +853,14 @@
         </div>
       </div>
 
+      <div class="settings-group">
+        <div class="settings-group-title" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+          <span>프리셋 관리</span>
+          <button class="preset-mgr-btn del" id="btn-delete-all-presets" style="font-size:10px;padding:3px 7px;display:none">전체 삭제</button>
+        </div>
+        <div id="preset-mgr-list" style="margin-top:10px"></div>
+      </div>
+
     </div>
     <div class="content-footer">
       <button class="btn btn-primary" id="btn-save-settings" data-i18n="btn_save_settings">설정 저장</button>
@@ -838,6 +881,8 @@ let activeSubtab    = "screen";   // screen | flow | localization
 let activeAbMode    = "screen";   // screen | flow
 let abFrames        = { a: [], b: [] };
 let activeAbGroup   = "a";
+let _frameUidCounter = 0;
+function makeUid() { return ++_frameUidCounter; }
 const storageCallbacks = {};
 
 let settings = {
@@ -855,9 +900,10 @@ let reviewCtx = {
   extra:         "",
 };
 let abCtx = {
-  principles: "", accessibility: "",
-  market: "- JP: 정보 밀도 허용도 높음.\n- TH: 비주얼/컬러풀 선호.\n- TW: JP와 유사.",
-  extra: "",
+  principles:    "- 정보 위계: 화면 내 가장 중요한 정보가 시각적으로 가장 먼저 인지되어야 한다.\n- 태스크 효율: 유저의 핵심 태스크는 최소 단계(1-2탭)로 완료 가능해야 한다.\n- 인지 부하 최소화: 한 화면에서 유저가 판단해야 할 선택지는 3-5개 이내.\n- 일관성: LDS 컴포넌트와 패턴을 따르며, 화면 간 동일 기능은 동일 패턴.",
+  accessibility: "- 텍스트 최소 크기: 12sp\n- 터치 타겟 최소: 44x44pt\n- 색상 대비: WCAG AA (4.5:1)",
+  market:        "- JP: 정보 밀도 허용도 높음. 텍스트 중심. 가격/혜택 상세 노출 가능.\n- TH: 비주얼/컬러풀 선호. 프로모션 임팩트 중요. 텍스트 간결하게.\n- TW: JP와 유사. Traditional Chinese 특성상 텍스트 영역 여유 필요.",
+  extra:         "",
 };
 
 
@@ -1016,10 +1062,9 @@ window.onmessage = (event) => {
     if (abActive) {
       assignFramesToAB(msg.frames);
     } else {
-      const existingIds = new Set(selectedFrames.map((f) => f.id));
       const toAdd = msg.frames
-        .filter((f) => !existingIds.has(f.id))
-        .slice(0, (settings.maxFrames||8) - selectedFrames.length);
+        .slice(0, (settings.maxFrames||8) - selectedFrames.length)
+        .map((f) => ({ ...f, _uid: makeUid() }));
       if (!toAdd.length) return;
       selectedFrames = [...selectedFrames, ...toAdd];
       appendFrameCards(toAdd);
@@ -1039,10 +1084,9 @@ window.onmessage = (event) => {
   if (msg.type === "export-done") {
     if (window._abExportPending) {
       window._abExportPending = false;
-      const idsA = new Set(abFrames.a.map((f) => f.id));
-      const idsB = new Set(abFrames.b.map((f) => f.id));
-      abFrames.a = msg.frames.filter((f) => idsA.has(f.id));
-      abFrames.b = msg.frames.filter((f) => idsB.has(f.id));
+      const exportedMap = new Map(msg.frames.map((f) => [f.id, f]));
+      abFrames.a = abFrames.a.map((f) => exportedMap.has(f.id) ? { ...f, imageBase64: exportedMap.get(f.id).imageBase64 } : f);
+      abFrames.b = abFrames.b.map((f) => exportedMap.has(f.id) ? { ...f, imageBase64: exportedMap.get(f.id).imageBase64 } : f);
       renderABZone("a"); renderABZone("b");
       runABAnalysis(abFrames.a, abFrames.b);
     } else {
@@ -1058,6 +1102,21 @@ window.onmessage = (event) => {
   if (msg.type === "storage-get-done") {
     const cb = storageCallbacks[msg.key];
     if (cb) { cb(msg.value); delete storageCallbacks[msg.key]; }
+  }
+
+  if (msg.type === "report-created") {
+    document.getElementById("btn-report").textContent = "리포트 생성";
+    document.getElementById("btn-report").disabled = false;
+    document.getElementById("ab-btn-report").textContent = "리포트 생성";
+    document.getElementById("ab-btn-report").disabled = false;
+  }
+
+  if (msg.type === "report-error") {
+    document.getElementById("btn-report").textContent = "리포트 생성";
+    document.getElementById("btn-report").disabled = false;
+    document.getElementById("ab-btn-report").textContent = "리포트 생성";
+    document.getElementById("ab-btn-report").disabled = false;
+    alert("리포트 생성 실패: " + (msg.error || "알 수 없는 오류"));
   }
 };
 
@@ -1144,8 +1203,8 @@ function appendFrameCards(frames) {
   if (!list) { info.innerHTML=""; list=document.createElement("div"); list.className="frame-list"; info.appendChild(list); }
   frames.forEach((f) => {
     const card = document.createElement("div");
-    card.className = "frame-card"; card.dataset.frameId = f.id;
-    const num = selectedFrames.findIndex((x) => x.id === f.id) + 1;
+    card.className = "frame-card"; card.dataset.frameId = f.id; card.dataset.frameUid = f._uid;
+    const num = selectedFrames.findIndex((x) => x._uid === f._uid) + 1;
     card.innerHTML = `
       <div class="frame-thumb">
         <img src="" alt=""/>
@@ -1158,7 +1217,7 @@ function appendFrameCards(frames) {
         </button>
       </div>
       <div class="frame-meta"><span class="frame-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</span></div>`;
-    card.querySelector(".btn-remove-frame").addEventListener("click", () => removeFrame(f.id));
+    card.querySelector(".btn-remove-frame").addEventListener("click", () => removeFrame(f._uid));
     list.appendChild(card);
   });
   updateFrameCount();
@@ -1166,18 +1225,20 @@ function appendFrameCards(frames) {
 
 function updateFramePreviews(frames) {
   frames.forEach((f) => {
-    const card = document.querySelector(`.frame-card[data-frame-id="${f.id}"]`);
-    if (!card) return;
-    const img = card.querySelector("img"); const ph = card.querySelector(".frame-thumb-placeholder");
-    img.onload = () => { img.style.display="block"; ph.style.display="none"; };
-    img.src = `data:image/png;base64,${f.imageBase64}`;
+    document.querySelectorAll(`.frame-card[data-frame-id="${f.id}"]`).forEach((card) => {
+      const img = card.querySelector("img"); const ph = card.querySelector(".frame-thumb-placeholder");
+      img.onload = () => { img.style.display="block"; ph.style.display="none"; };
+      img.src = `data:image/png;base64,${f.imageBase64}`;
+    });
+    // imageBase64를 selectedFrames의 해당 id 항목에도 저장
+    selectedFrames.forEach((fr) => { if (fr.id === f.id) fr.imageBase64 = f.imageBase64; });
   });
 }
 
 function assignFramesToAB(frames) {
-  const existingIds = new Set([...abFrames.a, ...abFrames.b].map((f) => f.id));
+  const existingInGroup = new Set(abFrames[activeAbGroup].map((f) => f.id));
   const toAdd = frames
-    .filter((f) => !existingIds.has(f.id))
+    .filter((f) => !existingInGroup.has(f.id))
     .slice(0, (settings.maxFrames || 8) - abFrames.a.length - abFrames.b.length);
   if (!toAdd.length) return;
   toAdd.forEach((f) => abFrames[activeAbGroup].push(f));
@@ -1188,21 +1249,20 @@ function assignFramesToAB(frames) {
 function updateABZonePreviews(frames) {
   frames.forEach((f) => {
     ["a", "b"].forEach((g) => {
-      const card = document.querySelector(`#ab-zone-${g} .frame-card[data-frame-id="${f.id}"]`);
-      if (!card) return;
-      const img = card.querySelector("img");
-      const ph = card.querySelector(".frame-thumb-placeholder");
-      img.onload = () => { img.style.display = "block"; ph.style.display = "none"; };
-      img.src = `data:image/png;base64,${f.imageBase64}`;
-      const fr = abFrames[g].find((x) => x.id === f.id);
-      if (fr) fr.imageBase64 = f.imageBase64;
+      document.querySelectorAll(`#ab-zone-${g} .frame-card[data-frame-id="${f.id}"]`).forEach((card) => {
+        const img = card.querySelector("img");
+        const ph = card.querySelector(".frame-thumb-placeholder");
+        img.onload = () => { img.style.display = "block"; ph.style.display = "none"; };
+        img.src = `data:image/png;base64,${f.imageBase64}`;
+      });
+      abFrames[g].forEach((fr) => { if (fr.id === f.id) fr.imageBase64 = f.imageBase64; });
     });
   });
 }
 
-function removeFrame(id) {
-  selectedFrames = selectedFrames.filter((f) => f.id !== id);
-  document.querySelector(`.frame-card[data-frame-id="${id}"]`)?.remove();
+function removeFrame(uid) {
+  selectedFrames = selectedFrames.filter((f) => f._uid !== uid);
+  document.querySelector(`.frame-card[data-frame-uid="${uid}"]`)?.remove();
   if (!selectedFrames.length) renderEmptyState();
   else { document.querySelectorAll(".frame-card").forEach((c,i) => { c.querySelector(".frame-number").textContent = i+1; }); updateFrameCount(); }
   updateReviewBtn();
@@ -1333,11 +1393,11 @@ function showResult(text, isErr) {
   document.getElementById("result-title").textContent = isErr?t("result_error"):t("result_complete");
   document.getElementById("result-content").textContent = text;
   document.getElementById("result-area").className = "result-area visible";
-  if (!isErr) { lastResultText=text; document.getElementById("result-feedback").style.display="block"; document.getElementById("btn-re-review").style.display="block"; }
-  else { document.getElementById("result-feedback").style.display="none"; document.getElementById("btn-re-review").style.display="none"; }
+  if (!isErr) { lastResultText=text; document.getElementById("result-feedback").style.display="block"; document.getElementById("btn-re-review").style.display="block"; document.getElementById("btn-report").style.display="block"; }
+  else { document.getElementById("result-feedback").style.display="none"; document.getElementById("btn-re-review").style.display="none"; document.getElementById("btn-report").style.display="none"; }
   setTimeout(() => document.getElementById("result-area").scrollIntoView({behavior:"smooth",block:"start"}), 100);
 }
-function hideResult() { document.getElementById("result-area").className="result-area"; }
+function hideResult() { document.getElementById("result-area").className="result-area"; document.getElementById("btn-report").style.display="none"; }
 function showError(msg) { showResult(msg,true); }
 
 
@@ -1415,16 +1475,19 @@ function setActiveAbGroup(group) {
 document.querySelectorAll(".ab-market-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
 document.querySelectorAll(".ab-age-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
 document.querySelectorAll(".ab-pattern-chip").forEach((c) => c.addEventListener("click", () => {
+  const isSelected = c.classList.contains("selected");
   document.querySelectorAll(".ab-pattern-chip").forEach((x) => x.classList.remove("selected"));
-  c.classList.add("selected");
+  if (!isSelected) c.classList.add("selected");
 }));
 document.querySelectorAll(".ab-sub-chip").forEach((c) => c.addEventListener("click", () => {
+  const isSelected = c.classList.contains("selected");
   document.querySelectorAll(".ab-sub-chip").forEach((x) => x.classList.remove("selected"));
-  c.classList.add("selected");
+  if (!isSelected) c.classList.add("selected");
 }));
 document.querySelectorAll(".ab-sample-chip").forEach((c) => c.addEventListener("click", () => {
+  const isSelected = c.classList.contains("selected");
   document.querySelectorAll(".ab-sample-chip").forEach((x) => x.classList.remove("selected"));
-  c.classList.add("selected");
+  if (!isSelected) c.classList.add("selected");
 }));
 
 
@@ -1598,6 +1661,7 @@ function renderABResult(rawText) {
   lastABResultText = rawText;
   document.getElementById("ab-result-feedback").style.display = "block";
   document.getElementById("ab-btn-re-review").style.display = "block";
+  document.getElementById("ab-btn-report").style.display = "block";
   document.getElementById("ab-result-area").className="ab-result-area visible";
   setTimeout(()=>document.getElementById("ab-result-area").scrollIntoView({behavior:"smooth",block:"start"}),100);
 }
@@ -1615,6 +1679,7 @@ function hideABResult() {
   document.getElementById("ab-result-area").className="ab-result-area";
   document.getElementById("ab-result-feedback").style.display="none";
   document.getElementById("ab-btn-re-review").style.display="none";
+  document.getElementById("ab-btn-report").style.display="none";
   document.getElementById("ab-result-feedback-input").value="";
   document.getElementById("ab-btn-re-review").disabled=true;
 }
@@ -1626,6 +1691,7 @@ function showABError(msg) {
   document.getElementById("ab-detail-content").textContent=msg;
   document.getElementById("ab-result-feedback").style.display="none";
   document.getElementById("ab-btn-re-review").style.display="none";
+  document.getElementById("ab-btn-report").style.display="none";
   document.getElementById("ab-result-area").className="ab-result-area visible";
 }
 
@@ -1685,32 +1751,56 @@ function applyAbCtx() {
   updateCtxBadge("ab");
 }
 
-document.getElementById("btn-save-review-ctx").addEventListener("click", async () => {
-  reviewCtx = {
-    principles:    document.getElementById("review-ctx-principles").value,
-    accessibility: document.getElementById("review-ctx-accessibility").value,
+async function saveCtxWithPreset(which) {
+  const ctx = readCurrentCtx(which);
+  const selectId = which === "review" ? "review-preset-select" : "ab-preset-select";
+  const btnId = which === "review" ? "btn-save-review-ctx" : "btn-save-ab-ctx";
+  const inputId = which === "review" ? "review-preset-name-input" : "ab-preset-name-input";
+  const storageKey = which === "review" ? "ux-review-ctx" : "ux-ab-ctx";
+
+  const nameInput = document.getElementById(inputId);
+  const trimmed = nameInput ? nameInput.value.trim() : "";
+
+  if (which === "review") {
+    reviewCtx = ctx;
+    storageSet(storageKey, reviewCtx);
+    updateCtxBadge("review");
+  } else {
+    abCtx = ctx;
+    storageSet(storageKey, abCtx);
+    updateCtxBadge("ab");
+  }
+
+  if (trimmed) {
+    presets[trimmed] = ctx;
+    await savePresets();
+    renderPresetSelects();
+    document.getElementById(selectId).value = trimmed;
+    if (nameInput) nameInput.value = "";
+  }
+
+  const btn = document.getElementById(btnId);
+  btn.textContent = "저장됨 ✓";
+  setTimeout(() => { btn.textContent = "저장"; }, 1500);
+}
+
+document.getElementById("btn-save-review-ctx").addEventListener("click", () => saveCtxWithPreset("review"));
+document.getElementById("btn-save-ab-ctx").addEventListener("click", () => saveCtxWithPreset("ab"));
+
+// (legacy ctx save handlers removed)
+if (false) {
+document.getElementById("_removed_").addEventListener("click", async () => {
+  const _x = {
+    principles:    "",
+    accessibility: "",
     scenarios:     document.getElementById("review-ctx-scenarios").value,
     market:        document.getElementById("review-ctx-market").value,
     extra:         document.getElementById("review-ctx-extra").value,
   };
   updateCtxBadge("review");
-  storageSet("ux-review-ctx", reviewCtx);
-  const btn=document.getElementById("btn-save-review-ctx");
-  btn.textContent=t("saved_ok"); setTimeout(()=>{ btn.textContent=t("ctx_btn_save"); },1500);
+  storageSet("ux-review-ctx", {});
 });
-
-document.getElementById("btn-save-ab-ctx").addEventListener("click", async () => {
-  abCtx = {
-    principles:    document.getElementById("ab-ctx-principles").value,
-    accessibility: document.getElementById("ab-ctx-accessibility").value,
-    market:        document.getElementById("ab-ctx-market").value,
-    extra:         document.getElementById("ab-ctx-extra").value,
-  };
-  updateCtxBadge("ab");
-  storageSet("ux-ab-ctx", abCtx);
-  const btn=document.getElementById("btn-save-ab-ctx");
-  btn.textContent=t("saved_ok"); setTimeout(()=>{ btn.textContent=t("ctx_btn_save"); },1500);
-});
+} // end if(false)
 
 
 // ══════════════════════════════════════════════════════
@@ -1753,6 +1843,7 @@ function applyCtxFields(which, ctx) {
 }
 
 function renderPresetSelects() {
+  renderPresetManager();
   const names = Object.keys(presets).sort();
   ["review-preset-select", "ab-preset-select"].forEach((id) => {
     const sel = document.getElementById(id);
@@ -1771,6 +1862,93 @@ async function savePresets() {
   storageSet("ux-ctx-presets", presets);
 }
 
+function renderPresetManager() {
+  const list = document.getElementById("preset-mgr-list");
+  const btnAll = document.getElementById("btn-delete-all-presets");
+  if (!list) return;
+  const names = Object.keys(presets).sort();
+  btnAll.style.display = names.length ? "block" : "none";
+  if (!names.length) {
+    list.innerHTML = '<div class="preset-mgr-empty">저장된 프리셋이 없습니다</div>';
+    return;
+  }
+  list.innerHTML = "";
+  names.forEach(function(name) {
+    var row = document.createElement("div");
+    row.className = "preset-mgr-row";
+    row.dataset.preset = name;
+
+    var nameEl = document.createElement("span");
+    nameEl.className = "preset-mgr-name";
+    nameEl.textContent = name;
+
+    var editBtn = document.createElement("button");
+    editBtn.className = "preset-mgr-btn edit";
+    editBtn.textContent = "수정";
+    editBtn.addEventListener("click", function() {
+      // 컨텍스트 탭으로 이동 후 해당 프리셋 로드
+      var ctx = presets[name];
+      reviewCtx = Object.assign({}, reviewCtx, ctx);
+      abCtx = Object.assign({}, abCtx, ctx);
+      applyReviewCtx();
+      applyAbCtx();
+      document.getElementById("review-preset-select").value = name;
+      document.getElementById("ab-preset-select").value = name;
+      switchTab("context");
+    });
+
+    var renameBtn = document.createElement("button");
+    renameBtn.className = "preset-mgr-btn edit";
+    renameBtn.textContent = "이름변경";
+    renameBtn.addEventListener("click", function() {
+      // 인라인 이름 편집 모드
+      var input = document.createElement("input");
+      input.className = "preset-mgr-name-input";
+      input.value = name;
+      input.addEventListener("click", function(e) { e.stopPropagation(); });
+
+      var saveBtn = document.createElement("button");
+      saveBtn.className = "preset-mgr-btn save";
+      saveBtn.textContent = "저장";
+      saveBtn.addEventListener("click", function() {
+        var newName = input.value.trim();
+        if (!newName || newName === name) { renderPresetManager(); return; }
+        presets[newName] = presets[name];
+        delete presets[name];
+        savePresets();
+        renderPresetSelects();
+        renderPresetManager();
+      });
+
+      row.innerHTML = "";
+      row.appendChild(input);
+      row.appendChild(saveBtn);
+      var cancelBtn = document.createElement("button");
+      cancelBtn.className = "preset-mgr-btn del";
+      cancelBtn.textContent = "취소";
+      cancelBtn.addEventListener("click", function() { renderPresetManager(); });
+      row.appendChild(cancelBtn);
+      input.focus(); input.select();
+    });
+
+    var delBtn = document.createElement("button");
+    delBtn.className = "preset-mgr-btn del";
+    delBtn.textContent = "삭제";
+    delBtn.addEventListener("click", function() {
+      delete presets[name];
+      savePresets();
+      renderPresetSelects();
+      renderPresetManager();
+    });
+
+    row.appendChild(nameEl);
+    row.appendChild(editBtn);
+    row.appendChild(renameBtn);
+    row.appendChild(delBtn);
+    list.appendChild(row);
+  });
+}
+
 function promptPresetName(defaultName = "") {
   const name = window.prompt("프리셋 이름을 입력하세요:", defaultName);
   return name ? name.trim() : null;
@@ -1782,6 +1960,7 @@ document.getElementById("review-preset-select").addEventListener("change", funct
   if (!name || !presets[name]) return;
   applyCtxFields("review", presets[name]);
   updateCtxBadge("review");
+  document.getElementById("review-preset-name-input").value = name;
 });
 
 document.getElementById("ab-preset-select").addEventListener("change", function() {
@@ -1789,38 +1968,9 @@ document.getElementById("ab-preset-select").addEventListener("change", function(
   if (!name || !presets[name]) return;
   applyCtxFields("ab", presets[name]);
   updateCtxBadge("ab");
+  document.getElementById("ab-preset-name-input").value = name;
 });
 
-// 프리셋으로 저장
-document.getElementById("btn-review-preset-save-as").addEventListener("click", async () => {
-  const ctx = readCurrentCtx("review");
-  const hasContent = Object.values(ctx).some((v) => v && v.trim());
-  if (!hasContent) { alert("저장할 컨텍스트 내용을 먼저 입력해주세요."); return; }
-  const name = promptPresetName();
-  if (!name) return;
-  presets[name] = ctx;
-  await savePresets();
-  renderPresetSelects();
-  document.getElementById("review-preset-select").value = name;
-  const btn = document.getElementById("btn-review-preset-save-as");
-  btn.textContent = "저장됨 ✓";
-  setTimeout(() => { btn.textContent = "다른 이름으로 저장"; }, 1500);
-});
-
-document.getElementById("btn-ab-preset-save-as").addEventListener("click", async () => {
-  const ctx = readCurrentCtx("ab");
-  const hasContent = Object.values(ctx).some((v) => v && v.trim());
-  if (!hasContent) { alert("저장할 컨텍스트 내용을 먼저 입력해주세요."); return; }
-  const name = promptPresetName();
-  if (!name) return;
-  presets[name] = ctx;
-  await savePresets();
-  renderPresetSelects();
-  document.getElementById("ab-preset-select").value = name;
-  const btn = document.getElementById("btn-ab-preset-save-as");
-  btn.textContent = "저장됨 ✓";
-  setTimeout(() => { btn.textContent = "다른 이름으로 저장"; }, 1500);
-});
 
 
 // ══════════════════════════════════════════════════════
@@ -1907,6 +2057,12 @@ function updateSettingsStatus() {
 
 document.getElementById("api-mode").addEventListener("change", function(){ toggleApiFields(this.value); });
 document.getElementById("lang-select").addEventListener("change", function(){ settings.lang=this.value; applyI18n(); });
+document.getElementById("btn-delete-all-presets").addEventListener("click", function() {
+  presets = {};
+  savePresets();
+  renderPresetSelects();
+  renderPresetManager();
+});
 document.getElementById("btn-save-settings").addEventListener("click", () => {
   settings = {
     apiMode:document.getElementById("api-mode").value, apiKey:document.getElementById("api-key").value,
@@ -1951,11 +2107,15 @@ async function init() {
   applySettings();
 
   const savedReviewCtx = await storageGet("ux-review-ctx");
-  if (savedReviewCtx) reviewCtx={...reviewCtx,...savedReviewCtx};
+  if (savedReviewCtx && typeof savedReviewCtx === "object") {
+    Object.entries(savedReviewCtx).forEach(function(entry) { if (entry[1]) reviewCtx[entry[0]] = entry[1]; });
+  }
   applyReviewCtx();
 
   const savedAbCtx = await storageGet("ux-ab-ctx");
-  if (savedAbCtx) abCtx={...abCtx,...savedAbCtx};
+  if (savedAbCtx && typeof savedAbCtx === "object") {
+    Object.entries(savedAbCtx).forEach(function(entry) { if (entry[1]) abCtx[entry[0]] = entry[1]; });
+  }
   applyAbCtx();
 
   const savedPresets = await storageGet("ux-ctx-presets");
@@ -1963,7 +2123,133 @@ async function init() {
   renderPresetSelects();
 }
 
+// 기본값 즉시 적용 (스토리지 로드 전에도 기본값이 보이도록)
+applyReviewCtx();
+applyAbCtx();
+
 init();
+
+// ══════════════════════════════════════════════════════
+// REPORT GENERATION
+// ══════════════════════════════════════════════════════
+function generateReviewReport() {
+  if (!lastReviewParams || !lastResultText) return;
+  const { frames, reviewType, markets } = lastReviewParams;
+  const reviewTypeLabel = { screen: "화면 단위 UX 리뷰", flow: "플로우 검증", localization: "시장별 비교 검증" }[reviewType] || reviewType;
+  const btn = document.getElementById("btn-report");
+  btn.textContent = "생성 중..."; btn.disabled = true;
+  parent.postMessage({ pluginMessage: {
+    type: "create-figma-report",
+    data: {
+      type: "review",
+      date: getDateStr(),
+      reviewType,
+      reviewTypeLabel,
+      markets: markets || [],
+      frames: frames.map((f) => ({ id: f.id, name: f.name, imageBase64: f.imageBase64, width: f.width, height: f.height })),
+      resultText: lastResultText,
+    }
+  }}, "*");
+}
+
+function generateABReport() {
+  if (!lastABParams || !lastABResultText) return;
+  const { framesA, framesB, mode, persona } = lastABParams;
+  let parsed = {};
+  try { parsed = JSON.parse(lastABResultText.replace(/```json|```/g, "").trim()); } catch(e) { parsed = { detail: lastABResultText }; }
+  const modeLabel = { screen: "화면 비교", flow: "플로우 비교" }[mode] || mode;
+  const markets = Array.from(document.querySelectorAll(".ab-market-chip.selected")).map((m) => m.dataset.market);
+  const btn = document.getElementById("ab-btn-report");
+  btn.textContent = "생성 중..."; btn.disabled = true;
+  parent.postMessage({ pluginMessage: {
+    type: "create-figma-report",
+    data: {
+      type: "ab",
+      date: getDateStr(),
+      mode,
+      modeLabel,
+      markets,
+      framesA: framesA.map((f) => ({ id: f.id, name: f.name, imageBase64: f.imageBase64, width: f.width, height: f.height })),
+      framesB: framesB.map((f) => ({ id: f.id, name: f.name, imageBase64: f.imageBase64, width: f.width, height: f.height })),
+      winner: (parsed.winner || "TIE").toUpperCase(),
+      winnerReason: parsed.winner_reason || "",
+      scores: parsed.scores || [],
+      personaBreakdown: parsed.persona_breakdown || [],
+      detail: (parsed.detail || "").replace(/\\n/g, "\n"),
+    }
+  }}, "*");
+}
+
+// ── (legacy HTML report functions removed — now uses Figma direct draw) ──
+function buildReportStyles() {
+  return `
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Noto Sans',sans-serif; background:#fff; color:#111; line-height:1.6; word-break:keep-all; font-size:14px; }
+    :root { --black:#111; --mid:#777; --light:#ccc; --bg:#f5f5f5; --w:960px; --pad:48px; }
+    .nav { position:fixed; top:0; left:0; right:0; z-index:99; height:48px; background:rgba(255,255,255,0.96); backdrop-filter:blur(8px); border-bottom:1px solid #e8e8e8; display:flex; align-items:center; justify-content:space-between; padding:0 var(--pad); }
+    .nav-brand { font-size:10px; font-weight:700; letter-spacing:0.18em; color:var(--black); text-transform:uppercase; }
+    .nav-right { font-size:9px; color:var(--mid); letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; padding:6px 12px; border:1px solid #e8e8e8; border-radius:4px; background:none; }
+    .nav-right:hover { background:var(--bg); }
+    .hero { max-width:var(--w); margin:0 auto; padding:80px var(--pad) 48px; }
+    .hero-kicker { font-size:9px; letter-spacing:0.2em; color:var(--mid); text-transform:uppercase; margin-bottom:32px; }
+    .hero-body { border-top:4px solid var(--black); padding-top:40px; }
+    .hero-title { font-size:42px; font-weight:900; line-height:1.3; letter-spacing:-0.025em; margin-bottom:8px; }
+    .hero-sub { font-size:20px; font-weight:400; color:var(--mid); margin-bottom:32px; }
+    .hero-fields { display:grid; grid-template-columns:repeat(4,1fr); gap:0; border-top:1px solid #e8e8e8; padding-top:24px; margin-top:8px; }
+    .hero-field { display:flex; flex-direction:column; gap:4px; padding-right:16px; }
+    .field-key { font-size:8px; letter-spacing:0.15em; color:var(--light); text-transform:uppercase; }
+    .field-val { font-size:13px; font-weight:500; color:var(--black); }
+    .section { max-width:var(--w); margin:0 auto; padding:48px var(--pad); border-top:1px solid #e8e8e8; }
+    .section-kicker { font-size:9px; letter-spacing:0.2em; color:var(--mid); text-transform:uppercase; margin-bottom:16px; }
+    .section-heading { font-size:24px; font-weight:700; letter-spacing:-0.02em; margin-bottom:32px; }
+    .frames-grid { display:flex; flex-wrap:wrap; gap:16px; }
+    .frame-item { display:flex; flex-direction:column; border:1px solid #e8e8e8; overflow:hidden; }
+    .frame-tag { font-size:9px; letter-spacing:0.15em; text-transform:uppercase; padding:8px 14px; background:var(--bg); color:var(--mid); border-bottom:1px solid #e8e8e8; }
+    .frame-tag-a { background:#eff6ff; color:#3b82f6; }
+    .frame-tag-b { background:#fffbeb; color:#f59e0b; }
+    .frame-visual { background:var(--bg); display:flex; justify-content:center; align-items:center; padding:20px; min-height:200px; }
+    .frame-visual img { max-height:280px; max-width:220px; width:auto; object-fit:contain; }
+    .frame-name { padding:10px 14px; font-size:11px; color:var(--mid); border-top:1px solid #e8e8e8; background:#fff; }
+    .result-block { border:1px solid #e8e8e8; }
+    .result-text { padding:28px 32px; font-size:13px; color:#111; line-height:1.9; white-space:pre-wrap; }
+    .winner-banner { border:2px solid #111; border-radius:8px; padding:20px 24px; margin-bottom:32px; display:flex; align-items:center; gap:20px; }
+    .winner-badge { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:900; flex-shrink:0; }
+    .winner-label { font-size:18px; font-weight:700; margin-bottom:4px; }
+    .winner-reason { font-size:13px; color:var(--mid); line-height:1.6; }
+    .persona-section { border:1px solid #e8e8e8; }
+    .persona-row { padding:14px 20px; border-bottom:1px solid #e8e8e8; display:flex; flex-direction:column; gap:6px; }
+    .persona-row:last-child { border-bottom:none; }
+    .persona-seg { font-size:12px; font-weight:600; color:#111; }
+    .persona-bar-wrap { display:flex; align-items:center; gap:10px; }
+    .pct-a { font-size:11px; font-weight:700; color:#3b82f6; min-width:44px; }
+    .pct-b { font-size:11px; font-weight:700; color:#f59e0b; min-width:44px; text-align:right; }
+    .persona-bar { flex:1; height:8px; background:#e5e7eb; border-radius:4px; overflow:hidden; display:flex; }
+    .bar-a { background:#3b82f6; height:100%; }
+    .bar-b { background:#f59e0b; height:100%; }
+    .persona-note { font-size:11px; color:var(--mid); line-height:1.5; }
+    .scorecard { border:1px solid #e8e8e8; }
+    .score-header { display:grid; grid-template-columns:1fr 80px 80px; background:var(--bg); border-bottom:1px solid #e8e8e8; }
+    .score-row { display:grid; grid-template-columns:1fr 80px 80px; border-bottom:1px solid #e8e8e8; }
+    .score-row:last-child { border-bottom:none; }
+    .score-label { padding:14px 20px; font-size:13px; color:#111; }
+    .score-header .score-label { font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid); }
+    .score-a { padding:14px 16px; font-size:18px; font-weight:700; color:#3b82f6; display:flex; align-items:center; border-left:1px solid #e8e8e8; }
+    .score-b { padding:14px 16px; font-size:18px; font-weight:700; color:#f59e0b; display:flex; align-items:center; border-left:1px solid #e8e8e8; }
+    .score-header .score-a, .score-header .score-b { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; align-items:center; }
+    .score-a span, .score-b span { font-size:10px; font-weight:400; color:var(--light); margin-left:2px; }
+    footer { max-width:var(--w); margin:0 auto; padding:24px var(--pad); display:flex; justify-content:space-between; font-size:9px; letter-spacing:0.1em; color:var(--light); border-top:1px solid #e8e8e8; }
+    @media print { .nav { display:none !important; } body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } .section { page-break-inside: avoid; } }
+    @media(max-width:768px) { :root{--pad:20px;} .hero-fields{grid-template-columns:repeat(2,1fr);gap:16px 0;} .hero-title{font-size:28px;} .score-header,.score-row{grid-template-columns:1fr 60px 60px;} }
+  `;
+}
+
+function getDateStr() {
+  const now = new Date();
+  return `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,"0")}.${String(now.getDate()).padStart(2,"0")} ${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+}
+
+document.getElementById("btn-report").addEventListener("click", generateReviewReport);
+document.getElementById("ab-btn-report").addEventListener("click", generateABReport);
 </script>
 </body>
 </html>
