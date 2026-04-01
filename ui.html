@@ -412,20 +412,6 @@
     resize: none; line-height: 1.5; transition: border-color 0.15s; font-family: inherit;
   }
   .uc-check-item textarea:focus { border-color: #06C755; }
-  .btn-uc-remove {
-    flex-shrink: 0; width: 22px; height: 22px; border: none; border-radius: 5px;
-    background: transparent; color: #555; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
-  }
-  .btn-uc-remove:hover { background: rgba(255,107,107,0.12); color: #ff6b6b; }
-  .btn-uc-add {
-    display: flex; align-items: center; gap: 6px; padding: 8px 12px;
-    background: transparent; border: 1.5px dashed #3a3a3a; border-radius: 8px;
-    color: #666; font-size: 11px; cursor: pointer; transition: all 0.15s; width: 100%;
-    justify-content: center;
-  }
-  .btn-uc-add:hover { border-color: #06C755; color: #06C755; }
-  .btn-uc-add:disabled { opacity: 0.4; cursor: not-allowed; }
   /* UC Result */
   .uc-target-badge {
     display: inline-flex; align-items: center; gap: 6px;
@@ -990,17 +976,47 @@
       <!-- 4. 점검 항목 및 의도 -->
       <div class="section">
         <div class="section-label">점검 항목 및 의도</div>
-        <div class="uc-check-items" id="uc-check-items"></div>
-        <button class="btn-uc-add" id="btn-uc-add-item">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
-          항목 추가
-        </button>
+        <div class="uc-check-items" id="uc-check-items">
+
+          <div class="uc-check-item">
+            <div class="uc-check-item-header">
+              <span class="uc-check-item-num" style="background:transparent;color:#555;font-size:10px;font-weight:600;width:auto;border-radius:0;flex-shrink:0">Flow 1</span>
+            </div>
+            <input type="text" class="uc-item-name" placeholder="예) 친구와 대화 중 추천 메시지를 보고 미니앱 상세 화면까지 진입하는 과정">
+            <textarea class="uc-item-goal" rows="2" placeholder="예) 대화의 흐름을 끊지 않고, 추천 메시지를 서비스 안내가 아닌 자연스러운 진입 계기로 받아들인 뒤 다음 행동을 결정할 수 있다."></textarea>
+          </div>
+
+          <div class="uc-check-item">
+            <div class="uc-check-item-header">
+              <span class="uc-check-item-num" style="background:transparent;color:#555;font-size:10px;font-weight:600;width:auto;border-radius:0;flex-shrink:0">Flow 2</span>
+            </div>
+            <input type="text" class="uc-item-name" placeholder="예) 친구와 대화 중 추천 메시지를 보고 미니앱 상세 화면까지 진입하는 과정">
+            <textarea class="uc-item-goal" rows="2" placeholder="예) 대화의 흐름을 끊지 않고, 추천 메시지를 서비스 안내가 아닌 자연스러운 진입 계기로 받아들인 뒤 다음 행동을 결정할 수 있다."></textarea>
+          </div>
+
+          <div class="uc-check-item">
+            <div class="uc-check-item-header">
+              <span class="uc-check-item-num" style="background:transparent;color:#555;font-size:10px;font-weight:600;width:auto;border-radius:0;flex-shrink:0">컴포넌트 1</span>
+            </div>
+            <input type="text" class="uc-item-name" placeholder="예) System Message, CTA 버튼, 배너, 입력 폼, 바텀시트">
+            <textarea class="uc-item-goal" rows="2" placeholder="예) 대화방 내 노출된 안내 메시지를 광고로 오해하지 않고, 기능 안내로 이해한 뒤 탐색 또는 진입 여부를 결정할 수 있다."></textarea>
+          </div>
+
+          <div class="uc-check-item">
+            <div class="uc-check-item-header">
+              <span class="uc-check-item-num" style="background:transparent;color:#555;font-size:10px;font-weight:600;width:auto;border-radius:0;flex-shrink:0">컴포넌트 2</span>
+            </div>
+            <input type="text" class="uc-item-name" placeholder="예) System Message, CTA 버튼, 배너, 입력 폼, 바텀시트">
+            <textarea class="uc-item-goal" rows="2" placeholder="예) 대화방 내 노출된 안내 메시지를 광고로 오해하지 않고, 기능 안내로 이해한 뒤 탐색 또는 진입 여부를 결정할 수 있다."></textarea>
+          </div>
+
+        </div>
       </div>
 
       <!-- 5. 상황 설정 (Task) -->
       <div class="section">
         <div class="section-label">상황 설정 (Task) <span style="color:#555;font-weight:400">(선택)</span></div>
-        <textarea id="uc-task-context" rows="3" style="width:100%;resize:none;font-family:inherit" placeholder="예) 유저가 처음으로 캘린더를 연동하려고 합니다. 설정 메뉴를 찾아 진입하는 과정에서..."></textarea>
+        <textarea id="uc-task-context" rows="5" style="width:100%;resize:none;font-family:inherit" placeholder="외부 상황과 이 화면을 보게 된 맥락을 구체적으로 작성해 주세요.&#10;언제, 어디서, 누구와 있는지, 어떤 계기로 이 화면에 들어왔는지,&#10;이전 단계에서 어떤 정보를 본 상태인지 등을 포함해 주세요.&#10;&#10;예) 출근길 이동하며 화면을 확인하고 있어 긴 설명을 읽을 여유가 많지 않은 상황입니다. 걸어가면서 친구에게 생일 축하 메시지와 선물을 보내주세요."></textarea>
       </div>
 
       <!-- 결과 -->
@@ -1856,44 +1872,6 @@ const UC_ARCHETYPES = `## 유저 행동 아키타입
 | 40대 | 목적 집중형, 신중한 검증형 | 수동적 가이드형 | 빠른 스캔형 |
 | 50대+ | 수동적 가이드형, 신중한 검증형 | 목적 집중형 | 능동적 탐험가형 |`;
 
-// 점검 항목 UI
-let ucCheckItemCount = 0;
-function addUCCheckItem() {
-  const MAX = 4;
-  if (ucCheckItemCount >= MAX) return;
-  ucCheckItemCount++;
-  const idx = ucCheckItemCount;
-  const container = document.getElementById("uc-check-items");
-  const item = document.createElement("div");
-  item.className = "uc-check-item";
-  item.dataset.idx = idx;
-  item.innerHTML = `
-    <div class="uc-check-item-header">
-      <span class="uc-check-item-num">${idx}</span>
-      <input type="text" class="uc-item-name" placeholder="Flow/컴포넌트 이름 (예: 온보딩 1단계 CTA)">
-      <button class="btn-uc-remove" title="삭제">
-        <svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-          <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
-        </svg>
-      </button>
-    </div>
-    <textarea class="uc-item-goal" rows="2" placeholder="UX Goal (예: 유저가 혜택을 빠르게 인지하고 CTA를 클릭해야 한다)"></textarea>`;
-  item.querySelector(".btn-uc-remove").addEventListener("click", () => {
-    item.remove();
-    ucCheckItemCount--;
-    document.getElementById("btn-uc-add-item").disabled = false;
-    // 번호 재정렬
-    document.querySelectorAll(".uc-check-item").forEach((el, i) => {
-      el.querySelector(".uc-check-item-num").textContent = i + 1;
-    });
-  });
-  container.appendChild(item);
-  if (ucCheckItemCount >= MAX) document.getElementById("btn-uc-add-item").disabled = true;
-}
-
-document.getElementById("btn-uc-add-item").addEventListener("click", addUCCheckItem);
-addUCCheckItem(); // 기본 1개 시작
-
 // 칩 이벤트
 document.querySelectorAll(".uc-mode-chip").forEach((c) => c.addEventListener("click", () => {
   const sel = c.classList.contains("selected");
@@ -1924,14 +1902,14 @@ document.getElementById("btn-uc-run").addEventListener("click", () => {
 // 새 검증
 document.getElementById("btn-uc-new").addEventListener("click", () => {
   ucFrames = [];
-  ucCheckItemCount = 0;
   document.getElementById("uc-selection-info").innerHTML =
     '<div class="empty-state">Figma에서 프레임을 선택하세요<span>최대 8개까지 선택 가능합니다</span></div>';
   document.getElementById("uc-frame-count").textContent = "0 frames";
   document.getElementById("uc-loading").style.display = "none";
   document.getElementById("uc-result-area").style.display = "none";
-  document.getElementById("uc-check-items").innerHTML = "";
-  addUCCheckItem();
+  // 입력 필드만 초기화 (항목 구조는 유지)
+  document.querySelectorAll(".uc-item-name").forEach((el) => el.value = "");
+  document.querySelectorAll(".uc-item-goal").forEach((el) => el.value = "");
   document.querySelectorAll(".uc-mode-chip,.uc-age-chip,.uc-sub-chip").forEach((c) => c.classList.remove("selected"));
   document.getElementById("uc-target-extra").value = "";
   document.getElementById("uc-task-context").value = "";
@@ -2002,11 +1980,11 @@ function buildUCUserPrompt(frames, params) {
   if (subscription)   p += `LYP 구독 여부: ${subscription}\n`;
   if (targetExtra)    p += `추가 타겟 조건: ${targetExtra}\n`;
   p += `\n이미지 순서:\n${order}\n\n`;
-  const validItems = checkItems.filter((it) => it.name || it.goal);
-  if (validItems.length) {
+  if (checkItems.length) {
     p += "점검 항목 및 UX Goal:\n";
-    validItems.forEach((it, i) => {
-      p += `${i+1}. ${it.name || "(이름 없음)"}: ${it.goal || "(Goal 없음)"}\n`;
+    checkItems.forEach((it, i) => {
+      const label = it.label ? `[${it.label}] ` : `${i+1}. `;
+      p += `${label}${it.name || "(이름 없음)"}\nGoal: ${it.goal || "(없음)"}\n`;
     });
     p += "\n";
   }
@@ -2022,9 +2000,10 @@ function getUCParams() {
   const targetExtra  = document.getElementById("uc-target-extra").value.trim();
   const taskContext  = document.getElementById("uc-task-context").value.trim();
   const checkItems   = [...document.querySelectorAll(".uc-check-item")].map((el) => ({
-    name: el.querySelector(".uc-item-name").value.trim(),
-    goal: el.querySelector(".uc-item-goal").value.trim(),
-  }));
+    label: (el.querySelector(".uc-check-item-num") || {}).textContent || "",
+    name:  el.querySelector(".uc-item-name").value.trim(),
+    goal:  el.querySelector(".uc-item-goal").value.trim(),
+  })).filter((it) => it.name || it.goal);
   return { mode, ageGroups, subscription, targetExtra, checkItems, taskContext };
 }
 
