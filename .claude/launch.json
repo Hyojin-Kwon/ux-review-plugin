@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Plugin UI Preview (ui.html)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", ".", "-p", "3000", "--no-clipboard"],
+      "port": 3000
+    },
+    {
+      "name": "Report Preview (lyp_report_v2.html)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", ".", "-p", "3001", "--no-clipboard"],
+      "port": 3001
+    }
+  ]
+}
