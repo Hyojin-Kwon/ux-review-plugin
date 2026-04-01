@@ -1589,7 +1589,16 @@ async function callOAICompat(frames, systemPrompt, userPrompt, isAB) {
 }
 
 function buildReviewSystemPrompt() {
-  const parts = [`You are a mobile app UX expert. Analyze the provided screenshots and write a UX review. ${t("prompt_lang")}`];
+  const parts = [
+    `You are a mobile app UX expert. Analyze the provided screenshots and write a UX review. ${t("prompt_lang")}`,
+    UC_ARCHETYPES,
+    `연령대 조건이 입력된 경우, 해당 연령대의 아키타입 가중치를 반영하여 분석하세요.`,
+    `## 문체 원칙
+- 화면에서 관찰 가능한 사실과 구체적인 해석 우선
+- 추상적 비유, 장황한 배경 설명, 모호한 표현 사용 금지
+- 불필요한 수식어 제거, 빠르게 판단 가능한 명확한 표현 우선
+- 한국어로 출력`,
+  ];
   if (reviewCtx.principles)    parts.push(`## UX 원칙\n${reviewCtx.principles}`);
   if (reviewCtx.accessibility) parts.push(`## 접근성 기준\n${reviewCtx.accessibility}`);
   if (reviewCtx.scenarios)     parts.push(`## 유저 시나리오\n${reviewCtx.scenarios}`);
@@ -2087,14 +2096,23 @@ persona_breakdown의 세그먼트는 해당 아키타입 관점에서 각 그룹
     { "segment": "세그먼트명 (예: 20대, JP, 헤비 유저 등)", "a": 42, "b": 58, "note": "이 세그먼트가 B를 더 선호하는 이유" }
   ],
   "scores": [
-    { "criterion": "정보 위계",     "a": 8, "b": 7, "winner": "A", "note": "brief" },
-    { "criterion": "태스크 효율",   "a": 7, "b": 8, "winner": "B", "note": "brief" },
-    { "criterion": "인지 부하",     "a": 6, "b": 7, "winner": "B", "note": "brief" },
-    { "criterion": "시각적 일관성", "a": 8, "b": 6, "winner": "A", "note": "brief" },
-    { "criterion": "접근성",        "a": 7, "b": 7, "winner": "TIE","note": "brief" }
+    { "criterion": "정확성", "a": 8, "b": 7, "winner": "A", "note": "brief" },
+    { "criterion": "효율성", "a": 7, "b": 8, "winner": "B", "note": "brief" },
+    { "criterion": "의미성", "a": 6, "b": 7, "winner": "B", "note": "brief" },
+    { "criterion": "유연성", "a": 8, "b": 6, "winner": "A", "note": "brief" },
+    { "criterion": "일관성", "a": 7, "b": 7, "winner": "TIE", "note": "brief" },
+    { "criterion": "이해성", "a": 7, "b": 8, "winner": "B", "note": "brief" }
   ],
   "detail": "comprehensive plain-text analysis (use \\n for newlines, 300-500 chars)"
 }
+
+scores 평가 기준 (답변의 criterion 레이블에 아래 명칭을 그대로 사용하되, 분석 본문에서 기준 명칭 직접 언급 금지):
+- 정확성: 유저가 실수 없이 과업을 완수할 수 있는가
+- 효율성: 과업 수행 속도가 충분히 빠른가
+- 의미성: 유저가 보고 싶은 정보가 적절히 제공되는가
+- 유연성: 다양한 상호작용과 기능을 제공하는가
+- 일관성: 서비스 문법이 일관되게 유지되는가
+- 이해성: 정보량이 적절하며 UI 관계가 직관적인가
 
 persona_breakdown 규칙:
 - 유저가 설정한 페르소나 조건(연령대, 시장, 사용 패턴 등)을 세그먼트별로 분리하여 A/B 선호 비율을 추정
