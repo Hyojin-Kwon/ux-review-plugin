@@ -695,20 +695,36 @@ function _buildUCResults(data, W) {
     sec.appendChild(_sectionHead("— SUMMARY", "종합 진단", W));
     const wrap = _vf("summary-wrap", W);
     wrap.paddingLeft = 64; wrap.paddingRight = 64; wrap.paddingBottom = 32;
-    wrap.appendChild(_txt(data.summary, 13, "Regular", [34, 34, 34], INNER, 22));
+    wrap.itemSpacing = 16;
+    if (Array.isArray(data.summary)) {
+      data.summary.forEach((s) => {
+        const card = _vf("summary-card", INNER);
+        card.fills = [{ type: "SOLID", color: _r(245, 245, 245) }];
+        card.cornerRadius = 8;
+        card.paddingTop = 12; card.paddingBottom = 12;
+        card.paddingLeft = 14; card.paddingRight = 14;
+        card.itemSpacing = 6;
+        card.appendChild(_txt(s.screen || "", 13, "Bold", [34, 34, 34], INNER - 28));
+        card.appendChild(_txt("강점: " + (s.good || ""), 12, "Regular", [60, 60, 60], INNER - 28, 20));
+        card.appendChild(_txt("개선: " + (s.bad || ""), 12, "Regular", [180, 60, 60], INNER - 28, 20));
+        wrap.appendChild(card);
+      });
+    } else {
+      wrap.appendChild(_txt(data.summary, 13, "Regular", [34, 34, 34], INNER, 22));
+    }
     sec.appendChild(wrap);
   }
 
   // Archetypes
   if (data.archetypes && data.archetypes.length) {
-    sec.appendChild(_sectionHead("— ARCHETYPES", "아키타입별 반응", W));
+    sec.appendChild(_sectionHead("— USER TYPES", "유저 유형별 반응", W));
     const wrap = _vf("archetype-wrap", W);
     wrap.paddingLeft = 64; wrap.paddingRight = 64; wrap.paddingBottom = 32;
     wrap.itemSpacing = 20;
     data.archetypes.forEach((a) => {
       const card = _hf("arc-card");
       card.itemSpacing = 0;
-      card.counterAxisAlignItems = "STRETCH";
+      card.counterAxisAlignItems = "MIN";
 
       const bar = figma.createRectangle();
       bar.name = "left-bar";
@@ -748,7 +764,7 @@ function _buildUCResults(data, W) {
 function _buildUCItemCard(item, W, borderColor) {
   const wrapper = _hf("uc-item-wrap");
   wrapper.itemSpacing = 0;
-  wrapper.counterAxisAlignItems = "STRETCH";
+  wrapper.counterAxisAlignItems = "MIN";
 
   const bar = figma.createRectangle();
   bar.name = "left-bar";

@@ -188,6 +188,18 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-size: 12px; color: #888; }
   .loading-sub { font-size: 11px; color: #666; margin-top: 4px; }
+  .loading-progress { margin: 14px auto 0; max-width: 220px; }
+  .loading-progress-bar {
+    height: 3px; background: #444; border-radius: 2px; overflow: hidden;
+  }
+  .loading-progress-fill {
+    height: 100%; background: #06C755; border-radius: 2px;
+    width: 0%; transition: width 0.6s ease;
+  }
+  .loading-step {
+    font-size: 10px; color: #666; margin-top: 6px;
+    transition: opacity 0.3s;
+  }
 
   /* ── Result ── */
   .result-area { display: none; }
@@ -517,10 +529,24 @@
     background: rgba(245,158,11,0.06); border-radius: 5px; padding: 5px 8px;
   }
   .uc-summary {
-    background: transparent; border-radius: 0; padding: 0 0 0 11px;
-    border-left: 3px solid #888;
-    font-size: 12px; color: #ccc; line-height: 1.7; white-space: pre-wrap;
+    display: flex; flex-direction: column; gap: 10px;
   }
+  .uc-summary-card {
+    background: #363636; border-radius: 8px; padding: 12px 14px;
+  }
+  .uc-summary-screen {
+    font-size: 12px; font-weight: 600; color: #e0e0e0; margin-bottom: 8px;
+  }
+  .uc-summary-row {
+    display: flex; gap: 8px; font-size: 11px; line-height: 1.5; margin-bottom: 4px;
+  }
+  .uc-summary-row:last-child { margin-bottom: 0; }
+  .uc-summary-tag {
+    flex-shrink: 0; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px;
+  }
+  .uc-summary-tag.good { background: rgba(6,199,85,0.15); color: #06C755; }
+  .uc-summary-tag.bad { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+  .uc-summary-text { color: #bbb; }
   .uc-archetype-cards { display: flex; flex-direction: column; gap: 16px; }
   .uc-archetype-card {
     background: transparent; border: none; border-radius: 0; padding: 0 0 0 11px;
@@ -762,6 +788,10 @@
         <div class="spinner"></div>
         <div class="loading-text" id="loading-text">AI가 화면을 분석하고 있습니다...</div>
         <div class="loading-sub" id="loading-sub"></div>
+        <div class="loading-progress">
+          <div class="loading-progress-bar"><div class="loading-progress-fill" id="loading-progress-fill"></div></div>
+          <div class="loading-step" id="loading-step"></div>
+        </div>
       </div>
 
       <!-- Result -->
@@ -961,6 +991,10 @@
         <div class="spinner"></div>
         <div class="loading-text" id="ab-loading-text">AI가 화면을 분석하고 있습니다...</div>
         <div class="loading-sub" id="ab-loading-sub"></div>
+        <div class="loading-progress">
+          <div class="loading-progress-bar"><div class="loading-progress-fill" id="ab-loading-progress-fill"></div></div>
+          <div class="loading-step" id="ab-loading-step"></div>
+        </div>
       </div>
 
       <!-- A/B Result -->
@@ -1506,8 +1540,12 @@
 
       <!-- 결과 -->
       <div id="uc-loading" style="display:none;text-align:center;padding:32px 0">
-        <div class="thumb-spinner" style="width:24px;height:24px;border-width:3px;margin:0 auto 10px"></div>
+        <div class="spinner"></div>
         <div style="font-size:12px;color:#888">AI가 사용성을 분석하고 있습니다...</div>
+        <div class="loading-progress">
+          <div class="loading-progress-bar"><div class="loading-progress-fill" id="uc-loading-progress-fill"></div></div>
+          <div class="loading-step" id="uc-loading-step"></div>
+        </div>
       </div>
 
       <div id="uc-result-area" style="display:none">
@@ -2221,6 +2259,7 @@ function updateReviewBtn() {
 document.getElementById("btn-review").addEventListener("click", () => {
   if (!selectedFrames.length) return;
   showLoading(true); hideResult();
+  setTimeout(() => document.getElementById("loading").scrollIntoView({behavior:"smooth",block:"center"}), 100);
   parent.postMessage({ pluginMessage:{ type:"export-frames-for-review", frameIds:selectedFrames.map((f)=>f.id), scale:parseFloat(settings.exportScale)||1 } }, "*");
 });
 
@@ -2343,10 +2382,47 @@ document.getElementById("btn-re-review").addEventListener("click", async () => {
 // ══════════════════════════════════════════════════════
 // UX REVIEW: UI helpers
 // ══════════════════════════════════════════════════════
+const PROGRESS_STEPS = {
+  ko: ["스크린샷 준비 중...", "화면 구조 분석 중...", "UX 패턴 검토 중...", "인사이트 정리 중...", "리포트 생성 중..."],
+  en: ["Preparing screenshots...", "Analyzing screen structure...", "Reviewing UX patterns...", "Organizing insights...", "Generating report..."],
+};
+let _progressTimers = {};
+
+function startProgress(prefix) {
+  const fillEl = document.getElementById(`${prefix}-progress-fill`) || document.getElementById("loading-progress-fill");
+  const stepEl = document.getElementById(`${prefix}-step`) || document.getElementById("loading-step");
+  if (!fillEl || !stepEl) return;
+  fillEl.style.width = "0%";
+  stepEl.textContent = "";
+  const steps = PROGRESS_STEPS[settings.lang] || PROGRESS_STEPS.ko;
+  const targets = [15, 35, 55, 75, 90];
+  let idx = 0;
+  function next() {
+    if (idx >= steps.length) return;
+    fillEl.style.width = targets[idx] + "%";
+    stepEl.textContent = steps[idx];
+    idx++;
+    _progressTimers[prefix] = setTimeout(next, 3000 + Math.random() * 2000);
+  }
+  next();
+}
+
+function stopProgress(prefix) {
+  clearTimeout(_progressTimers[prefix]);
+  const fillEl = document.getElementById(`${prefix}-progress-fill`) || document.getElementById("loading-progress-fill");
+  const stepEl = document.getElementById(`${prefix}-step`) || document.getElementById("loading-step");
+  if (fillEl) fillEl.style.width = "100%";
+  if (stepEl) stepEl.textContent = "";
+}
+
 function showLoading(v) {
   document.getElementById("loading").className = v?"loading visible":"loading";
   document.getElementById("btn-review").disabled = v||!selectedFrames.length;
-  if (v) { document.getElementById("loading-text").textContent=t("loading_text"); document.getElementById("loading-sub").textContent=t("loading_sub")(selectedFrames.length); }
+  if (v) {
+    document.getElementById("loading-text").textContent=t("loading_text");
+    document.getElementById("loading-sub").textContent=t("loading_sub")(selectedFrames.length);
+    startProgress("loading");
+  } else { stopProgress("loading"); }
 }
 function showResult(text, isErr) {
   document.getElementById("result-status").className = isErr?"result-status error":"result-status";
@@ -2461,6 +2537,7 @@ document.getElementById("btn-ab-run").addEventListener("click", () => {
   const groupsWithFrames = [abFrames.a, abFrames.b, abFrames.c].filter((g) => g.length).length;
   if (groupsWithFrames < 2) return;
   showABLoading(true);
+  setTimeout(() => document.getElementById("ab-loading").scrollIntoView({behavior:"smooth",block:"center"}), 100);
   window._abExportPending = true;
   const allIds = [...abFrames.a, ...abFrames.b, ...abFrames.c].map((f) => f.id);
   parent.postMessage({ pluginMessage:{ type:"export-frames-for-review", frameIds: allIds, scale:parseFloat(settings.exportScale)||1 } }, "*");
@@ -2536,7 +2613,7 @@ document.getElementById("btn-clear-uc").addEventListener("click", () => {
   ucCards = [{ frames: [] }, { frames: [] }, { frames: [] }];
   activeUCCard = 0;
   renderUCCardZone(0); renderUCCardZone(1); renderUCCardZone(2);
-  document.getElementById("uc-loading").style.display = "none";
+  document.getElementById("uc-loading").style.display = "none"; stopProgress("uc-loading");
   document.getElementById("uc-result-area").style.display = "none";
   document.getElementById("uc-result-feedback").style.display = "none";
   document.getElementById("uc-result-feedback-input").value = "";
@@ -2576,6 +2653,8 @@ document.getElementById("btn-uc-run").addEventListener("click", () => {
   const allFrames = ucCards.flatMap((c) => c.frames);
   if (!allFrames.length) return;
   document.getElementById("uc-loading").style.display = "block";
+  startProgress("uc-loading");
+  setTimeout(() => document.getElementById("uc-loading").scrollIntoView({behavior:"smooth",block:"center"}), 100);
   document.getElementById("uc-result-area").style.display = "none";
   document.getElementById("btn-uc-run").disabled = true;
   window._ucExportPending = true;
@@ -2591,7 +2670,7 @@ document.getElementById("btn-uc-new").addEventListener("click", () => {
   ucCards = [{ frames: [] }, { frames: [] }, { frames: [] }];
   activeUCCard = 0;
   renderUCCardZone(0); renderUCCardZone(1); renderUCCardZone(2);
-  document.getElementById("uc-loading").style.display = "none";
+  document.getElementById("uc-loading").style.display = "none"; stopProgress("uc-loading");
   document.getElementById("uc-result-area").style.display = "none";
   document.getElementById("uc-result-feedback").style.display = "none";
   document.getElementById("uc-result-feedback-input").value = "";
@@ -2622,6 +2701,7 @@ document.getElementById("uc-btn-re-review").addEventListener("click", async () =
   document.getElementById("uc-result-feedback-input").value = "";
   document.getElementById("uc-btn-re-review").disabled = true;
   document.getElementById("uc-loading").style.display = "block";
+  startProgress("uc-loading");
   document.getElementById("uc-result-area").style.display = "none";
   document.getElementById("btn-uc-run").disabled = true;
   try {
@@ -2647,7 +2727,7 @@ document.getElementById("uc-btn-re-review").addEventListener("click", async () =
     document.getElementById("uc-summary-wrap").style.display = "block";
     document.getElementById("uc-summary").textContent = e.message || "알 수 없는 오류";
   } finally {
-    document.getElementById("uc-loading").style.display = "none";
+    document.getElementById("uc-loading").style.display = "none"; stopProgress("uc-loading");
     document.getElementById("btn-uc-run").disabled = false;
   }
 });
@@ -2692,7 +2772,13 @@ ${UC_ARCHETYPES}
       "idea": "디자이너가 참고할 수 있는 구체적인 대안"
     }
   ],
-  "summary": "핵심 내용을 간결하게 표 형태로 정리",
+  "summary": [
+    {
+      "screen": "화면/플로우 이름",
+      "good": "핵심 강점 1줄",
+      "bad": "핵심 개선점 1줄"
+    }
+  ],
   "archetypes": [
     {
       "name": "아키타입 이름",
@@ -2804,7 +2890,7 @@ async function runUCAnalysis() {
     const summaryEl = document.getElementById("uc-summary");
     if (summaryEl) { summaryEl.textContent = e.message || "알 수 없는 오류"; document.getElementById("uc-summary-wrap").style.display = "block"; }
   } finally {
-    document.getElementById("uc-loading").style.display = "none";
+    document.getElementById("uc-loading").style.display = "none"; stopProgress("uc-loading");
     document.getElementById("btn-uc-run").disabled = false;
   }
 }
@@ -2866,7 +2952,21 @@ function renderUCResult(rawText) {
 
   // 종합 진단
   if (parsed.summary) {
-    document.getElementById("uc-summary").textContent = parsed.summary;
+    const summaryEl = document.getElementById("uc-summary");
+    summaryEl.innerHTML = "";
+    if (Array.isArray(parsed.summary)) {
+      parsed.summary.forEach((s) => {
+        const card = document.createElement("div");
+        card.className = "uc-summary-card";
+        card.innerHTML = `
+          <div class="uc-summary-screen">${escapeHtml(s.screen || "")}</div>
+          <div class="uc-summary-row"><span class="uc-summary-tag good">강점</span><span class="uc-summary-text">${escapeHtml(s.good || "")}</span></div>
+          <div class="uc-summary-row"><span class="uc-summary-tag bad">개선</span><span class="uc-summary-text">${escapeHtml(s.bad || "")}</span></div>`;
+        summaryEl.appendChild(card);
+      });
+    } else {
+      summaryEl.textContent = parsed.summary;
+    }
     document.getElementById("uc-summary-wrap").style.display = "block";
   }
 
@@ -3110,7 +3210,8 @@ function showABLoading(v) {
     const sub=t("ab_loading_sub");
     const cCount = abFrames.c.length || 0;
     document.getElementById("ab-loading-sub").textContent=typeof sub==="function"?sub(abFrames.a.length,abFrames.b.length,cCount||null):sub;
-  }
+    startProgress("ab-loading");
+  } else { stopProgress("ab-loading"); }
 }
 function hideABResult() {
   document.getElementById("ab-result-area").className="ab-result-area";
