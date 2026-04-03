@@ -202,8 +202,9 @@ function _buildHero(data, W) {
   f.itemSpacing = 0;
 
   // Kicker — sits at top, full INNER width
+  const kickerMap = { ab: "A/B COMPARISON REPORT", uc: "USABILITY CHECK REPORT", review: "UX REVIEW REPORT" };
   const kicker = _txt(
-    data.type === "ab" ? "A/B COMPARISON REPORT" : "UX REVIEW REPORT",
+    kickerMap[data.type] || "UX REVIEW REPORT",
     9, "Medium", [160, 160, 160], INNER
   );
   kicker.letterSpacing = { unit: "PERCENT", value: 18 };
@@ -226,8 +227,9 @@ function _buildHero(data, W) {
   f.appendChild(spacer2);
 
   // Title — Extra Bold
+  const titleMap = { ab: "A/B 비교 시뮬레이션", uc: "Usability Check", review: "UX Review Report" };
   const title = _txt(
-    data.type === "ab" ? "A/B 비교 시뮬레이션" : "UX Review Report",
+    titleMap[data.type] || "UX Review Report",
     48, "Extra Bold", [17, 17, 17], INNER, 60
   );
   f.appendChild(title);
@@ -258,17 +260,27 @@ function _buildHero(data, W) {
   metaRow.resize(INNER, 48);
   metaRow.itemSpacing = 0;
 
-  const items = [
-    { k: "DATE",   v: data.date },
-    { k: "TYPE",   v: data.reviewTypeLabel || data.modeLabel || "—" },
-    { k: "MARKET", v: (data.markets || []).join(" / ") || "—" },
-    {
-      k: data.type === "ab" ? "WINNER" : "FRAMES",
-      v: data.type === "ab"
-        ? (data.winner === "TIE" ? "TIE" : "Version " + data.winner)
-        : ((data.frames && data.frames.length) || 0) + " screens",
-    },
-  ];
+  let items;
+  if (data.type === "uc") {
+    items = [
+      { k: "DATE",   v: data.date },
+      { k: "MODE",   v: data.mode || "—" },
+      { k: "AGE",    v: (data.ageGroups || []).join(" / ") || "—" },
+      { k: "FRAMES", v: ((data.frames && data.frames.length) || 0) + " screens" },
+    ];
+  } else {
+    items = [
+      { k: "DATE",   v: data.date },
+      { k: "TYPE",   v: data.reviewTypeLabel || data.modeLabel || "—" },
+      { k: "MARKET", v: (data.markets || []).join(" / ") || "—" },
+      {
+        k: data.type === "ab" ? "WINNER" : "FRAMES",
+        v: data.type === "ab"
+          ? (data.winner === "TIE" ? "TIE" : "Version " + data.winner)
+          : ((data.frames && data.frames.length) || 0) + " screens",
+      },
+    ];
+  }
 
   items.forEach(function(item) {
     const cell = _vf("meta-cell", cellW);
@@ -282,6 +294,48 @@ function _buildHero(data, W) {
   });
 
   f.appendChild(metaRow);
+
+  // Second meta row for AB/UC persona fields
+  let items2 = null;
+  if (data.type === "ab") {
+    items2 = [
+      { k: "AGE",          v: (data.ageGroups || []).join(" / ") || "—" },
+      { k: "PATTERN",      v: data.usagePattern || "—" },
+      { k: "SUBSCRIPTION", v: data.subscriptionExp || "—" },
+      { k: "SAMPLE SIZE",  v: data.sampleSize ? parseInt(data.sampleSize).toLocaleString() + "명" : "—" },
+    ];
+  } else if (data.type === "uc") {
+    items2 = [
+      { k: "SUBSCRIPTION", v: data.subscription || "—" },
+      { k: "TARGET",       v: data.targetExtra || "—" },
+      { k: "",             v: "" },
+      { k: "",             v: "" },
+    ];
+  }
+  if (items2) {
+    const spacer6 = figma.createRectangle();
+    spacer6.resize(INNER, 12); spacer6.fills = [];
+    f.appendChild(spacer6);
+    const metaRow2 = _hf("Meta2");
+    metaRow2.primaryAxisSizingMode = "FIXED";
+    metaRow2.counterAxisSizingMode = "AUTO";
+    metaRow2.resize(INNER, 48);
+    metaRow2.itemSpacing = 0;
+    items2.forEach(function(item) {
+      const cell = _vf("meta-cell2", cellW);
+      cell.itemSpacing = 6;
+      cell.paddingRight = 16;
+      if (item.k) {
+        const keyTxt = _txt(item.k, 8, "Medium", [175, 175, 175], cellW - 16);
+        keyTxt.letterSpacing = { unit: "PERCENT", value: 14 };
+        cell.appendChild(keyTxt);
+        cell.appendChild(_txt(item.v, 14, "Medium", [17, 17, 17], cellW - 16));
+      }
+      metaRow2.appendChild(cell);
+    });
+    f.appendChild(metaRow2);
+  }
+
   return f;
 }
 
@@ -382,7 +436,7 @@ function _buildWinner(winner, reason, W) {
 }
 
 // Scorecard (A/B)
-function _buildScorecard(scores, W) {
+function _buildScorecard(scores, W, hasC) {
   if (!scores || !scores.length) return null;
   const INNER = W - 128;
   const sec = _vf("scorecard", W);
@@ -396,8 +450,9 @@ function _buildScorecard(scores, W) {
   table.clipsContent = true;
   table.itemSpacing = 0;
 
-  const SCORE_COL = 56; // fixed width per score column
-  const CRIT_W = INNER - SCORE_COL * 2 - 40; // 40 = paddingLeft+Right
+  const SCORE_COL = 56;
+  const colCount = hasC ? 3 : 2;
+  const CRIT_W = INNER - SCORE_COL * colCount - 40;
 
   // Header
   const hRow = _hf("header-row");
@@ -420,6 +475,12 @@ function _buildScorecard(scores, W) {
   hB.counterAxisAlignItems = "CENTER";
   hB.appendChild(_txt("B", 10, "Bold", [245, 158, 11]));
   hRow.appendChild(hB);
+  if (hasC) {
+    const hC = _vf("hC", SCORE_COL);
+    hC.counterAxisAlignItems = "CENTER";
+    hC.appendChild(_txt("C", 10, "Bold", [139, 92, 246]));
+    hRow.appendChild(hC);
+  }
   table.appendChild(hRow);
 
   scores.forEach((s, i) => {
@@ -449,6 +510,13 @@ function _buildScorecard(scores, W) {
     bCol.counterAxisAlignItems = "CENTER";
     bCol.appendChild(_txt(bStr, 18, "Bold", [245, 158, 11]));
     row.appendChild(bCol);
+    if (hasC) {
+      const cStr = s.c !== undefined && s.c !== null ? String(s.c) : "—";
+      const cCol = _vf("cCol-" + i, SCORE_COL);
+      cCol.counterAxisAlignItems = "CENTER";
+      cCol.appendChild(_txt(cStr, 18, "Bold", [139, 92, 246]));
+      row.appendChild(cCol);
+    }
     table.appendChild(row);
   });
 
@@ -459,8 +527,8 @@ function _buildScorecard(scores, W) {
   return sec;
 }
 
-// Persona breakdown (A/B)
-function _buildPersona(breakdown, W) {
+// Persona breakdown (A/B/C)
+function _buildPersona(breakdown, W, hasC) {
   if (!breakdown || !breakdown.length) return null;
   const INNER = W - 128;
   const sec = _vf("persona", W);
@@ -477,7 +545,9 @@ function _buildPersona(breakdown, W) {
   breakdown.forEach((p, i) => {
     if (i > 0) table.appendChild(_divider(INNER, [232, 232, 232]));
     const a = Math.min(100, Math.max(0, p.a || 0));
-    const b = 100 - a;
+    const b = Math.min(100, Math.max(0, p.b || 0));
+    const c = hasC ? Math.min(100, Math.max(0, 100 - a - b)) : 0;
+    const bVal = hasC ? b : (100 - a);
 
     const row = _vf("prow-" + i, INNER);
     row.paddingTop = 14; row.paddingBottom = 14;
@@ -486,11 +556,12 @@ function _buildPersona(breakdown, W) {
 
     row.appendChild(_txt(p.segment || "", 12, "Medium", [34, 34, 34], INNER - 40));
 
-    // Bar (two colored rectangles)
+    // Bar
     const barWrap = _hf("bar-wrap");
     barWrap.itemSpacing = 0;
     barWrap.counterAxisAlignItems = "CENTER";
-    const BAR_W = INNER - 40 - 100;
+    const PCT_LABELS_W = hasC ? 150 : 100;
+    const BAR_W = INNER - 40 - PCT_LABELS_W;
     if (BAR_W > 0 && a > 0) {
       const ra = figma.createRectangle();
       ra.resize(Math.round(BAR_W * a / 100), 8);
@@ -498,19 +569,27 @@ function _buildPersona(breakdown, W) {
       ra.cornerRadius = 0;
       barWrap.appendChild(ra);
     }
-    if (BAR_W > 0 && b > 0) {
+    if (BAR_W > 0 && bVal > 0) {
       const rb = figma.createRectangle();
-      rb.resize(Math.round(BAR_W * b / 100), 8);
+      rb.resize(Math.round(BAR_W * bVal / 100), 8);
       rb.fills = [{ type: "SOLID", color: _r(245, 158, 11) }];
       rb.cornerRadius = 0;
       barWrap.appendChild(rb);
+    }
+    if (hasC && BAR_W > 0 && c > 0) {
+      const rc = figma.createRectangle();
+      rc.resize(Math.round(BAR_W * c / 100), 8);
+      rc.fills = [{ type: "SOLID", color: _r(139, 92, 246) }];
+      rc.cornerRadius = 0;
+      barWrap.appendChild(rc);
     }
 
     const pctRow = _hf("pct-row");
     pctRow.itemSpacing = 8;
     pctRow.appendChild(barWrap);
     pctRow.appendChild(_txt("A " + a + "%", 11, "Medium", [59, 130, 246]));
-    pctRow.appendChild(_txt("B " + b + "%", 11, "Medium", [245, 158, 11]));
+    pctRow.appendChild(_txt("B " + bVal + "%", 11, "Medium", [245, 158, 11]));
+    if (hasC) pctRow.appendChild(_txt("C " + c + "%", 11, "Medium", [139, 92, 246]));
     row.appendChild(pctRow);
 
     if (p.note) row.appendChild(_txt(p.note, 11, "Regular", [150, 150, 150], INNER - 40));
@@ -526,8 +605,9 @@ function _buildPersona(breakdown, W) {
 
 async function _buildFigmaReport(data) {
   const W = 1200;
+  const titleMap = { ab: "A/B Comparison Report", uc: "Usability Check Report", review: "UX Review Report" };
   const root = _vf(
-    data.type === "ab" ? "A/B Comparison Report — " + data.date : "UX Review Report — " + data.date,
+    (titleMap[data.type] || "Report") + " — " + data.date,
     W
   );
   root.fills = [{ type: "SOLID", color: _r(255, 255, 255) }];
@@ -541,16 +621,180 @@ async function _buildFigmaReport(data) {
   if (data.type === "review") {
     root.appendChild(await _buildScreens(data.frames || [], "01 — SCREENS", "검증 프레임", W));
     root.appendChild(_buildResult(data.resultText || "", "02 — ANALYSIS", "AI 분석 결과", W));
+  } else if (data.type === "uc") {
+    root.appendChild(await _buildScreens(data.frames || [], "01 — SCREENS", "검증 프레임", W));
+    root.appendChild(_buildUCResults(data, W));
   } else {
     root.appendChild(_buildWinner(data.winner || "TIE", data.winnerReason || "", W));
     root.appendChild(await _buildScreens(data.framesA || [], "02 — GROUP A", "Group A 프레임", W, "a"));
     root.appendChild(await _buildScreens(data.framesB || [], "03 — GROUP B", "Group B 프레임", W, "b"));
-    const persona = _buildPersona(data.personaBreakdown, W);
+    const hasC = !!(data.framesC && data.framesC.length);
+    if (hasC) {
+      root.appendChild(await _buildScreens(data.framesC, "04 — GROUP C", "Group C 프레임", W, "c"));
+    }
+    const persona = _buildPersona(data.personaBreakdown, W, hasC);
     if (persona) root.appendChild(persona);
-    const scorecard = _buildScorecard(data.scores, W);
+    const scorecard = _buildScorecard(data.scores, W, hasC);
     if (scorecard) root.appendChild(scorecard);
     root.appendChild(_buildResult(data.detail || "", "06 — ANALYSIS", "상세 분석", W));
   }
 
+  // Disclaimer footer
+  root.appendChild(_buildDisclaimer(W));
+
   return root;
+}
+
+function _buildUCResults(data, W) {
+  const INNER = W - 128;
+  const sec = _vf("uc-results", W);
+
+  // Target summary badge
+  if (data.targetSummary) {
+    sec.appendChild(_sectionHead("— TARGET", "타겟 요약", W));
+    const tw = _vf("target-wrap", W);
+    tw.paddingLeft = 64; tw.paddingRight = 64; tw.paddingBottom = 32;
+    const badge = _vf("target-badge", INNER);
+    badge.fills = [{ type: "SOLID", color: _r(240, 253, 244) }];
+    badge.cornerRadius = 8;
+    badge.paddingTop = 12; badge.paddingBottom = 12;
+    badge.paddingLeft = 16; badge.paddingRight = 16;
+    badge.appendChild(_txt(data.targetSummary, 13, "Medium", [6, 120, 50], INNER - 32, 20));
+    tw.appendChild(badge);
+    sec.appendChild(tw);
+  }
+
+  // Keep section
+  if (data.keep && data.keep.length) {
+    sec.appendChild(_sectionHead("— KEEP", "현행 유지", W));
+    const wrap = _vf("keep-wrap", W);
+    wrap.paddingLeft = 64; wrap.paddingRight = 64; wrap.paddingBottom = 32;
+    wrap.itemSpacing = 16;
+    data.keep.forEach((item, i) => {
+      const card = _buildUCItemCard(item, INNER, [6, 199, 85]);
+      wrap.appendChild(card);
+    });
+    sec.appendChild(wrap);
+  }
+
+  // Improve section
+  if (data.improve && data.improve.length) {
+    sec.appendChild(_sectionHead("— IMPROVE", "개선 고려", W));
+    const wrap = _vf("improve-wrap", W);
+    wrap.paddingLeft = 64; wrap.paddingRight = 64; wrap.paddingBottom = 32;
+    wrap.itemSpacing = 16;
+    data.improve.forEach((item, i) => {
+      const card = _buildUCItemCard(item, INNER, [245, 158, 11]);
+      wrap.appendChild(card);
+    });
+    sec.appendChild(wrap);
+  }
+
+  // Summary
+  if (data.summary) {
+    sec.appendChild(_sectionHead("— SUMMARY", "종합 진단", W));
+    const wrap = _vf("summary-wrap", W);
+    wrap.paddingLeft = 64; wrap.paddingRight = 64; wrap.paddingBottom = 32;
+    wrap.appendChild(_txt(data.summary, 13, "Regular", [34, 34, 34], INNER, 22));
+    sec.appendChild(wrap);
+  }
+
+  // Archetypes
+  if (data.archetypes && data.archetypes.length) {
+    sec.appendChild(_sectionHead("— ARCHETYPES", "아키타입별 반응", W));
+    const wrap = _vf("archetype-wrap", W);
+    wrap.paddingLeft = 64; wrap.paddingRight = 64; wrap.paddingBottom = 32;
+    wrap.itemSpacing = 20;
+    data.archetypes.forEach((a) => {
+      const card = _hf("arc-card");
+      card.itemSpacing = 0;
+      card.counterAxisAlignItems = "STRETCH";
+
+      const bar = figma.createRectangle();
+      bar.name = "left-bar";
+      bar.resize(3, 10);
+      bar.fills = [{ type: "SOLID", color: _r(91, 141, 239) }];
+      bar.layoutAlign = "STRETCH";
+      card.appendChild(bar);
+
+      const content = _vf("arc-content", INNER - 3);
+      content.paddingLeft = 11;
+      content.itemSpacing = 4;
+      const header = _hf("arc-header");
+      header.itemSpacing = 8;
+      header.counterAxisAlignItems = "CENTER";
+      header.appendChild(_txt(a.name || "", 14, "Bold", [34, 34, 34]));
+      header.appendChild(_txt(a.trait || "", 11, "Regular", [150, 150, 150]));
+      content.appendChild(header);
+      content.appendChild(_txt(a.reaction || "", 12, "Regular", [80, 80, 80], INNER - 17, 20));
+      if (a.user_voice) {
+        const voice = _vf("arc-voice", INNER - 17);
+        voice.fills = [{ type: "SOLID", color: _r(245, 245, 245) }];
+        voice.cornerRadius = 6;
+        voice.paddingTop = 8; voice.paddingBottom = 8;
+        voice.paddingLeft = 10; voice.paddingRight = 10;
+        voice.appendChild(_txt(a.user_voice, 11, "Regular", [120, 120, 120], INNER - 37, 18));
+        content.appendChild(voice);
+      }
+      card.appendChild(content);
+      wrap.appendChild(card);
+    });
+    sec.appendChild(wrap);
+  }
+
+  return sec;
+}
+
+function _buildUCItemCard(item, W, borderColor) {
+  const wrapper = _hf("uc-item-wrap");
+  wrapper.itemSpacing = 0;
+  wrapper.counterAxisAlignItems = "STRETCH";
+
+  const bar = figma.createRectangle();
+  bar.name = "left-bar";
+  bar.resize(3, 10);
+  bar.fills = [{ type: "SOLID", color: _r(borderColor[0], borderColor[1], borderColor[2]) }];
+  bar.layoutAlign = "STRETCH";
+  wrapper.appendChild(bar);
+
+  const innerWrap = _vf("inner", W - 3);
+  innerWrap.paddingLeft = 11;
+  innerWrap.itemSpacing = 4;
+  innerWrap.appendChild(_txt(item.title || "", 14, "Bold", [34, 34, 34], W - 17));
+  innerWrap.appendChild(_txt(item.desc || "", 12, "Regular", [80, 80, 80], W - 17, 20));
+  if (item.user_voice) {
+    const voice = _vf("voice", W - 17);
+    voice.fills = [{ type: "SOLID", color: _r(245, 245, 245) }];
+    voice.cornerRadius = 6;
+    voice.paddingTop = 8; voice.paddingBottom = 8;
+    voice.paddingLeft = 10; voice.paddingRight = 10;
+    voice.appendChild(_txt(item.user_voice, 11, "Regular", [120, 120, 120], W - 37, 18));
+    innerWrap.appendChild(voice);
+  }
+  if (item.idea) {
+    const idea = _vf("idea", W - 17);
+    idea.fills = [{ type: "SOLID", color: _r(255, 251, 235) }];
+    idea.cornerRadius = 6;
+    idea.paddingTop = 8; idea.paddingBottom = 8;
+    idea.paddingLeft = 10; idea.paddingRight = 10;
+    idea.appendChild(_txt(item.idea, 11, "Regular", [180, 120, 10], W - 37, 18));
+    innerWrap.appendChild(idea);
+  }
+  wrapper.appendChild(innerWrap);
+  return wrapper;
+}
+
+function _buildDisclaimer(W) {
+  const INNER = W - 128;
+  const f = _vf("disclaimer", W);
+  f.paddingTop = 32; f.paddingBottom = 0;
+  f.paddingLeft = 64; f.paddingRight = 64;
+  f.itemSpacing = 12;
+  f.appendChild(_divider(INNER, [220, 220, 220]));
+  const spacer = figma.createRectangle();
+  spacer.resize(INNER, 8); spacer.fills = [];
+  f.appendChild(spacer);
+  const text = "AI 추정 기반 참고자료입니다. 최종 판단은 디자이너가 수행합니다.\n플러그인 결과는 의사결정의 보조 근거로만 활용하며, 단독 근거로 사용하지 않습니다.";
+  f.appendChild(_txt(text, 11, "Regular", [85, 85, 85], INNER, 18));
+  return f;
 }
