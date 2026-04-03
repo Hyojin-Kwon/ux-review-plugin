@@ -318,6 +318,7 @@
   }
   .ab-badge-a { background: #3b82f6; color: #fff; }
   .ab-badge-b { background: #f59e0b; color: #fff; }
+  .ab-badge-c { background: #8b5cf6; color: #fff; }
   .ab-group-label { font-size: 12px; font-weight: 600; color: #ccc; flex: 1; }
   .ab-group-count { font-size: 11px; color: #555; }
   .ab-zone {
@@ -326,8 +327,10 @@
   }
   .ab-zone.zone-a { border-color: rgba(59,130,246,0.32); }
   .ab-zone.zone-b { border-color: rgba(245,158,11,0.32); }
+  .ab-zone.zone-c { border-color: rgba(139,92,246,0.32); }
   .ab-zone.active-zone.zone-a { border-style: solid; border-color: rgba(59,130,246,0.75); background: rgba(59,130,246,0.05); }
   .ab-zone.active-zone.zone-b { border-style: solid; border-color: rgba(245,158,11,0.75); background: rgba(245,158,11,0.05); }
+  .ab-zone.active-zone.zone-c { border-style: solid; border-color: rgba(139,92,246,0.75); background: rgba(139,92,246,0.05); }
   .ab-zone-empty {
     width: 100%; min-height: 80px; padding: 12px;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
@@ -336,6 +339,7 @@
   .ab-zone-empty-active { font-size: 10px; font-weight: 600; }
   .zone-a.active-zone .ab-zone-empty-active { color: #93c5fd; }
   .zone-b.active-zone .ab-zone-empty-active { color: #fcd34d; }
+  .zone-c.active-zone .ab-zone-empty-active { color: #c4b5fd; }
 
   /* A/B Result */
   .ab-result-area { display: none; }
@@ -346,6 +350,7 @@
   }
   .winner-a { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.28); }
   .winner-b { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.28); }
+  .winner-c { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.28); }
   .winner-tie { background: rgba(100,100,100,0.1); border: 1px solid rgba(100,100,100,0.28); }
   .ab-winner-icon { font-size: 20px; flex-shrink: 0; }
   .ab-winner-label { font-size: 13px; font-weight: 700; color: #fff; }
@@ -356,8 +361,8 @@
     padding: 8px 12px; border-bottom: 1px solid #444; gap: 7px;
   }
   .ab-scorecard-title { font-size: 12px; font-weight: 600; color: #fff; flex: 1; }
-  .ab-col { width: 42px; text-align: center; font-size: 10px; font-weight: 700; }
-  .ab-col-a { color: #93c5fd; } .ab-col-b { color: #fcd34d; }
+  .ab-col { width: 36px; text-align: center; font-size: 10px; font-weight: 700; }
+  .ab-col-a { color: #93c5fd; } .ab-col-b { color: #fcd34d; } .ab-col-c { color: #c4b5fd; }
   .ab-row {
     display: flex; align-items: center;
     padding: 7px 12px; border-bottom: 1px solid #383838; gap: 7px;
@@ -365,13 +370,14 @@
   .ab-row:last-child { border-bottom: none; }
   .ab-row-name { flex: 1; font-size: 11px; color: #bbb; }
   .ab-row-note { font-size: 10px; color: #666; margin-top: 1px; }
-  .ab-cell { width: 42px; text-align: center; }
+  .ab-cell { width: 36px; text-align: center; }
   .ab-pill {
     display: inline-flex; align-items: center; justify-content: center;
     width: 28px; height: 19px; border-radius: 5px; font-size: 11px; font-weight: 700;
   }
   .pill-a-win { background: rgba(59,130,246,0.22); color: #93c5fd; }
   .pill-b-win { background: rgba(245,158,11,0.22); color: #fcd34d; }
+  .pill-c-win { background: rgba(139,92,246,0.22); color: #c4b5fd; }
   .pill-tie   { background: rgba(100,100,100,0.18); color: #777; }
   .pill-lose  { background: transparent; color: #555; }
 
@@ -387,6 +393,15 @@
   .persona-bar-a { background: rgba(59,130,246,0.8); height: 100%; }
   .persona-bar-b { background: rgba(245,158,11,0.8); height: 100%; }
   .persona-note { font-size: 10px; color: #666; margin-top: 3px; }
+
+/* ══ Flow Notice ══ */
+  .flow-notice {
+    display: none; align-items: center; gap: 7px;
+    background: rgba(6,199,85,0.06); border: 1px solid rgba(6,199,85,0.18);
+    border-radius: 7px; padding: 8px 11px; margin-bottom: 16px; font-size: 11px; color: #888;
+  }
+  .flow-notice.visible { display: flex; }
+  .flow-notice-icon { font-size: 13px; flex-shrink: 0; }
 
 /* ══ Usability Check ══ */
   .uc-check-items { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
@@ -533,6 +548,12 @@
       </div>
       <div class="selection-info" id="selection-info"></div>
 
+      <!-- 플로우 차트 인식 안내 (flow 서브탭에서만 표시) -->
+      <div class="flow-notice" id="review-flow-notice">
+        <span class="flow-notice-icon">🗺️</span>
+        <span>플로우 차트를 프레임으로 추가하면 번호·화살표·클릭 포인트를 자동으로 인식합니다</span>
+      </div>
+
       <!-- 타겟 시장 (screen/flow 공통 표시) -->
       <div class="section" id="section-market">
         <div class="section-label" data-i18n="label_target_market">타겟 시장</div>
@@ -651,6 +672,12 @@
     <div class="content-scroll">
       <div id="ab-compare-section">
 
+      <!-- 플로우 차트 인식 안내 (플로우 비교 모드에서만 표시) -->
+      <div class="flow-notice" id="ab-flow-notice">
+        <span class="flow-notice-icon">🗺️</span>
+        <span>플로우 차트를 프레임으로 추가하면 번호·화살표·클릭 포인트를 자동으로 인식합니다</span>
+      </div>
+
       <!-- Group A / B -->
       <div class="ab-groups">
         <div class="ab-group">
@@ -674,6 +701,17 @@
             <span class="ab-zone-empty" data-i18n="ab_zone_hint">Figma에서 프레임 선택 → A/B에 배정</span>
           </div>
           <textarea id="ab-desc-b" class="ab-desc" rows="2" placeholder="B안 설명 (선택): 이 시안의 특징, 가설..." style="margin-top:8px;border-color:rgba(245,158,11,0.35)"></textarea>
+        </div>
+        <div class="ab-group">
+          <div class="ab-group-header">
+            <span class="ab-badge ab-badge-c">C</span>
+            <span class="ab-group-label" data-i18n="ab_group_c">Group C</span>
+            <span class="ab-group-count" id="ab-count-c">0 frames</span>
+          </div>
+          <div class="ab-zone zone-c" id="ab-zone-c" data-group="c" tabindex="0">
+            <span class="ab-zone-empty" data-i18n="ab_zone_hint">Figma에서 프레임 선택 → 그룹에 배정</span>
+          </div>
+          <textarea id="ab-desc-c" class="ab-desc" rows="2" placeholder="C안 설명 (선택): 이 시안의 특징, 가설..." style="margin-top:8px;border-color:rgba(139,92,246,0.35)"></textarea>
         </div>
       </div>
 
@@ -781,9 +819,15 @@
         <div class="ab-persona-section" id="ab-persona-section" style="display:none">
           <div class="ab-scorecard-header">
             <span class="ab-scorecard-title">페르소나 선택 비율 추정</span>
-            <span style="font-size:10px;font-weight:700;color:#93c5fd">A</span>
-            <span style="font-size:10px;color:#555;margin:0 5px">vs</span>
-            <span style="font-size:10px;font-weight:700;color:#fcd34d">B</span>
+            <span id="ab-persona-header-labels" style="display:flex;align-items:center;gap:4px">
+              <span style="font-size:10px;font-weight:700;color:#93c5fd">A</span>
+              <span style="font-size:10px;color:#555">vs</span>
+              <span style="font-size:10px;font-weight:700;color:#fcd34d">B</span>
+              <span id="ab-persona-c-label" style="display:none">
+                <span style="font-size:10px;color:#555">vs</span>
+                <span style="font-size:10px;font-weight:700;color:#c4b5fd">C</span>
+              </span>
+            </span>
           </div>
           <div id="ab-persona-rows"></div>
         </div>
@@ -793,6 +837,7 @@
             <span class="ab-scorecard-title" data-i18n="ab_scorecard_title">항목별 점수</span>
             <span class="ab-col ab-col-a">A</span>
             <span class="ab-col ab-col-b">B</span>
+            <span class="ab-col ab-col-c" id="ab-scorecard-col-c">C</span>
           </div>
           <div id="ab-score-rows"></div>
         </div>
@@ -823,7 +868,7 @@
 
     </div>
     <div class="content-footer">
-      <button class="btn btn-primary" id="btn-ab-run" disabled data-i18n="btn_run_ab">A/B 비교 실행</button>
+      <button class="btn btn-primary" id="btn-ab-run" disabled data-i18n="btn_run_ab">A/B/C 비교 실행</button>
     </div>
   </div>
 
@@ -1077,7 +1122,7 @@ let lastUCParams     = null;
 let lastUCResultText = "";
 let activeSubtab    = "screen";   // screen | flow | localization
 let activeAbMode    = "screen";   // screen | flow
-let abFrames        = { a: [], b: [] };
+let abFrames        = { a: [], b: [], c: [] };
 let activeAbGroup   = "a";
 let ucFrames        = [];
 let _frameUidCounter = 0;
@@ -1170,17 +1215,17 @@ const i18n = {
     ctx_market_placeholder:"예) JP: 정보 밀도 허용도 높음.",
     ctx_extra_title:"기타 제약 조건",
     ctx_extra_placeholder:"예) 하단 탭바 고정, 다크모드 미지원 등",
-    ab_group_a:"Group A", ab_group_b:"Group B",
-    ab_zone_hint:"Figma에서 프레임 선택 → A/B에 배정",
+    ab_group_a:"Group A", ab_group_b:"Group B", ab_group_c:"Group C",
+    ab_zone_hint:"Figma에서 프레임 선택 → 그룹에 배정",
     ab_scorecard_title:"항목별 점수", ab_detail_title:"상세 분석",
-    ab_winner_a:"Group A 승리", ab_winner_b:"Group B 승리", ab_winner_tie:"무승부",
-    btn_run_review:"UX 검증 실행", btn_run_ab:"A/B 비교 실행",
+    ab_winner_a:"Group A 승리", ab_winner_b:"Group B 승리", ab_winner_c:"Group C 승리", ab_winner_tie:"무승부",
+    btn_run_review:"UX 검증 실행", btn_run_ab:"A/B/C 비교 실행",
     btn_new_review:"새 검증", btn_re_review:"재검증",
     label_feedback:"피드백",
     placeholder_feedback:"검증 결과에 대한 피드백을 입력하세요...",
     loading_text:"AI가 화면을 분석하고 있습니다...",
     loading_sub: (n) => `${n}장의 스크린샷을 검토 중`,
-    ab_loading_sub: (a,b) => `A: ${a}장, B: ${b}장 분석 중`,
+    ab_loading_sub: (a,b,c) => c ? `A: ${a}장, B: ${b}장, C: ${c}장 분석 중` : `A: ${a}장, B: ${b}장 분석 중`,
     result_complete:"검증 완료", result_error:"오류 발생",
     saved_ok:"저장됨 ✓",
     empty_state:"Figma에서 프레임을 선택하세요",
@@ -1223,17 +1268,17 @@ const i18n = {
     ctx_market_placeholder:"e.g.) JP: High info density tolerance.",
     ctx_extra_title:"Other Constraints",
     ctx_extra_placeholder:"e.g.) Fixed bottom tab bar, no dark mode",
-    ab_group_a:"Group A", ab_group_b:"Group B",
-    ab_zone_hint:"Select in Figma → assign to A or B",
+    ab_group_a:"Group A", ab_group_b:"Group B", ab_group_c:"Group C",
+    ab_zone_hint:"Select in Figma → assign to group",
     ab_scorecard_title:"Score Comparison", ab_detail_title:"Detailed Analysis",
-    ab_winner_a:"Group A Wins", ab_winner_b:"Group B Wins", ab_winner_tie:"Tie",
-    btn_run_review:"Run UX Review", btn_run_ab:"Run A/B Comparison",
+    ab_winner_a:"Group A Wins", ab_winner_b:"Group B Wins", ab_winner_c:"Group C Wins", ab_winner_tie:"Tie",
+    btn_run_review:"Run UX Review", btn_run_ab:"Run A/B/C Comparison",
     btn_new_review:"New Review", btn_re_review:"Re-review",
     label_feedback:"Feedback",
     placeholder_feedback:"Enter feedback on the review...",
     loading_text:"AI is analyzing the screens...",
     loading_sub: (n) => `Reviewing ${n} screenshot${n>1?"s":""}`,
-    ab_loading_sub: (a,b) => `Analyzing A: ${a}, B: ${b} frames`,
+    ab_loading_sub: (a,b,c) => c ? `Analyzing A: ${a}, B: ${b}, C: ${c} frames` : `Analyzing A: ${a}, B: ${b} frames`,
     result_complete:"Review Complete", result_error:"Error",
     saved_ok:"Saved ✓",
     empty_state:"Select frames in Figma",
@@ -1339,8 +1384,9 @@ window.onmessage = (event) => {
       const exportedMap = new Map(msg.frames.map((f) => [f.id, f]));
       abFrames.a = abFrames.a.map((f) => exportedMap.has(f.id) ? { ...f, imageBase64: exportedMap.get(f.id).imageBase64 } : f);
       abFrames.b = abFrames.b.map((f) => exportedMap.has(f.id) ? { ...f, imageBase64: exportedMap.get(f.id).imageBase64 } : f);
-      renderABZone("a"); renderABZone("b");
-      runABAnalysis(abFrames.a, abFrames.b);
+      abFrames.c = abFrames.c.map((f) => exportedMap.has(f.id) ? { ...f, imageBase64: exportedMap.get(f.id).imageBase64 } : f);
+      renderABZone("a"); renderABZone("b"); renderABZone("c");
+      runABAnalysis(abFrames.a, abFrames.b, abFrames.c);
     } else if (window._ucExportPending) {
       window._ucExportPending = false;
       ucFrames = ucFrames.map((f) => {
@@ -1426,6 +1472,7 @@ document.querySelectorAll(".subtab[data-subtab]").forEach((st) => {
     document.querySelectorAll(".subtab[data-subtab]").forEach((s) => s.classList.remove("active"));
     st.classList.add("active");
     activeSubtab = st.dataset.subtab;
+    document.getElementById("review-flow-notice").classList.toggle("visible", activeSubtab === "flow");
   });
 });
 
@@ -1438,6 +1485,7 @@ document.querySelectorAll(".subtab[data-abtab]").forEach((st) => {
     document.querySelectorAll(".subtab[data-abtab]").forEach((s) => s.classList.remove("active"));
     st.classList.add("active");
     activeAbMode = st.dataset.abtab;
+    document.getElementById("ab-flow-notice").classList.toggle("visible", activeAbMode === "flow");
   });
 });
 
@@ -1549,9 +1597,10 @@ function updateFramePreviews(frames) {
 
 function assignFramesToAB(frames) {
   const existingInGroup = new Set(abFrames[activeAbGroup].map((f) => f.id));
+  const totalUsed = abFrames.a.length + abFrames.b.length + abFrames.c.length;
   const toAdd = frames
     .filter((f) => !existingInGroup.has(f.id))
-    .slice(0, (settings.maxFrames || 8) - abFrames.a.length - abFrames.b.length);
+    .slice(0, (settings.maxFrames || 8) - totalUsed);
   if (!toAdd.length) return;
   toAdd.forEach((f) => abFrames[activeAbGroup].push(f));
   renderABZone(activeAbGroup);
@@ -1560,7 +1609,7 @@ function assignFramesToAB(frames) {
 
 function updateABZonePreviews(frames) {
   frames.forEach((f) => {
-    ["a", "b"].forEach((g) => {
+    ["a", "b", "c"].forEach((g) => {
       document.querySelectorAll(`#ab-zone-${g} .frame-card[data-frame-id="${f.id}"]`).forEach((card) => {
         const img = card.querySelector("img");
         const ph = card.querySelector(".frame-thumb-placeholder");
@@ -1606,9 +1655,11 @@ async function runAPICall(exportedFrames) {
 
 async function callReviewAPI(frames, reviewType, markets, additionalContext) {
   const { apiMode } = settings;
+  const sysPrompt  = buildReviewSystemPrompt();
+  const userPrompt = buildReviewUserPrompt(reviewType, markets, additionalContext, frames);
   if (apiMode === "openai" || apiMode === "gateway")
-    return callOAICompat(frames, buildReviewSystemPrompt(), buildReviewUserPrompt(reviewType, markets, additionalContext, frames), false);
-  return callClaudeAPI(frames, buildReviewSystemPrompt(), buildReviewUserPrompt(reviewType, markets, additionalContext, frames), 2048);
+    return callOAICompat(frames, sysPrompt, userPrompt, false);
+  return callClaudeAPI(frames, sysPrompt, userPrompt, 2048);
 }
 
 async function callClaudeAPI(frames, systemPrompt, userPrompt, maxTokens) {
@@ -1617,7 +1668,7 @@ async function callClaudeAPI(frames, systemPrompt, userPrompt, maxTokens) {
   if (!endpoint) throw new Error("API 엔드포인트가 설정되지 않았습니다.");
   if (apiMode==="anthropic" && !apiKey) throw new Error("API Key가 입력되지 않았습니다.");
   const content = [
-    ...frames.map((f) => ({ type:"image", source:{ type:"base64", media_type:"image/png", data:f.imageBase64 } })),
+    ...frames.map((f) => ({ type:"image", source:{ type:"base64", media_type: f._mimeType||"image/png", data:f.imageBase64 } })),
     { type:"text", text:userPrompt },
   ];
   const headers = { "Content-Type":"application/json", "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" };
@@ -1636,7 +1687,7 @@ async function callOAICompat(frames, systemPrompt, userPrompt, isAB) {
   if (apiMode==="openai") { endpoint="https://api.openai.com/v1/chat/completions"; authToken=openaiApiKey; if (!authToken) throw new Error("OpenAI API Key가 입력되지 않았습니다."); }
   else { const base=gatewayUrl.replace(/\/$/,""); endpoint=`${base}/chat/completions`; authToken=gatewayPat; if (!base) throw new Error("Gateway URL이 입력되지 않았습니다."); if (!authToken) throw new Error("PAT 토큰이 입력되지 않았습니다."); }
   const userContent = [
-    ...frames.map((f) => ({ type:"image_url", image_url:{ url:`data:image/png;base64,${f.imageBase64}` } })),
+    ...frames.map((f) => ({ type:"image_url", image_url:{ url:`data:${f._mimeType||"image/png"};base64,${f.imageBase64}` } })),
     { type:"text", text:userPrompt },
   ];
   const res = await fetch(endpoint, { method:"POST", headers:{ "Content-Type":"application/json","Authorization":`Bearer ${authToken}` }, body:JSON.stringify({ model, max_tokens:isAB?3000:2048, messages:[{ role:"system", content:systemPrompt },{ role:"user", content:userContent }] }) });
@@ -1650,6 +1701,13 @@ function buildReviewSystemPrompt() {
     `You are a mobile app UX expert. Analyze the provided screenshots and write a UX review. ${t("prompt_lang")}`,
     UC_ARCHETYPES,
     `연령대 조건이 입력된 경우, 해당 연령대의 아키타입 가중치를 반영하여 분석하세요.`,
+    `## 플로우 차트 인식
+제공된 이미지 중 플로우 차트가 포함된 경우(번호·화살표·라인·클릭 포인트·인터랙션 노드가 보이는 경우), 분석 전 다음 요소를 먼저 인식하세요:
+- 번호/라벨: 각 단계의 순서와 명칭
+- 화살표/라인: 흐름 방향 및 분기 구조
+- 클릭 포인트/인터랙션 노드: 유저 행동이 발생하는 지점
+- 조건 분기: 경우에 따라 달라지는 경로
+파악된 전체 플로우 구조를 토대로 나머지 화면들을 분석하세요.`,
     `## 문체 원칙
 - 화면에서 관찰 가능한 사실과 구체적인 해석 우선
 - 추상적 비유, 장황한 배경 설명, 모호한 표현 사용 금지
@@ -1667,12 +1725,13 @@ function buildReviewSystemPrompt() {
 function buildReviewUserPrompt(reviewType, markets, additionalContext, frames) {
   const instructions = {
     screen:       "위 화면에 대해 다음을 분석해주세요:\n1. 정보 위계 및 시각적 우선순위\n2. 태스크 완수 효율성 (탭 수, 이동 거리)\n3. 인지 부하 (선택지 수, 정보량)\n4. 주요 마찰 지점\n5. 개선 제안 (우선순위순)",
-    flow:         "위 화면들의 플로우를 분석해주세요:\n1. 전체 단계 수 및 적절성\n2. 화면 간 연결성 및 맥락 유지\n3. 이탈 가능 지점\n4. 불필요한 단계 또는 누락된 피드백\n5. 개선 제안",
+    flow:         "위 화면들의 플로우를 분석해주세요. 플로우 차트가 포함된 경우 번호·화살표·클릭 포인트를 인식하여 전체 흐름을 먼저 파악한 뒤 아래 항목을 분석하세요:\n1. 전체 단계 수 및 적절성\n2. 화면 간 연결성 및 맥락 유지\n3. 이탈 가능 지점\n4. 불필요한 단계 또는 누락된 피드백\n5. 개선 제안",
     localization: "위 화면에 대해 시장별 적합성을 비교해주세요:\n1. 각 시장 기준 정보 밀도 적합성\n2. 시각적 스타일 적합성\n3. 텍스트/레이아웃 적합성\n4. 시장별 주요 리스크\n5. 시장별 개선 제안",
   };
   let p = `검증 유형: ${reviewType}\n`;
+  p += `분석 대상 (${frames.length}장): ${frames.map((f)=>f.name).join(" → ")}\n`;
   if (markets.length) p += `타겟 시장: ${markets.join(", ")}\n`;
-  p += `분석 대상 (${frames.length}장): ${frames.map((f)=>f.name).join(" → ")}\n\n`;
+  p += "\n";
   if (additionalContext) p += `추가 맥락:\n${additionalContext}\n\n`;
   p += instructions[reviewType]||"";
   return p;
@@ -1778,16 +1837,18 @@ function renderABZone(group) {
 
 
 function updateABBtn() {
-  document.getElementById("btn-ab-run").disabled = !abFrames.a.length||!abFrames.b.length;
+  const groupsWithFrames = [abFrames.a, abFrames.b, abFrames.c].filter((g) => g.length).length;
+  document.getElementById("btn-ab-run").disabled = groupsWithFrames < 2;
 }
 
 function setActiveAbGroup(group) {
   activeAbGroup = group;
   renderABZone("a");
   renderABZone("b");
+  renderABZone("c");
 }
 
-["a", "b"].forEach((group) => {
+["a", "b", "c"].forEach((group) => {
   const zone = document.getElementById(`ab-zone-${group}`);
   zone.addEventListener("click", () => setActiveAbGroup(group));
   zone.addEventListener("focus", () => setActiveAbGroup(group));
@@ -1816,10 +1877,12 @@ document.querySelectorAll(".ab-sample-chip").forEach((c) => c.addEventListener("
 // A/B: Run + API
 // ══════════════════════════════════════════════════════
 document.getElementById("btn-ab-run").addEventListener("click", () => {
-  if (!abFrames.a.length||!abFrames.b.length) return;
+  const groupsWithFrames = [abFrames.a, abFrames.b, abFrames.c].filter((g) => g.length).length;
+  if (groupsWithFrames < 2) return;
   showABLoading(true);
   window._abExportPending = true;
-  parent.postMessage({ pluginMessage:{ type:"export-frames-for-review", frameIds:[...abFrames.a,...abFrames.b].map((f)=>f.id), scale:parseFloat(settings.exportScale)||1 } }, "*");
+  const allIds = [...abFrames.a, ...abFrames.b, ...abFrames.c].map((f) => f.id);
+  parent.postMessage({ pluginMessage:{ type:"export-frames-for-review", frameIds: allIds, scale:parseFloat(settings.exportScale)||1 } }, "*");
 });
 
 function getABPersona() {
@@ -1834,24 +1897,26 @@ function getABPersona() {
   };
 }
 
-async function runABAnalysis(framesA, framesB) {
+async function runABAnalysis(framesA, framesB, framesC) {
+  framesC = framesC || [];
   showABLoading(true); hideABResult();
   const additionalContext = document.getElementById("ab-additional-context").value.trim();
   const persona = getABPersona();
-  lastABParams = { framesA, framesB, mode: activeAbMode, persona, additionalContext };
+  lastABParams = { framesA, framesB, framesC, mode: activeAbMode, persona, additionalContext };
   try {
-    const raw = await callABAPI(framesA, framesB, activeAbMode, persona, additionalContext);
-    showABLoading(false); renderABResult(raw);
+    const raw = await callABAPI(framesA, framesB, framesC, activeAbMode, persona, additionalContext);
+    showABLoading(false); renderABResult(raw, !!framesC.length);
   } catch(err) { showABLoading(false); showABError(err.message); }
 }
 
-async function callABAPI(framesA, framesB, mode, persona, additionalContext) {
+async function callABAPI(framesA, framesB, framesC, mode, persona, additionalContext) {
+  framesC = framesC || [];
   const { apiMode } = settings;
-  const allFrames = [...framesA,...framesB];
-  const sysPrompt  = buildABSystemPrompt();
-  const userPrompt = buildABUserPrompt(framesA, framesB, mode, persona, additionalContext);
+  const allFrames = [...framesA, ...framesB, ...framesC];
+  const sysPrompt  = buildABSystemPrompt(!!framesC.length);
+  const userPrompt = buildABUserPrompt(framesA, framesB, framesC, mode, persona, additionalContext);
   if (apiMode==="openai"||apiMode==="gateway") return callOAICompat(allFrames, sysPrompt, userPrompt, true);
-  return callClaudeAPI(allFrames, sysPrompt, userPrompt, 3000);
+  return callClaudeAPI(allFrames, sysPrompt, userPrompt, 3500);
 }
 
 // ══════════════════════════════════════════════════════
@@ -2102,31 +2167,47 @@ function renderUCResult(rawText) {
   setTimeout(() => document.getElementById("uc-result-area").scrollIntoView({ behavior:"smooth", block:"start" }), 100);
 }
 
-function buildABSystemPrompt() {
+function buildABSystemPrompt(hasGroupC) {
+  const groups = hasGroupC ? '"A" | "B" | "C" | "TIE"' : '"A" | "B" | "TIE"';
+  const scoreExample = hasGroupC
+    ? `{ "criterion": "정확성", "a": 8, "b": 7, "c": 6, "winner": "A", "note": "brief" }`
+    : `{ "criterion": "정확성", "a": 8, "b": 7, "winner": "A", "note": "brief" }`;
+  const personaExample = hasGroupC
+    ? `{ "segment": "세그먼트명", "a": 40, "b": 35, "c": 25, "note": "이유" }`
+    : `{ "segment": "세그먼트명", "a": 42, "b": 58, "note": "이유" }`;
+  const personaRule = hasGroupC ? "a + b + c = 100 (퍼센트)" : "a + b = 100 (퍼센트)";
   const parts = [
-    `You are a mobile app UX expert specializing in A/B design comparison. ${t("prompt_lang")}`,
+    `You are a mobile app UX expert specializing in multi-variant design comparison. ${t("prompt_lang")}`,
     UC_ARCHETYPES,
     `연령대 조건이 입력된 경우, 해당 연령대의 아키타입 가중치를 퍼널 추정과 승자 판정에 반영하세요.
 persona_breakdown의 세그먼트는 해당 아키타입 관점에서 각 그룹의 선호를 추정하세요.`,
-    `Respond ONLY with a valid JSON object — no markdown, no preamble:
+    `## 플로우 차트 인식
+제공된 이미지 중 플로우 차트가 포함된 경우(번호·화살표·라인·클릭 포인트·인터랙션 노드가 보이는 경우), 비교 분석 전 다음 요소를 먼저 인식하세요:
+- 번호/라벨: 각 단계의 순서와 명칭
+- 화살표/라인: 흐름 방향 및 분기 구조
+- 클릭 포인트/인터랙션 노드: 유저 행동이 발생하는 지점
+- 조건 분기: 경우에 따라 달라지는 경로
+파악된 전체 플로우 구조를 토대로 그룹별 variant를 비교하세요.`,
+  ];
+  parts.push(`Respond ONLY with a valid JSON object — no markdown, no preamble:
 {
-  "winner": "A" | "B" | "TIE",
+  "winner": ${groups},
   "winner_reason": "one-line summary",
   "persona_breakdown": [
-    { "segment": "세그먼트명 (예: 20대, JP, 헤비 유저 등)", "a": 42, "b": 58, "note": "이 세그먼트가 B를 더 선호하는 이유" }
+    ${personaExample}
   ],
   "scores": [
-    { "criterion": "정확성", "a": 8, "b": 7, "winner": "A", "note": "brief" },
-    { "criterion": "효율성", "a": 7, "b": 8, "winner": "B", "note": "brief" },
-    { "criterion": "의미성", "a": 6, "b": 7, "winner": "B", "note": "brief" },
-    { "criterion": "유연성", "a": 8, "b": 6, "winner": "A", "note": "brief" },
-    { "criterion": "일관성", "a": 7, "b": 7, "winner": "TIE", "note": "brief" },
-    { "criterion": "이해성", "a": 7, "b": 8, "winner": "B", "note": "brief" }
+    ${scoreExample},
+    { "criterion": "효율성", ${hasGroupC?'"a": 7, "b": 8, "c": 6,':'"a": 7, "b": 8,'} "winner": "B", "note": "brief" },
+    { "criterion": "의미성", ${hasGroupC?'"a": 6, "b": 7, "c": 8,':'"a": 6, "b": 7,'} "winner": ${hasGroupC?'"C"':'"B"'}, "note": "brief" },
+    { "criterion": "유연성", ${hasGroupC?'"a": 8, "b": 6, "c": 7,':'"a": 8, "b": 6,'} "winner": "A", "note": "brief" },
+    { "criterion": "일관성", ${hasGroupC?'"a": 7, "b": 7, "c": 7,':'"a": 7, "b": 7,'} "winner": "TIE", "note": "brief" },
+    { "criterion": "이해성", ${hasGroupC?'"a": 7, "b": 8, "c": 6,':'"a": 7, "b": 8,'} "winner": "B", "note": "brief" }
   ],
-  "detail": "comprehensive plain-text analysis (use \\n for newlines, 300-500 chars)"
+  "detail": "comprehensive plain-text analysis (use \\n for newlines, 300-600 chars)"
 }
 
-scores 평가 기준 (답변의 criterion 레이블에 아래 명칭을 그대로 사용하되, 분석 본문에서 기준 명칭 직접 언급 금지):
+scores 평가 기준 (criterion 레이블 그대로 사용, 분석 본문에서 직접 언급 금지):
 - 정확성: 유저가 실수 없이 과업을 완수할 수 있는가
 - 효율성: 과업 수행 속도가 충분히 빠른가
 - 의미성: 유저가 보고 싶은 정보가 적절히 제공되는가
@@ -2135,11 +2216,10 @@ scores 평가 기준 (답변의 criterion 레이블에 아래 명칭을 그대�
 - 이해성: 정보량이 적절하며 UI 관계가 직관적인가
 
 persona_breakdown 규칙:
-- 유저가 설정한 페르소나 조건(연령대, 시장, 사용 패턴 등)을 세그먼트별로 분리하여 A/B 선호 비율을 추정
-- a + b = 100 (퍼센트)
-- 설정된 페르소나 조건이 없어도 주요 세그먼트 2~4개를 자동 추정하여 포함
-- note는 해당 세그먼트가 왜 그 비율로 선호하는지 한줄 설명`,
-  ];
+- ${personaRule}
+- 설정된 페르소나 조건을 세그먼트별로 분리하여 선호 비율 추정
+- 조건 없으면 주요 세그먼트 2~4개 자동 추정
+- note는 해당 세그먼트의 선호 이유 한줄`);
   if (abCtx.principles)    parts.push(`## UX 원칙\n${abCtx.principles}`);
   if (abCtx.accessibility) parts.push(`## 접근성 기준\n${abCtx.accessibility}`);
   if (abCtx.market)        parts.push(`## 시장별 고려사항\n${abCtx.market}`);
@@ -2147,25 +2227,34 @@ persona_breakdown 규칙:
   return parts.join("\n\n");
 }
 
-function buildABUserPrompt(framesA, framesB, mode, persona, additionalContext) {
+function buildABUserPrompt(framesA, framesB, framesC, mode, persona, additionalContext) {
+  framesC = framesC || [];
+  const hasC = framesC.length > 0;
   const { markets, ageGroups, usagePattern, subscriptionExp, sampleSize, descA, descB } = persona;
-  const order = [
+  const descC = document.getElementById("ab-desc-c")?.value.trim() || "";
+  const orderLines = [
     ...framesA.map((f,i)=>`이미지 ${i+1}: [Group A] ${f.name}`),
     ...framesB.map((f,i)=>`이미지 ${framesA.length+i+1}: [Group B] ${f.name}`),
-  ].join("\n");
-  let p = `비교 유형: ${mode==="flow"?"플로우 variant 비교":"화면 단위 A/B 비교"}\n`;
-  // 페르소나
+    ...(hasC ? framesC.map((f,i)=>`이미지 ${framesA.length+framesB.length+i+1}: [Group C] ${f.name}`) : []),
+  ];
+  const groups = hasC ? "A/B/C" : "A/B";
+  let p = `비교 유형: ${mode==="flow"?`플로우 variant ${groups} 비교`:`화면 단위 ${groups} 비교`}\n`;
   if (markets.length)    p += `타겟 시장: ${markets.join(", ")}\n`;
   if (ageGroups.length)  p += `연령대: ${ageGroups.join(", ")}\n`;
   if (usagePattern)      p += `사용 패턴: ${usagePattern}\n`;
   if (subscriptionExp)   p += `구독 경험: ${subscriptionExp}\n`;
   if (sampleSize)        p += `표본 수 기준: ${parseInt(sampleSize).toLocaleString()}명\n`;
-  p += `\n이미지 순서:\n${order}\n\n`;
+  p += `\n이미지 순서:\n${orderLines.join("\n")}\n\n`;
   if (descA) p += `A안 설명: ${descA}\n`;
   if (descB) p += `B안 설명: ${descB}\n`;
-  if (descA || descB) p += "\n";
+  if (descC) p += `C안 설명: ${descC}\n`;
+  if (descA || descB || descC) p += "\n";
   if (additionalContext) p += `추가 맥락:\n${additionalContext}\n\n`;
-  p += mode==="flow" ? "Group A와 B는 각각 하나의 플로우 variant입니다. 전체 UX 흐름을 비교하세요." : "동일 화면의 두 디자인 방향입니다. [Group A] / [Group B]를 구분해 비교하세요.";
+  if (mode === "flow") {
+    p += `${groups} 각 그룹은 하나의 플로우 variant입니다. 플로우 차트가 포함된 경우 번호·화살표·클릭 포인트를 먼저 인식한 후, 전체 UX 흐름을 비교하세요.`;
+  } else {
+    p += `동일 화면의 ${groups} 디자인 방향입니다. [Group A] / [Group B]${hasC?" / [Group C]":""} 를 구분해 비교하세요.`;
+  }
   return p;
 }
 
@@ -2173,7 +2262,14 @@ function buildABUserPrompt(framesA, framesB, mode, persona, additionalContext) {
 // ══════════════════════════════════════════════════════
 // A/B: Result rendering
 // ══════════════════════════════════════════════════════
-function renderABResult(rawText) {
+function renderABResult(rawText, hasGroupC) {
+  hasGroupC = hasGroupC || false;
+  // 스코어카드 C열 표시/숨김
+  const colC = document.getElementById("ab-scorecard-col-c");
+  if (colC) colC.style.display = hasGroupC ? "" : "none";
+  const personaCLabel = document.getElementById("ab-persona-c-label");
+  if (personaCLabel) personaCLabel.style.display = hasGroupC ? "contents" : "none";
+
   let parsed;
   try { parsed = JSON.parse(rawText.replace(/```json|```/g,"").trim()); }
   catch(_) {
@@ -2187,9 +2283,10 @@ function renderABResult(rawText) {
   }
   const winner = (parsed.winner||"TIE").toUpperCase();
   const banner = document.getElementById("ab-winner-banner");
-  banner.className = `ab-winner-banner ${winner==="A"?"winner-a":winner==="B"?"winner-b":"winner-tie"}`;
+  const bannerClass = winner==="A"?"winner-a":winner==="B"?"winner-b":winner==="C"?"winner-c":"winner-tie";
+  banner.className = `ab-winner-banner ${bannerClass}`;
   banner.style.display="flex";
-  document.getElementById("ab-winner-icon").textContent = winner==="A"?"🅐":winner==="B"?"🅑":"🤝";
+  document.getElementById("ab-winner-icon").textContent = winner==="A"?"🅐":winner==="B"?"🅑":winner==="C"?"🅒":"🤝";
   document.getElementById("ab-winner-label").textContent = t(`ab_winner_${winner.toLowerCase()}`);
   document.getElementById("ab-winner-sub").textContent = parsed.winner_reason||"";
 
@@ -2200,21 +2297,40 @@ function renderABResult(rawText) {
   const breakdown = parsed.persona_breakdown || [];
   if (breakdown.length) {
     breakdown.forEach((p) => {
-      const a = Math.min(100, Math.max(0, p.a || 0));
-      const b = Math.min(100, Math.max(0, 100 - a));
       const row = document.createElement("div");
       row.className = "persona-row";
-      row.innerHTML = `
-        <div class="persona-seg">${escapeHtml(p.segment)}</div>
-        <div class="persona-bar-wrap">
-          <span class="persona-pct-a">A ${a}%</span>
-          <div class="persona-bar">
-            <div class="persona-bar-a" style="width:${a}%"></div>
-            <div class="persona-bar-b" style="width:${b}%"></div>
+      if (hasGroupC) {
+        const a = Math.min(100, Math.max(0, p.a || 0));
+        const b = Math.min(100, Math.max(0, p.b || 0));
+        const c = Math.min(100, Math.max(0, 100 - a - b));
+        row.innerHTML = `
+          <div class="persona-seg">${escapeHtml(p.segment)}</div>
+          <div class="persona-bar-wrap">
+            <span class="persona-pct-a">A ${a}%</span>
+            <div class="persona-bar">
+              <div class="persona-bar-a" style="width:${a}%"></div>
+              <div style="flex:${b};background:#f59e0b;height:100%"></div>
+              <div style="flex:${c};background:#8b5cf6;height:100%"></div>
+            </div>
+            <span class="persona-pct-b" style="color:#fcd34d">B ${b}%</span>
+            <span class="persona-pct-b" style="color:#c4b5fd;margin-left:4px">C ${c}%</span>
           </div>
-          <span class="persona-pct-b">B ${b}%</span>
-        </div>
-        ${p.note ? `<div class="persona-note">${escapeHtml(p.note)}</div>` : ""}`;
+          ${p.note ? `<div class="persona-note">${escapeHtml(p.note)}</div>` : ""}`;
+      } else {
+        const a = Math.min(100, Math.max(0, p.a || 0));
+        const b = Math.min(100, Math.max(0, 100 - a));
+        row.innerHTML = `
+          <div class="persona-seg">${escapeHtml(p.segment)}</div>
+          <div class="persona-bar-wrap">
+            <span class="persona-pct-a">A ${a}%</span>
+            <div class="persona-bar">
+              <div class="persona-bar-a" style="width:${a}%"></div>
+              <div class="persona-bar-b" style="width:${b}%"></div>
+            </div>
+            <span class="persona-pct-b">B ${b}%</span>
+          </div>
+          ${p.note ? `<div class="persona-note">${escapeHtml(p.note)}</div>` : ""}`;
+      }
       personaRows.appendChild(row);
     });
     personaSection.style.display = "block";
@@ -2227,13 +2343,17 @@ function renderABResult(rawText) {
   (parsed.scores||[]).forEach((s) => {
     const w=(s.winner||"TIE").toUpperCase();
     const row=document.createElement("div"); row.className="ab-row";
+    const pillA = `<span class="ab-pill ${w==="A"?"pill-a-win":w==="TIE"?"pill-tie":"pill-lose"}">${s.a}</span>`;
+    const pillB = `<span class="ab-pill ${w==="B"?"pill-b-win":w==="TIE"?"pill-tie":"pill-lose"}">${s.b}</span>`;
+    const pillC = hasGroupC ? `<div class="ab-cell"><span class="ab-pill ${w==="C"?"pill-c-win":w==="TIE"?"pill-tie":"pill-lose"}">${s.c??"-"}</span></div>` : "";
     row.innerHTML=`
       <div style="flex:1">
         <div class="ab-row-name">${escapeHtml(s.criterion)}</div>
         ${s.note?`<div class="ab-row-note">${escapeHtml(s.note)}</div>`:""}
       </div>
-      <div class="ab-cell"><span class="ab-pill ${w==="A"?"pill-a-win":w==="TIE"?"pill-tie":"pill-lose"}">${s.a}</span></div>
-      <div class="ab-cell"><span class="ab-pill ${w==="B"?"pill-b-win":w==="TIE"?"pill-tie":"pill-lose"}">${s.b}</span></div>`;
+      <div class="ab-cell">${pillA}</div>
+      <div class="ab-cell">${pillB}</div>
+      ${pillC}`;
     rows.appendChild(row);
   });
 
@@ -2249,11 +2369,13 @@ function renderABResult(rawText) {
 
 function showABLoading(v) {
   document.getElementById("ab-loading").className = v?"loading visible":"loading";
-  document.getElementById("btn-ab-run").disabled = v||!abFrames.a.length||!abFrames.b.length;
+  const groupsWithFrames = [abFrames.a, abFrames.b, abFrames.c].filter((g) => g.length).length;
+  document.getElementById("btn-ab-run").disabled = v || groupsWithFrames < 2;
   if (v) {
     document.getElementById("ab-loading-text").textContent=t("loading_text");
     const sub=t("ab_loading_sub");
-    document.getElementById("ab-loading-sub").textContent=typeof sub==="function"?sub(abFrames.a.length,abFrames.b.length):sub;
+    const cCount = abFrames.c.length || 0;
+    document.getElementById("ab-loading-sub").textContent=typeof sub==="function"?sub(abFrames.a.length,abFrames.b.length,cCount||null):sub;
   }
 }
 function hideABResult() {
@@ -2284,7 +2406,7 @@ document.getElementById("ab-btn-re-review").addEventListener("click", async () =
   if (!lastABParams) return;
   const feedback = document.getElementById("ab-result-feedback-input").value.trim();
   if (!feedback) return;
-  const { framesA, framesB, mode, persona, additionalContext } = lastABParams;
+  const { framesA, framesB, framesC, mode, persona, additionalContext } = lastABParams;
   let ctx = additionalContext || "";
   if (lastABResultText) ctx += `\n\n## 이전 분석 결과:\n${lastABResultText}`;
   ctx += `\n\n## 디자이너 피드백:\n${feedback}\n\n위 피드백을 반영하여 재분석해주세요.`;
@@ -2292,8 +2414,9 @@ document.getElementById("ab-btn-re-review").addEventListener("click", async () =
   document.getElementById("ab-btn-re-review").disabled = true;
   showABLoading(true); hideABResult();
   try {
-    const raw = await callABAPI(framesA, framesB, mode, persona, ctx);
-    showABLoading(false); renderABResult(raw);
+    const hasC = !!(framesC && framesC.length);
+    const raw = await callABAPI(framesA, framesB, framesC||[], mode, persona, ctx);
+    showABLoading(false); renderABResult(raw, hasC);
   } catch(e) { showABLoading(false); showABError(e.message); }
 });
 
@@ -2309,6 +2432,7 @@ function initCtxPanel(panelId, headerId) {
 }
 initCtxPanel("ctx-panel-review","ctx-header-review");
 initCtxPanel("ctx-panel-ab","ctx-header-ab");
+
 
 function updateCtxBadge(which) {
   const ctx = which==="ab"?abCtx:reviewCtx;
@@ -2561,18 +2685,19 @@ document.getElementById("btn-clear-all").addEventListener("click", () => {
   selectedFrames = []; renderEmptyState(); updateReviewBtn(); hideResult(); showLoading(false);
 });
 document.getElementById("btn-clear-ab").addEventListener("click", () => {
-  abFrames = {a:[],b:[]};
-  renderABZone("a"); renderABZone("b");
+  abFrames = {a:[],b:[],c:[]};
+  renderABZone("a"); renderABZone("b"); renderABZone("c");
   document.getElementById("ab-desc-a").value = "";
   document.getElementById("ab-desc-b").value = "";
+  document.getElementById("ab-desc-c").value = "";
   updateABBtn(); hideABResult(); showABLoading(false);
 });
 document.getElementById("btn-reset").addEventListener("click", () => {
   selectedFrames=[]; renderEmptyState(); updateReviewBtn(); hideResult(); showLoading(false);
 });
 document.getElementById("ab-btn-reset").addEventListener("click", () => {
-  abFrames={a:[],b:[]};
-  renderABZone("a"); renderABZone("b");
+  abFrames={a:[],b:[],c:[]};
+  renderABZone("a"); renderABZone("b"); renderABZone("c");
   updateABBtn(); hideABResult(); showABLoading(false);
 });
 
