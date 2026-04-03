@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Plugin UI Preview (ui.html)",
+      "runtimeExecutable": "/usr/bin/ruby",
+      "runtimeArgs": ["-e", "require 'webrick'; WEBrick::HTTPServer.new(:Port=>3000,:DocumentRoot=>'/Users/user/Desktop/ux-review-plugin',:AccessLog=>[],:Logger=>WEBrick::Log.new('/dev/null')).start"],
+      "port": 3000
+    },
+    {
+      "name": "Report Preview (lyp_report_v2.html)",
+      "runtimeExecutable": "/usr/bin/ruby",
+      "runtimeArgs": ["-e", "require 'webrick'; WEBrick::HTTPServer.new(:Port=>3001,:DocumentRoot=>'/Users/user/Desktop/ux-review-plugin',:AccessLog=>[],:Logger=>WEBrick::Log.new('/dev/null')).start"],
+      "port": 3001
+    }
+  ]
+}
