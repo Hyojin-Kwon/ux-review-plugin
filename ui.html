@@ -542,17 +542,16 @@
 
     <div class="content-scroll">
 
+      <!-- 플로우 차트 인식 안내 (flow 서브탭에서만 표시) -->
+      <div class="flow-notice" id="review-flow-notice">
+        <span>플로우 차트를 프레임으로 추가하면 번호·화살표·클릭 포인트를 자동으로 인식합니다</span>
+      </div>
+
       <!-- Frame 선택 -->
       <div class="selection-header">
         <span class="selection-count" id="frame-count">0 frames</span>
       </div>
       <div class="selection-info" id="selection-info"></div>
-
-      <!-- 플로우 차트 인식 안내 (flow 서브탭에서만 표시) -->
-      <div class="flow-notice" id="review-flow-notice">
-        <span class="flow-notice-icon">🗺️</span>
-        <span>플로우 차트를 프레임으로 추가하면 번호·화살표·클릭 포인트를 자동으로 인식합니다</span>
-      </div>
 
       <!-- 타겟 시장 (screen/flow 공통 표시) -->
       <div class="section" id="section-market">
@@ -674,7 +673,6 @@
 
       <!-- 플로우 차트 인식 안내 (플로우 비교 모드에서만 표시) -->
       <div class="flow-notice" id="ab-flow-notice">
-        <span class="flow-notice-icon">🗺️</span>
         <span>플로우 차트를 프레임으로 추가하면 번호·화살표·클릭 포인트를 자동으로 인식합니다</span>
       </div>
 
@@ -2806,7 +2804,7 @@ document.querySelectorAll("#section-market .chip").forEach((c) => c.addEventList
 // INIT
 // ══════════════════════════════════════════════════════
 async function init() {
-  renderEmptyState(); renderABZone("a"); renderABZone("b");
+  renderEmptyState(); renderABZone("a"); renderABZone("b"); renderABZone("c");
 
   const savedSettings = await storageGet("ux-review-settings");
   if (savedSettings) settings={...settings,...savedSettings};
