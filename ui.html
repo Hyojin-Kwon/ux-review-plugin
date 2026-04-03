@@ -193,6 +193,7 @@
   .result-area { display: none; }
   .result-area.visible { display: block; }
   .result-card { background: #363636; border-radius: 8px; overflow: hidden; }
+  .result-card-body { padding: 13px; }
   .result-card-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 10px 13px; border-bottom: 1px solid #444;
@@ -217,15 +218,47 @@
   }
   .result-feedback { padding: 9px 13px; border-top: 1px solid #3a3a3a; }
   .result-feedback-label { font-size: 11px; font-weight: 600; color: #888; margin-bottom: 5px; }
-  #result-feedback-input, #ab-result-feedback-input {
+  #result-feedback-input, #ab-result-feedback-input, #uc-result-feedback-input {
     width: 100%; padding: 8px 11px;
     border: 1px solid #444; border-radius: 8px;
     font-size: 12px; font-family: inherit;
     background: #2c2c2c; color: #e0e0e0; outline: none;
     resize: none; line-height: 1.6; transition: border-color 0.15s; min-height: 60px;
   }
-  #result-feedback-input:focus, #ab-result-feedback-input:focus { border-color: #06C755; }
-  #result-feedback-input::placeholder, #ab-result-feedback-input::placeholder { color: #555; }
+  #result-feedback-input:focus, #ab-result-feedback-input:focus, #uc-result-feedback-input:focus { border-color: #06C755; }
+  #result-feedback-input::placeholder, #ab-result-feedback-input::placeholder, #uc-result-feedback-input::placeholder { color: #555; }
+
+  /* ══ File Attachment ══ */
+  .attach-area { margin-top: 10px; }
+  .attach-label { font-size: 11px; color: #888; margin-bottom: 6px; }
+  .attach-drop {
+    border: 1px dashed #555; border-radius: 8px; padding: 14px;
+    text-align: center; cursor: pointer; transition: all 0.15s;
+    position: relative;
+  }
+  .attach-drop:hover { border-color: #06C755; background: rgba(6,199,85,0.04); }
+  .attach-drop.dragover { border-color: #06C755; background: rgba(6,199,85,0.08); }
+  .attach-drop-icon { font-size: 16px; margin-bottom: 4px; color: #666; }
+  .attach-drop-text { font-size: 11px; color: #888; }
+  .attach-drop-hint { font-size: 10px; color: #555; margin-top: 2px; }
+  .attach-drop input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+  .attach-files { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .attach-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px; border-radius: 6px; font-size: 11px;
+    background: #363636; border: 1px solid #444; color: #ccc;
+  }
+  .attach-chip-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .attach-chip-size { color: #666; font-size: 10px; }
+  .attach-chip-remove {
+    width: 14px; height: 14px; border: none; background: none;
+    color: #666; cursor: pointer; padding: 0; display: flex;
+    align-items: center; justify-content: center; border-radius: 50%;
+    transition: all 0.15s; font-size: 12px; line-height: 1;
+  }
+  .attach-chip-remove:hover { color: #ff6b6b; background: rgba(255,107,107,0.1); }
 
   /* ══ Context Accordion Panel ══ */
   .ctx-panel {
@@ -397,51 +430,78 @@
 /* ══ Flow Notice ══ */
   .flow-notice {
     display: none; align-items: center; gap: 7px;
-    background: rgba(6,199,85,0.06); border: 1px solid rgba(6,199,85,0.18);
+    background: rgba(255,255,255,0.04); border: 1px solid #3a3a3a;
     border-radius: 7px; padding: 8px 11px; margin-bottom: 16px; font-size: 11px; color: #888;
   }
   .flow-notice.visible { display: flex; }
   .flow-notice-icon { font-size: 13px; flex-shrink: 0; }
 
 /* ══ Usability Check ══ */
-  .uc-check-items { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
-  .uc-check-item {
-    background: #363636; border-radius: 8px; padding: 11px 12px;
-    display: flex; flex-direction: column; gap: 8px; position: relative;
-  }
-  .uc-check-item-header { display: flex; align-items: center; gap: 8px; }
-  .uc-check-item-num {
-    width: 20px; height: 20px; border-radius: 50%; background: #444;
-    color: #999; font-size: 10px; font-weight: 600;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .uc-check-item input[type="text"] {
-    flex: 1; background: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 6px;
-    color: #e0e0e0; font-size: 12px; padding: 6px 10px; outline: none;
+  .uc-flow-cards { display: flex; flex-direction: column; gap: 12px; }
+  .uc-flow-card {
+    border: 1px solid #3a3a3a; border-radius: 10px; overflow: hidden;
     transition: border-color 0.15s;
   }
-  .uc-check-item input[type="text"]:focus { border-color: #06C755; }
-  .uc-check-item textarea {
+  .uc-flow-card.active-card { border-color: rgba(6,199,85,0.5); }
+  .uc-flow-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; cursor: pointer; user-select: none;
+  }
+  .uc-flow-card-label { font-size: 12px; font-weight: 600; color: #e0e0e0; }
+  .uc-flow-card-toggle {
+    background: none; border: none; color: #666; cursor: pointer; padding: 2px;
+    display: flex; align-items: center; transition: transform 0.2s;
+  }
+  .uc-flow-card-toggle.collapsed { transform: rotate(-90deg); }
+  .uc-flow-card-body { padding: 0 14px 14px; }
+  .uc-flow-card-body.collapsed { display: none; }
+  .uc-card-frame-header { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+  .uc-card-zone {
+    min-height: 70px; border: 1.5px dashed #3a3a3a; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px; cursor: pointer; transition: all 0.15s;
+  }
+  .uc-card-zone.active-zone {
+    border-style: solid; border-color: rgba(6,199,85,0.5);
+    background: rgba(6,199,85,0.03);
+  }
+  .uc-card-zone .frame-list { width: 100%; padding: 8px; }
+  .uc-card-zone.active-zone .ab-zone-empty-active { color: #06C755; }
+  .uc-flow-field { margin-bottom: 10px; }
+  .uc-flow-field:last-child { margin-bottom: 0; }
+  .uc-flow-field label {
+    display: block; font-size: 11px; font-weight: 600; color: #888;
+    margin-bottom: 5px;
+  }
+  .uc-flow-card input[type="text"] {
+    width: 100%; background: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 6px;
+    color: #e0e0e0; font-size: 12px; padding: 6px 10px; outline: none;
+    transition: border-color 0.15s; box-sizing: border-box;
+  }
+  .uc-flow-card input[type="text"]:focus { border-color: #06C755; }
+  .uc-flow-card textarea {
     width: 100%; background: #2c2c2c; border: 1px solid #3a3a3a; border-radius: 6px;
     color: #e0e0e0; font-size: 11px; padding: 7px 10px; outline: none;
     resize: none; line-height: 1.5; transition: border-color 0.15s; font-family: inherit;
+    box-sizing: border-box;
   }
-  .uc-check-item textarea:focus { border-color: #06C755; }
+  .uc-flow-card textarea:focus { border-color: #06C755; }
+  .uc-flow-hint { display: block; font-size: 10px; color: #555; margin-top: 4px; }
   /* UC Result */
   .uc-target-badge {
-    display: inline-flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; gap: 6px;
     background: rgba(6,199,85,0.1); border: 1px solid rgba(6,199,85,0.25);
-    border-radius: 100px; padding: 5px 12px; font-size: 11px; color: #06C755;
-    margin-bottom: 14px; flex-wrap: wrap;
+    border-radius: 8px; padding: 5px 12px; font-size: 11px; color: #06C755;
+    margin-bottom: 14px; flex-wrap: wrap; width: 100%; box-sizing: border-box;
   }
-  .uc-result-section { margin-bottom: 16px; }
+  .uc-result-section { margin-bottom: 24px; }
   .uc-result-section-title {
     font-size: 11px; font-weight: 600; color: #888; margin-bottom: 8px;
     display: flex; align-items: center; gap: 6px;
   }
-  .uc-result-cards { display: flex; flex-direction: column; gap: 8px; }
+  .uc-result-cards { display: flex; flex-direction: column; gap: 16px; }
   .uc-result-card {
-    background: #363636; border-radius: 8px; padding: 12px 14px;
+    background: transparent; padding: 0 0 0 11px;
     border-left: 3px solid transparent;
   }
   .uc-result-card.keep { border-left-color: #06C755; }
@@ -449,7 +509,7 @@
   .uc-result-card-title { font-size: 12px; font-weight: 600; color: #e0e0e0; margin-bottom: 5px; }
   .uc-result-card-desc { font-size: 11px; color: #aaa; line-height: 1.6; margin-bottom: 6px; }
   .uc-result-voice {
-    font-size: 10px; color: #888; font-style: italic; line-height: 1.5;
+    font-size: 10px; color: #888; line-height: 1.5;
     background: #2c2c2c; border-radius: 5px; padding: 5px 8px; margin-bottom: 6px;
   }
   .uc-result-idea {
@@ -457,8 +517,22 @@
     background: rgba(245,158,11,0.06); border-radius: 5px; padding: 5px 8px;
   }
   .uc-summary {
-    background: #363636; border-radius: 8px; padding: 14px;
+    background: transparent; border-radius: 0; padding: 0 0 0 11px;
+    border-left: 3px solid #888;
     font-size: 12px; color: #ccc; line-height: 1.7; white-space: pre-wrap;
+  }
+  .uc-archetype-cards { display: flex; flex-direction: column; gap: 16px; }
+  .uc-archetype-card {
+    background: transparent; border: none; border-radius: 0; padding: 0 0 0 11px;
+    border-left: 3px solid #5B8DEF;
+  }
+  .uc-archetype-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+  .uc-archetype-name { font-size: 12px; font-weight: 600; color: #e0e0e0; }
+  .uc-archetype-trait { font-size: 10px; color: #888; }
+  .uc-archetype-reaction { font-size: 11px; color: #aaa; line-height: 1.6; margin-bottom: 8px; }
+  .uc-archetype-voice {
+    font-size: 10px; color: #888; line-height: 1.5;
+    background: rgba(255,255,255,0.03); border-radius: 5px; padding: 5px 8px;
   }
 
 /* ══ Settings ══ */
@@ -503,6 +577,62 @@
     width: 6px; height: 6px; border-radius: 50%;
     flex-shrink: 0; background: #06C755;
   }
+
+  /* ── Help Page ── */
+  .help-header {
+    text-align: left; padding: 24px 0 16px;
+    margin: 0 -18px 20px; padding-left: 18px; padding-right: 18px;
+  }
+  .help-header-title { font-size: 16px; font-weight: 700; color: #e0e0e0; margin-bottom: 4px; }
+  .help-header-sub { font-size: 11px; color: #888; }
+  .help-menu-card {
+    background: #363636; border-radius: 10px; padding: 18px;
+    margin-bottom: 16px; border: 1px solid #3a3a3a;
+  }
+  .help-menu-card-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    padding-bottom: 12px; border-bottom: 1px solid #444;
+  }
+  .help-menu-badge {
+    padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .help-menu-badge.review { background: rgba(6,199,85,0.15); color: #06C755; }
+  .help-menu-badge.uc { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .help-menu-badge.ab { background: rgba(251,191,36,0.15); color: #fbbf24; }
+  .help-menu-title { font-size: 13px; font-weight: 600; color: #e0e0e0; }
+  .help-menu-purpose {
+    font-size: 12px; color: #ccc; line-height: 1.6; margin-bottom: 20px;
+    padding: 10px 12px 8px; background: rgba(255,255,255,0.03); border-radius: 6px;
+  }
+  .help-section-label {
+    font-size: 10px; font-weight: 600; color: #888; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 8px;
+  }
+  .help-modes { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .help-mode-chip {
+    padding: 4px 10px; border-radius: 100px; font-size: 11px;
+    background: #444; color: #ccc; border: 1px solid #555;
+  }
+  .help-fields { margin-bottom: 20px; }
+  .help-field-row {
+    display: flex; align-items: baseline; gap: 6px;
+    font-size: 11px; color: #bbb; padding: 3px 0;
+  }
+  .help-field-name { color: #e0e0e0; font-weight: 500; min-width: 70px; flex-shrink: 0; }
+  .help-field-desc { color: #999; }
+  .help-compare-table {
+    width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 20px;
+  }
+  .help-compare-table th {
+    text-align: left; padding: 8px 20px; color: #888; font-weight: 600;
+    border-bottom: 1px solid #444; font-size: 10px;
+  }
+  .help-compare-table td {
+    padding: 6px 20px; color: #bbb; border-bottom: 1px solid #3a3a3a;
+    vertical-align: top;
+  }
+  .help-compare-table tr td:first-child { color: #e0e0e0; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -511,10 +641,15 @@
   <div class="tabs">
     <div class="tab-group">
       <div class="tab active" data-tab="review" data-i18n="tab_review">UX Review</div>
-      <div class="tab" data-tab="ab" data-i18n="tab_ab">A/B 비교 시뮬레이션</div>
       <div class="tab" data-tab="uc">Usability Check</div>
+      <div class="tab" data-tab="ab" data-i18n="tab_ab">A/B 비교</div>
     </div>
     <div style="flex:1"></div>
+    <button class="btn-icon" id="btn-tab-help" title="도움말">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </button>
     <button class="btn-icon" id="btn-tab-settings" data-tab="settings" title="설정">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -567,6 +702,15 @@
       <div class="section">
         <div class="section-label" data-i18n="label_additional_context">추가 맥락 (선택)</div>
         <textarea id="additional-context" rows="3" placeholder="특별히 검증받고 싶은 포인트가 있으면 입력하세요..." data-i18n-ph="placeholder_additional_context"></textarea>
+        <div class="attach-area">
+          <div class="attach-label">참고 자료 첨부 <span style="color:#555;font-weight:400">(선택)</span></div>
+          <div class="attach-drop" id="review-attach-drop">
+            <div class="attach-drop-text">클릭 또는 드래그하여 파일 추가</div>
+            <div class="attach-drop-hint">.txt .md .csv .json · 최대 3개, 각 50KB</div>
+            <input type="file" id="review-attach-input" multiple accept=".txt,.md,.csv,.json,.text,.markdown">
+          </div>
+          <div class="attach-files" id="review-attach-files"></div>
+        </div>
       </div>
 
       <!-- 컨텍스트 패널 (UX Review 전용) -->
@@ -726,7 +870,13 @@
           <div class="chip ab-age-chip" data-age="10대">10대</div>
           <div class="chip ab-age-chip" data-age="20대">20대</div>
           <div class="chip ab-age-chip" data-age="30대">30대</div>
-          <div class="chip ab-age-chip" data-age="40대+">40대+</div>
+          <div class="chip ab-age-chip" data-age="40대">40대</div>
+          <div class="chip ab-age-chip" data-age="50대+">50대+</div>
+        </div>
+        <div class="section-label">성별</div>
+        <div class="chip-group" style="margin-bottom:20px">
+          <div class="chip ab-gender-chip" data-gender="남성">남성</div>
+          <div class="chip ab-gender-chip" data-gender="여성">여성</div>
         </div>
         <div class="section-label">사용 패턴</div>
         <div class="chip-group" style="margin-bottom:20px">
@@ -755,6 +905,15 @@
       <div class="section">
         <div class="section-label" data-i18n="label_additional_context">추가 맥락 (선택)</div>
         <textarea id="ab-additional-context" rows="3" placeholder="비교 시 집중할 포인트를 입력하세요..." data-i18n-ph="ab_placeholder_context"></textarea>
+        <div class="attach-area">
+          <div class="attach-label">참고 자료 첨부 <span style="color:#555;font-weight:400">(선택)</span></div>
+          <div class="attach-drop" id="ab-attach-drop">
+            <div class="attach-drop-text">클릭 또는 드래그하여 파일 추가</div>
+            <div class="attach-drop-hint">.txt .md .csv .json · 최대 3개, 각 50KB</div>
+            <input type="file" id="ab-attach-input" multiple accept=".txt,.md,.csv,.json,.text,.markdown">
+          </div>
+          <div class="attach-files" id="ab-attach-files"></div>
+        </div>
       </div>
 
       <!-- 컨텍스트 패널 (A/B 전용) -->
@@ -872,6 +1031,206 @@
 
 
   <!-- ══════════════════════════════════
+       Tab: Help
+  ══════════════════════════════════ -->
+  <div class="content" id="tab-help" style="display:none">
+    <div class="content-scroll">
+
+      <div class="help-header">
+        <div class="help-header-title">UX Review Plugin Guide</div>
+        <div class="help-header-sub">각 메뉴의 목적과 결과 구조를 안내합니다</div>
+      </div>
+
+      <!-- ── UX Review ── -->
+      <div class="help-menu-card">
+        <div class="help-menu-card-header">
+          <span class="help-menu-badge review">UX Review</span>
+          <span class="help-menu-title">전문가 관점 UX 리뷰</span>
+        </div>
+        <div class="help-menu-purpose">
+          모바일 앱 UX 전문가 시점에서 화면/플로우를 분석합니다.<br>
+          정보 위계, 태스크 효율, 인지 부하 등을 중심으로 개선점을 도출합니다.
+        </div>
+        <div class="help-section-label">검증 유형</div>
+        <div class="help-modes">
+          <span class="help-mode-chip">화면 단위</span>
+          <span class="help-mode-chip">플로우</span>
+          <span class="help-mode-chip">시장별 비교</span>
+        </div>
+        <div class="help-section-label">입력 항목</div>
+        <div class="help-fields">
+          <div class="help-field-row"><span class="help-field-name">프레임</span><span class="help-field-desc">피그마에서 선택한 화면 (최대 8장)</span></div>
+          <div class="help-field-row"><span class="help-field-name">타겟 시장</span><span class="help-field-desc">JP / TH / TW (선택)</span></div>
+          <div class="help-field-row"><span class="help-field-name">추가 맥락</span><span class="help-field-desc">자유 입력 (선택)</span></div>
+          <div class="help-field-row"><span class="help-field-name">컨텍스트</span><span class="help-field-desc">UX 원칙, 접근성, 시나리오 등 (컨텍스트 탭)</span></div>
+        </div>
+        <div class="help-section-label">결과 형태</div>
+        <div class="help-fields">
+          <div class="help-field-row"><span class="help-field-name">형태</span><span class="help-field-desc">자유형 텍스트 리뷰</span></div>
+          <div class="help-field-row"><span class="help-field-name">분석 항목</span><span class="help-field-desc">정보 위계, 태스크 효율, 인지 부하, 마찰 지점</span></div>
+          <div class="help-field-row"><span class="help-field-name">개선 제안</span><span class="help-field-desc">우선순위순 제안 포함</span></div>
+          <div class="help-field-row"><span class="help-field-name">재검증</span><span class="help-field-desc">피드백 입력 후 재분석 가능</span></div>
+        </div>
+      </div>
+
+      <!-- ── Usability Check ── -->
+      <div class="help-menu-card">
+        <div class="help-menu-card-header">
+          <span class="help-menu-badge uc">Usability Check</span>
+          <span class="help-menu-title">타겟 유저 기반 사용성 진단</span>
+        </div>
+        <div class="help-menu-purpose">
+          실제 타겟 사용자의 행동 패턴을 시뮬레이션하여 사용성 이슈를 구조적으로 진단합니다.<br>
+          5가지 유저 유형 기반으로 다양한 사용자 반응을 예측합니다.
+        </div>
+        <div class="help-section-label">검증 유형</div>
+        <div class="help-modes">
+          <span class="help-mode-chip">단일 화면</span>
+          <span class="help-mode-chip">플로우</span>
+        </div>
+        <div class="help-section-label">입력 항목</div>
+        <div class="help-fields">
+          <div class="help-field-row"><span class="help-field-name">프레임</span><span class="help-field-desc">카드별 프레임 할당 + Flow 설명 / UX Goal / 집중 컴포넌트</span></div>
+          <div class="help-field-row"><span class="help-field-name">타겟 시장</span><span class="help-field-desc">JP / TH / TW (선택)</span></div>
+          <div class="help-field-row"><span class="help-field-name">연령대</span><span class="help-field-desc">10대 ~ 50대+ (유저 유형 가중치 결정)</span></div>
+          <div class="help-field-row"><span class="help-field-name">성별</span><span class="help-field-desc">남성 / 여성 (선택)</span></div>
+          <div class="help-field-row"><span class="help-field-name">구독 여부</span><span class="help-field-desc">LYP 구독 상태 (선택)</span></div>
+          <div class="help-field-row"><span class="help-field-name">상황 설정</span><span class="help-field-desc">사용자의 태스크 시나리오 (선택)</span></div>
+        </div>
+        <div class="help-section-label">결과 형태</div>
+        <div class="help-fields">
+          <div class="help-field-row"><span class="help-field-name">형태</span><span class="help-field-desc">구조화된 카드 UI (JSON)</span></div>
+          <div class="help-field-row"><span class="help-field-name">타겟 요약</span><span class="help-field-desc">연령대 + 주력 유저 유형 + 해석 방식</span></div>
+          <div class="help-field-row"><span class="help-field-name">Keep</span><span class="help-field-desc">잘 작동하는 포인트 + User Voice</span></div>
+          <div class="help-field-row"><span class="help-field-name">Improve</span><span class="help-field-desc">불편 지점 + 대안 아이디어 + User Voice</span></div>
+          <div class="help-field-row"><span class="help-field-name">종합 진단</span><span class="help-field-desc">핵심 내용 요약</span></div>
+          <div class="help-field-row"><span class="help-field-name">유저 유형</span><span class="help-field-desc">각 유형별 구체적 반응과 혼잣말</span></div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="help-section-label">유저 유형 (5종)</div>
+          <div class="help-fields" style="margin-bottom:0">
+            <div class="help-field-row"><span class="help-field-name">빠른 스캔형</span><span class="help-field-desc">시각적 직관과 속도 중시</span></div>
+            <div class="help-field-row"><span class="help-field-name">목적 집중형</span><span class="help-field-desc">태스크 효율 중시, 군더더기 없는 경로 선호</span></div>
+            <div class="help-field-row"><span class="help-field-name">신중한 검증형</span><span class="help-field-desc">데이터 정확성과 신뢰 중시</span></div>
+            <div class="help-field-row"><span class="help-field-name">수동적 가이드형</span><span class="help-field-desc">친절한 안내와 단계별 확신 중시</span></div>
+            <div class="help-field-row"><span class="help-field-name">능동적 탐험가형</span><span class="help-field-desc">발견의 즐거움, 새로운 인터랙션 탐색</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── A/B 비교 ── -->
+      <div class="help-menu-card">
+        <div class="help-menu-card-header">
+          <span class="help-menu-badge ab">A/B 비교</span>
+          <span class="help-menu-title">정량적 디자인 비교 시뮬레이션</span>
+        </div>
+        <div class="help-menu-purpose">
+          디자인 A안과 B안(+C안)을 정량적으로 비교하여 승자를 판정합니다.<br>
+          페르소나 세그먼트별 선호 비율 시뮬레이션과 6개 기준 스코어카드를 제공합니다.
+        </div>
+        <div class="help-section-label">비교 유형</div>
+        <div class="help-modes">
+          <span class="help-mode-chip">화면 단위</span>
+          <span class="help-mode-chip">플로우</span>
+        </div>
+        <div class="help-section-label">입력 항목</div>
+        <div class="help-fields">
+          <div class="help-field-row"><span class="help-field-name">그룹 할당</span><span class="help-field-desc">Group A / B / C(선택)에 각각 프레임 배정</span></div>
+          <div class="help-field-row"><span class="help-field-name">타겟 시장</span><span class="help-field-desc">JP / TH / TW (선택)</span></div>
+          <div class="help-field-row"><span class="help-field-name">연령대</span><span class="help-field-desc">10대 ~ 50대+</span></div>
+          <div class="help-field-row"><span class="help-field-name">성별</span><span class="help-field-desc">남성 / 여성 (선택)</span></div>
+          <div class="help-field-row"><span class="help-field-name">사용 패턴</span><span class="help-field-desc">사용 빈도/패턴 조건</span></div>
+          <div class="help-field-row"><span class="help-field-name">구독 경험</span><span class="help-field-desc">LYP 등 구독 상태</span></div>
+          <div class="help-field-row"><span class="help-field-name">표본 수</span><span class="help-field-desc">시뮬레이션 모수 (1K ~ 50K)</span></div>
+          <div class="help-field-row"><span class="help-field-name">안 설명</span><span class="help-field-desc">A/B/C 각 안의 디자인 방향 설명</span></div>
+        </div>
+        <div class="help-section-label">결과 형태</div>
+        <div class="help-fields">
+          <div class="help-field-row"><span class="help-field-name">형태</span><span class="help-field-desc">대시보드형 UI (JSON)</span></div>
+          <div class="help-field-row"><span class="help-field-name">Winner</span><span class="help-field-desc">승자 판정 + 이유</span></div>
+          <div class="help-field-row"><span class="help-field-name">페르소나</span><span class="help-field-desc">세그먼트별 A/B/C 선호 비율 바 차트</span></div>
+          <div class="help-field-row"><span class="help-field-name">스코어카드</span><span class="help-field-desc">6개 기준별 점수 + 항목별 winner</span></div>
+          <div class="help-field-row"><span class="help-field-name">상세 분석</span><span class="help-field-desc">종합 비교 텍스트</span></div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="help-section-label">평가 기준 (6개)</div>
+          <div class="help-fields" style="margin-bottom:0">
+            <div class="help-field-row"><span class="help-field-name">정확성</span><span class="help-field-desc">유저가 실수 없이 과업을 완수할 수 있는가</span></div>
+            <div class="help-field-row"><span class="help-field-name">효율성</span><span class="help-field-desc">과업 수행 속도가 충분히 빠른가</span></div>
+            <div class="help-field-row"><span class="help-field-name">의미성</span><span class="help-field-desc">유저가 보고 싶은 정보가 적절히 제공되는가</span></div>
+            <div class="help-field-row"><span class="help-field-name">유연성</span><span class="help-field-desc">다양한 상호작용과 기능을 제공하는가</span></div>
+            <div class="help-field-row"><span class="help-field-name">일관성</span><span class="help-field-desc">서비스 문법이 일관되게 유지되는가</span></div>
+            <div class="help-field-row"><span class="help-field-name">이해성</span><span class="help-field-desc">정보량이 적절하며 UI 관계가 직관적인가</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 각 메뉴 요약 ── -->
+      <div class="help-menu-card">
+        <div class="help-menu-card-header" style="border-bottom:none;padding-bottom:0;margin-bottom:0">
+          <span class="help-menu-badge" style="background:rgba(255,255,255,0.08);color:#e0e0e0">각 메뉴 요약</span>
+        </div>
+        <table class="help-compare-table" style="margin-top:0">
+          <thead>
+            <tr><th></th><th>UX Review</th><th>UC</th><th>A/B 비교</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>관점</td><td>전문가</td><td>타겟 사용자</td><td>시장 시뮬레이션</td></tr>
+            <tr><td>핵심 질문</td><td>이 화면이 어떤가</td><td>사용자가 어떻게 반응하는가</td><td>어느 안이 더 나은가</td></tr>
+            <tr><td>결과 형태</td><td>자유 텍스트</td><td>Keep/Improve 카드</td><td>Winner + 스코어카드</td></tr>
+            <tr><td>정량 점수</td><td>-</td><td>-</td><td>6개 기준 점수</td></tr>
+            <tr><td>유저 유형</td><td>-</td><td>반응 서술</td><td>퍼널 가중치</td></tr>
+            <tr><td>비교 대상</td><td>단일</td><td>단일</td><td>A vs B (vs C)</td></tr>
+            <tr><td>User Voice</td><td>-</td><td>혼잣말 포함</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── AI 모델 가이드 ── -->
+      <div class="help-menu-card">
+        <div class="help-menu-card-header">
+          <span class="help-menu-badge" style="background:rgba(255,255,255,0.08);color:#e0e0e0">모델 가이드</span>
+          <span class="help-menu-title">AI 모델별 특성과 선택 기준</span>
+        </div>
+        <div class="help-menu-purpose">
+          설정 탭에서 프로바이더와 모델을 선택할 수 있습니다.<br>
+          모델에 따라 분석 깊이, 속도, JSON 안정성이 달라집니다.
+        </div>
+        <div class="help-section-label">모델별 특성</div>
+        <div class="help-fields">
+          <div class="help-field-row"><span class="help-field-name">Claude Sonnet 4</span><span class="help-field-desc">속도와 품질 균형 · JSON 안정적 · 일반 검증에 권장</span></div>
+          <div class="help-field-row"><span class="help-field-name">Claude Opus 4</span><span class="help-field-desc">최고 분석 깊이 · 느리지만 정밀 · 복잡한 플로우 분석에 적합</span></div>
+          <div class="help-field-row"><span class="help-field-name">GPT-4o</span><span class="help-field-desc">빠른 응답 · 초벌 검토에 적합 · 간혹 JSON 포맷 이탈</span></div>
+          <div class="help-field-row"><span class="help-field-name">GPT-4.1</span><span class="help-field-desc">GPT-4o 대비 분석 깊이 향상 · 중간 속도</span></div>
+        </div>
+        <div class="help-section-label">모델 비교</div>
+        <div style="border:1px solid #444;border-radius:8px;overflow:hidden;margin-bottom:20px">
+        <table class="help-compare-table" style="margin-top:0">
+          <thead>
+            <tr><th></th><th>Claude</th><th>GPT</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Vision 정밀도</td><td>높음 (간격·색상·터치 타겟)</td><td>보통</td></tr>
+            <tr><td>JSON 안정성</td><td>높음</td><td>간혹 이탈</td></tr>
+            <tr><td>플로우 맥락 연결</td><td>강함</td><td>개별 화면 위주</td></tr>
+            <tr><td>다국어 뉘앙스</td><td>CJK 강점</td><td>영어권 기준 경향</td></tr>
+            <tr><td>A/B 점수 일관성</td><td>근거 상세</td><td>편차 있음</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="help-section-label">권장 조합</div>
+        <div class="help-fields" style="margin-bottom:0">
+          <div class="help-field-row"><span class="help-field-name">일반 검증</span><span class="help-field-desc">Claude Sonnet 4 — 속도·품질 밸런스</span></div>
+          <div class="help-field-row"><span class="help-field-name">정밀 분석</span><span class="help-field-desc">Claude Opus 4 — 복잡한 플로우·UC 점검</span></div>
+          <div class="help-field-row"><span class="help-field-name">빠른 초벌</span><span class="help-field-desc">GPT-4o — 빠르게 방향성 확인</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════
        Tab: 설정
   ══════════════════════════════════ -->
   <div class="content" id="tab-settings" style="display:none">
@@ -974,31 +1333,33 @@
        Tab: Usability Check
   ══════════════════════════════════════════════════ -->
   <div class="content" id="tab-uc" style="display:none">
+
+    <div class="subtabs">
+      <div class="subtab uc-subtab active" data-ucmode="단일 화면">단일 화면</div>
+      <div class="subtab uc-subtab" data-ucmode="플로우">플로우</div>
+      <div class="subtabs-spacer"></div>
+      <button class="btn-clear" id="btn-clear-uc" title="초기화">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+        </svg>
+      </button>
+    </div>
+
     <div class="content-scroll">
 
-      <!-- 1. 프레임 선택 -->
-      <div class="section">
-        <div class="selection-header">
-          <span class="selection-count" id="uc-frame-count">0 frames</span>
-        </div>
-        <div class="selection-info" id="uc-selection-info">
-          <div class="empty-state">Figma에서 프레임을 선택하세요<span>최대 8개까지 선택 가능합니다</span></div>
-        </div>
+      <!-- 플로우 차트 인식 안내 -->
+      <div class="flow-notice" id="uc-flow-notice">
+        <span>플로우 차트를 프레임으로 추가하면 번호·화살표·클릭 포인트를 자동으로 인식합니다</span>
       </div>
 
-      <!-- 2. 검토 방식 -->
+      <!-- 2. 타겟 설정 -->
       <div class="section">
-        <div class="section-label">검토 방식</div>
-        <div class="chip-group">
-          <div class="chip uc-mode-chip" data-mode="단일 화면">단일 화면</div>
-          <div class="chip uc-mode-chip" data-mode="플로우">플로우</div>
-          <div class="chip uc-mode-chip" data-mode="시안 비교">시안 비교</div>
-          <div class="chip uc-mode-chip" data-mode="플로우 비교">플로우 비교</div>
+        <div class="section-label">타겟 시장</div>
+        <div class="chip-group" style="margin-bottom:20px">
+          <div class="chip uc-market-chip" data-market="JP">일본</div>
+          <div class="chip uc-market-chip" data-market="TH">태국</div>
+          <div class="chip uc-market-chip" data-market="TW">대만</div>
         </div>
-      </div>
-
-      <!-- 3. 타겟 설정 -->
-      <div class="section">
         <div class="section-label">연령대</div>
         <div class="chip-group" style="margin-bottom:20px">
           <div class="chip uc-age-chip" data-age="10대">10대</div>
@@ -1006,6 +1367,11 @@
           <div class="chip uc-age-chip" data-age="30대">30대</div>
           <div class="chip uc-age-chip" data-age="40대">40대</div>
           <div class="chip uc-age-chip" data-age="50대+">50대+</div>
+        </div>
+        <div class="section-label">성별</div>
+        <div class="chip-group" style="margin-bottom:20px">
+          <div class="chip uc-gender-chip" data-gender="남성">남성</div>
+          <div class="chip uc-gender-chip" data-gender="여성">여성</div>
         </div>
         <div class="section-label">LYP 구독 여부 <span style="color:#555;font-weight:400">(선택)</span></div>
         <div class="chip-group" style="margin-bottom:20px">
@@ -1016,41 +1382,108 @@
         <textarea id="uc-target-extra" rows="2" style="width:100%;resize:none;font-family:inherit" placeholder="예) 신규 유저, 처음 설치 후 7일 이내..."></textarea>
       </div>
 
-      <!-- 4. 점검 항목 및 의도 -->
+      <!-- 3. Flow 카드 -->
       <div class="section">
-        <div class="section-label">점검 항목 및 의도</div>
-        <div class="uc-check-items" id="uc-check-items">
+        <div class="uc-flow-cards" id="uc-flow-cards">
 
-          <div class="uc-check-item">
-            <div class="uc-check-item-header">
-              <span class="uc-check-item-num" style="background:transparent;color:#555;font-size:10px;font-weight:600;width:auto;border-radius:0;flex-shrink:0">Flow 1</span>
+          <!-- Flow 1 -->
+          <div class="uc-flow-card active-card" data-card-index="0">
+            <div class="uc-flow-card-header" data-card-toggle="0">
+              <span class="uc-flow-card-label">단일 화면 1</span>
+              <button class="uc-flow-card-toggle" id="uc-card-toggle-0">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
             </div>
-            <input type="text" class="uc-item-name" placeholder="예) 친구와 대화 중 추천 메시지를 보고 미니앱 상세 화면까지 진입하는 과정">
-            <textarea class="uc-item-goal" rows="2" placeholder="예) 대화의 흐름을 끊지 않고, 추천 메시지를 서비스 안내가 아닌 자연스러운 진입 계기로 받아들인 뒤 다음 행동을 결정할 수 있다."></textarea>
+            <div class="uc-flow-card-body" id="uc-card-body-0">
+              <div class="uc-card-frame-header">
+                <span class="selection-count" id="uc-card-count-0">0 frames</span>
+              </div>
+              <div class="uc-card-zone active-zone" id="uc-card-zone-0" data-card="0" tabindex="0">
+                <span class="ab-zone-empty">
+                  <span class="ab-zone-empty-active">여기에 추가됩니다</span>
+                  <span class="ab-zone-empty-hint">Figma에서 프레임 선택 → 카드에 배정</span>
+                </span>
+              </div>
+              <div class="uc-flow-field">
+                <label>Flow 설명</label>
+                <input type="text" class="uc-flow-desc" id="uc-flow-desc-0" placeholder="예) 친구와 대화 중 추천 메시지를 보고 미니앱 상세 화면까지 진입하는 과정">
+              </div>
+              <div class="uc-flow-field">
+                <label>UX Goal</label>
+                <textarea class="uc-flow-goal" id="uc-flow-goal-0" rows="2" placeholder="예) 대화의 흐름을 끊지 않고, 추천 메시지를 서비스 안내가 아닌 자연스러운 진입 계기로 받아들인 뒤 다음 행동을 결정할 수 있다."></textarea>
+              </div>
+              <div class="uc-flow-field">
+                <label>집중 컴포넌트 <span style="color:#555;font-weight:400">(선택)</span></label>
+                <input type="text" class="uc-flow-component" id="uc-flow-comp-0" placeholder="예) System Message, CTA 버튼, 배너, 바텀시트">
+                <span class="uc-flow-hint">이 Flow에서 특히 점검할 컴포넌트를 입력하세요</span>
+              </div>
+            </div>
           </div>
 
-          <div class="uc-check-item">
-            <div class="uc-check-item-header">
-              <span class="uc-check-item-num" style="background:transparent;color:#555;font-size:10px;font-weight:600;width:auto;border-radius:0;flex-shrink:0">Flow 2</span>
+          <!-- Flow 2 -->
+          <div class="uc-flow-card" data-card-index="1">
+            <div class="uc-flow-card-header" data-card-toggle="1">
+              <span class="uc-flow-card-label">단일 화면 2</span>
+              <button class="uc-flow-card-toggle" id="uc-card-toggle-1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
             </div>
-            <input type="text" class="uc-item-name" placeholder="예) 친구와 대화 중 추천 메시지를 보고 미니앱 상세 화면까지 진입하는 과정">
-            <textarea class="uc-item-goal" rows="2" placeholder="예) 대화의 흐름을 끊지 않고, 추천 메시지를 서비스 안내가 아닌 자연스러운 진입 계기로 받아들인 뒤 다음 행동을 결정할 수 있다."></textarea>
+            <div class="uc-flow-card-body" id="uc-card-body-1">
+              <div class="uc-card-frame-header">
+                <span class="selection-count" id="uc-card-count-1">0 frames</span>
+              </div>
+              <div class="uc-card-zone" id="uc-card-zone-1" data-card="1" tabindex="0">
+                <span class="ab-zone-empty">
+                  <span class="ab-zone-empty-hint">Figma에서 프레임 선택 → 카드에 배정</span>
+                </span>
+              </div>
+              <div class="uc-flow-field">
+                <label>Flow 설명</label>
+                <input type="text" class="uc-flow-desc" id="uc-flow-desc-1" placeholder="예) 친구와 대화 중 추천 메시지를 보고 미니앱 상세 화면까지 진입하는 과정">
+              </div>
+              <div class="uc-flow-field">
+                <label>UX Goal</label>
+                <textarea class="uc-flow-goal" id="uc-flow-goal-1" rows="2" placeholder="예) 대화의 흐름을 끊지 않고, 추천 메시지를 서비스 안내가 아닌 자연스러운 진입 계기로 받아들인 뒤 다음 행동을 결정할 수 있다."></textarea>
+              </div>
+              <div class="uc-flow-field">
+                <label>집중 컴포넌트 <span style="color:#555;font-weight:400">(선택)</span></label>
+                <input type="text" class="uc-flow-component" id="uc-flow-comp-1" placeholder="예) System Message, CTA 버튼, 배너, 바텀시트">
+                <span class="uc-flow-hint">이 Flow에서 특히 점검할 컴포넌트를 입력하세요</span>
+              </div>
+            </div>
           </div>
 
-          <div class="uc-check-item">
-            <div class="uc-check-item-header">
-              <span class="uc-check-item-num" style="background:transparent;color:#555;font-size:10px;font-weight:600;width:auto;border-radius:0;flex-shrink:0">컴포넌트 1</span>
+          <!-- Flow 3 -->
+          <div class="uc-flow-card" data-card-index="2">
+            <div class="uc-flow-card-header" data-card-toggle="2">
+              <span class="uc-flow-card-label">단일 화면 3</span>
+              <button class="uc-flow-card-toggle" id="uc-card-toggle-2">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
             </div>
-            <input type="text" class="uc-item-name" placeholder="예) System Message, CTA 버튼, 배너, 입력 폼, 바텀시트">
-            <textarea class="uc-item-goal" rows="2" placeholder="예) 대화방 내 노출된 안내 메시지를 광고로 오해하지 않고, 기능 안내로 이해한 뒤 탐색 또는 진입 여부를 결정할 수 있다."></textarea>
-          </div>
-
-          <div class="uc-check-item">
-            <div class="uc-check-item-header">
-              <span class="uc-check-item-num" style="background:transparent;color:#555;font-size:10px;font-weight:600;width:auto;border-radius:0;flex-shrink:0">컴포넌트 2</span>
+            <div class="uc-flow-card-body" id="uc-card-body-2">
+              <div class="uc-card-frame-header">
+                <span class="selection-count" id="uc-card-count-2">0 frames</span>
+              </div>
+              <div class="uc-card-zone" id="uc-card-zone-2" data-card="2" tabindex="0">
+                <span class="ab-zone-empty">
+                  <span class="ab-zone-empty-hint">Figma에서 프레임 선택 → 카드에 배정</span>
+                </span>
+              </div>
+              <div class="uc-flow-field">
+                <label>Flow 설명</label>
+                <input type="text" class="uc-flow-desc" id="uc-flow-desc-2" placeholder="예) 친구와 대화 중 추천 메시지를 보고 미니앱 상세 화면까지 진입하는 과정">
+              </div>
+              <div class="uc-flow-field">
+                <label>UX Goal</label>
+                <textarea class="uc-flow-goal" id="uc-flow-goal-2" rows="2" placeholder="예) 대화의 흐름을 끊지 않고, 추천 메시지를 서비스 안내가 아닌 자연스러운 진입 계기로 받아들인 뒤 다음 행동을 결정할 수 있다."></textarea>
+              </div>
+              <div class="uc-flow-field">
+                <label>집중 컴포넌트 <span style="color:#555;font-weight:400">(선택)</span></label>
+                <input type="text" class="uc-flow-component" id="uc-flow-comp-2" placeholder="예) System Message, CTA 버튼, 배너, 바텀시트">
+                <span class="uc-flow-hint">이 Flow에서 특히 점검할 컴포넌트를 입력하세요</span>
+              </div>
             </div>
-            <input type="text" class="uc-item-name" placeholder="예) System Message, CTA 버튼, 배너, 입력 폼, 바텀시트">
-            <textarea class="uc-item-goal" rows="2" placeholder="예) 대화방 내 노출된 안내 메시지를 광고로 오해하지 않고, 기능 안내로 이해한 뒤 탐색 또는 진입 여부를 결정할 수 있다."></textarea>
           </div>
 
         </div>
@@ -1059,7 +1492,16 @@
       <!-- 5. 상황 설정 (Task) -->
       <div class="section">
         <div class="section-label">상황 설정 (Task) <span style="color:#555;font-weight:400">(선택)</span></div>
-        <textarea id="uc-task-context" rows="5" style="width:100%;resize:none;font-family:inherit" placeholder="외부 상황과 이 화면을 보게 된 맥락을 구체적으로 작성해 주세요.&#10;언제, 어디서, 누구와 있는지, 어떤 계기로 이 화면에 들어왔는지,&#10;이전 단계에서 어떤 정보를 본 상태인지 등을 포함해 주세요.&#10;&#10;예) 출근길 이동하며 화면을 확인하고 있어 긴 설명을 읽을 여유가 많지 않은 상황입니다. 걸어가면서 친구에게 생일 축하 메시지와 선물을 보내주세요."></textarea>
+        <textarea id="uc-task-context" rows="5" style="width:100%;resize:none;font-family:inherit" placeholder="외부 상황과 이 화면을 보게 된 맥락을 구체적으로 작성해 주세요.&#10;언제, 어디서, 누구와 있는지, 어떤 계기로 이 화면에 들어왔는지,&#10;이전 단계에서 어떤 정보를 본 상태인지 등을 포함해 주세요.&#10;&#10;예) 출근길 이동하며 화면을 확인하고 있어 긴 설명을 읽을 여유가 많지 않은 상황입니다.&#10;걸어가면서 친구에게 생일 축하 메시지와 선물을 보내주세요."></textarea>
+        <div class="attach-area">
+          <div class="attach-label">참고 자료 첨부 <span style="color:#555;font-weight:400">(선택)</span></div>
+          <div class="attach-drop" id="uc-attach-drop">
+            <div class="attach-drop-text">클릭 또는 드래그하여 파일 추가</div>
+            <div class="attach-drop-hint">.txt .md .csv .json · 최대 3개, 각 50KB</div>
+            <input type="file" id="uc-attach-input" multiple accept=".txt,.md,.csv,.json,.text,.markdown">
+          </div>
+          <div class="attach-files" id="uc-attach-files"></div>
+        </div>
       </div>
 
       <!-- 결과 -->
@@ -1081,21 +1523,30 @@
           <div class="result-card-body">
             <div id="uc-target-badge" class="uc-target-badge" style="display:none"></div>
             <div class="uc-result-section" id="uc-keep-section" style="display:none">
-              <div class="uc-result-section-title">✅ 현행 유지</div>
+              <div class="uc-result-section-title">현행 유지</div>
               <div class="uc-result-cards" id="uc-keep-cards"></div>
             </div>
             <div class="uc-result-section" id="uc-improve-section" style="display:none">
-              <div class="uc-result-section-title">🟨 개선 고려</div>
+              <div class="uc-result-section-title">개선 고려</div>
               <div class="uc-result-cards" id="uc-improve-cards"></div>
             </div>
-            <div id="uc-summary-wrap" style="display:none">
+            <div id="uc-summary-wrap" class="uc-result-section" style="display:none">
               <div class="section-label" style="margin-bottom:8px">종합 진단</div>
               <div class="uc-summary" id="uc-summary"></div>
             </div>
+            <div class="uc-result-section" id="uc-archetype-section" style="display:none">
+              <div class="uc-result-section-title">유저 유형별 반응</div>
+              <div class="uc-archetype-cards" id="uc-archetype-cards"></div>
+            </div>
           </div>
-          <div class="result-card-footer" id="uc-result-footer" style="display:none">
-            <button class="btn btn-secondary" id="uc-btn-report" style="background:#363636;border:1px solid #444;color:#ccc;font-size:11px;padding:7px 14px;display:none">리포트 생성</button>
-            <button class="btn btn-secondary" id="btn-uc-new" style="background:transparent;border:1px solid #444;color:#888;font-size:11px;padding:7px 14px">새 검증</button>
+          <div class="result-feedback" id="uc-result-feedback" style="display:none">
+            <div class="result-feedback-label">피드백</div>
+            <textarea id="uc-result-feedback-input" placeholder="분석 결과에 대한 피드백을 입력하세요..."></textarea>
+          </div>
+          <div class="result-footer" id="uc-result-footer" style="display:none">
+            <button class="btn btn-secondary" id="btn-uc-new" style="width:auto;padding:7px 16px;font-size:12px;" data-i18n="btn_new_review">새 검증</button>
+            <button class="btn btn-primary" id="uc-btn-re-review" style="width:auto;padding:7px 16px;font-size:12px;display:none" disabled data-i18n="btn_re_review">재검증</button>
+            <button class="btn btn-secondary" id="uc-btn-report" style="width:auto;padding:7px 16px;font-size:12px;display:none">리포트 생성</button>
           </div>
         </div>
       </div>
@@ -1122,7 +1573,8 @@ let activeSubtab    = "screen";   // screen | flow | localization
 let activeAbMode    = "screen";   // screen | flow
 let abFrames        = { a: [], b: [], c: [] };
 let activeAbGroup   = "a";
-let ucFrames        = [];
+let ucCards          = [{ frames: [] }, { frames: [] }, { frames: [] }];
+let activeUCCard     = 0;
 let _frameUidCounter = 0;
 function makeUid() { return ++_frameUidCounter; }
 const storageCallbacks = {};
@@ -1346,12 +1798,13 @@ window.onmessage = (event) => {
     if (abActive) {
       assignFramesToAB(msg.frames);
     } else if (ucActive) {
+      const card = ucCards[activeUCCard];
       const toAdd = msg.frames
-        .slice(0, (settings.maxFrames||8) - ucFrames.length)
+        .slice(0, (settings.maxFrames||8) - card.frames.length)
         .map((f) => ({ ...f, _uid: makeUid() }));
       if (!toAdd.length) return;
-      ucFrames = [...ucFrames, ...toAdd];
-      appendUCFrameCards(toAdd);
+      card.frames = [...card.frames, ...toAdd];
+      renderUCCardZone(activeUCCard);
       updateUCBtn();
     } else {
       const toAdd = msg.frames
@@ -1370,7 +1823,7 @@ window.onmessage = (event) => {
     if (abActive) {
       updateABZonePreviews(msg.frames);
     } else if (ucActive) {
-      updateUCFramePreviews(msg.frames);
+      updateUCFramePreviewsInCards(msg.frames);
     } else {
       updateFramePreviews(msg.frames);
     }
@@ -1387,11 +1840,13 @@ window.onmessage = (event) => {
       runABAnalysis(abFrames.a, abFrames.b, abFrames.c);
     } else if (window._ucExportPending) {
       window._ucExportPending = false;
-      ucFrames = ucFrames.map((f) => {
-        const ex = msg.frames.find((x) => x.id === f.id);
-        return ex ? { ...f, imageBase64: ex.imageBase64, width: ex.width, height: ex.height } : f;
+      ucCards.forEach((card) => {
+        card.frames = card.frames.map((f) => {
+          const ex = msg.frames.find((x) => x.id === f.id);
+          return ex ? { ...f, imageBase64: ex.imageBase64, width: ex.width, height: ex.height } : f;
+        });
       });
-      runUCAnalysis(ucFrames);
+      runUCAnalysis();
     } else {
       runAPICall(msg.frames);
     }
@@ -1429,6 +1884,91 @@ window.onmessage = (event) => {
 
 
 // ══════════════════════════════════════════════════════
+// FILE ATTACHMENTS
+// ══════════════════════════════════════════════════════
+const MAX_ATTACH = 3;
+const MAX_SIZE = 50 * 1024; // 50KB
+const ALLOWED_EXT = [".txt",".md",".csv",".json",".text",".markdown"];
+let reviewAttachments = [];
+let ucAttachments = [];
+let abAttachments = [];
+
+function getAttachState(prefix) {
+  if (prefix === "review") return { arr: reviewAttachments, set(v){ reviewAttachments = v; } };
+  if (prefix === "uc")     return { arr: ucAttachments,     set(v){ ucAttachments = v; } };
+  return                          { arr: abAttachments,     set(v){ abAttachments = v; } };
+}
+
+function formatFileSize(bytes) {
+  return bytes < 1024 ? bytes + "B" : (bytes / 1024).toFixed(1) + "KB";
+}
+
+function renderAttachChips(prefix) {
+  const { arr } = getAttachState(prefix);
+  const container = document.getElementById(`${prefix}-attach-files`);
+  container.innerHTML = "";
+  arr.forEach((f, i) => {
+    const chip = document.createElement("div");
+    chip.className = "attach-chip";
+    chip.innerHTML = `
+      <span class="attach-chip-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</span>
+      <span class="attach-chip-size">${formatFileSize(f.size)}</span>
+      <button class="attach-chip-remove" data-idx="${i}">&times;</button>`;
+    chip.querySelector(".attach-chip-remove").addEventListener("click", () => {
+      const st = getAttachState(prefix);
+      st.arr.splice(i, 1);
+      st.set(st.arr);
+      renderAttachChips(prefix);
+    });
+    container.appendChild(chip);
+  });
+}
+
+function handleAttachFiles(prefix, fileList) {
+  const st = getAttachState(prefix);
+  Array.from(fileList).forEach((file) => {
+    if (st.arr.length >= MAX_ATTACH) return;
+    const ext = "." + file.name.split(".").pop().toLowerCase();
+    if (!ALLOWED_EXT.includes(ext)) return;
+    if (file.size > MAX_SIZE) return;
+    if (st.arr.some((f) => f.name === file.name)) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      st.arr.push({ name: file.name, content: reader.result, size: file.size });
+      st.set(st.arr);
+      renderAttachChips(prefix);
+    };
+    reader.readAsText(file);
+  });
+}
+
+function buildAttachmentPrompt(attachments) {
+  if (!attachments || !attachments.length) return "";
+  let p = "\n\n## 참고 자료 (디자이너가 첨부한 문서)\n아래 문서를 분석의 맥락으로 참고하세요.\n";
+  attachments.forEach((f) => {
+    p += `\n### ${f.name}\n\`\`\`\n${f.content}\n\`\`\`\n`;
+  });
+  return p;
+}
+
+["review","ab","uc"].forEach((prefix) => {
+  const input = document.getElementById(`${prefix}-attach-input`);
+  const drop = document.getElementById(`${prefix}-attach-drop`);
+  input.addEventListener("change", () => { handleAttachFiles(prefix, input.files); input.value = ""; });
+  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("dragover"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("dragover"));
+  drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("dragover"); handleAttachFiles(prefix, e.dataTransfer.files); });
+});
+
+function clearAttachments(prefix) {
+  const st = getAttachState(prefix);
+  st.arr.length = 0;
+  st.set(st.arr);
+  renderAttachChips(prefix);
+}
+
+
+// ══════════════════════════════════════════════════════
 // 1DEPTH TABS
 // ══════════════════════════════════════════════════════
 function switchTab(tabName) {
@@ -1436,14 +1976,17 @@ function switchTab(tabName) {
   document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
   const textTab = document.querySelector(`.tab[data-tab="${tabName}"]`);
   if (textTab) textTab.classList.add("active");
-  // settings icon active state
+  // icon button active states
   const settingsBtn = document.getElementById("btn-tab-settings");
   if (settingsBtn) settingsBtn.classList.toggle("active", tabName === "settings");
+  const helpBtn = document.getElementById("btn-tab-help");
+  if (helpBtn) helpBtn.classList.toggle("active", tabName === "help");
   // panels
-  ["review","ab","uc","settings"].forEach((id) => {
+  ["review","ab","uc","settings","help"].forEach((id) => {
     document.getElementById(`tab-${id}`).style.display = "none";
   });
   document.getElementById(`tab-${tabName}`).style.display = "flex";
+  if (tabName === "settings") renderPresetManager();
 }
 
 document.querySelectorAll(".tab").forEach((tab) => {
@@ -1452,12 +1995,21 @@ document.querySelectorAll(".tab").forEach((tab) => {
 document.getElementById("btn-tab-settings").addEventListener("click", () => {
   const isActive = document.getElementById("tab-settings").style.display !== "none";
   if (isActive) {
-    // toggle back to review if already on settings
     switchTab("review");
     document.querySelectorAll(".tab")[0].classList.add("active");
   } else {
     document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
     switchTab("settings");
+  }
+});
+document.getElementById("btn-tab-help").addEventListener("click", () => {
+  const isActive = document.getElementById("tab-help").style.display !== "none";
+  if (isActive) {
+    switchTab("review");
+    document.querySelectorAll(".tab")[0].classList.add("active");
+  } else {
+    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+    switchTab("help");
   }
 });
 
@@ -1533,53 +2085,84 @@ function appendFrameCards(frames) {
 }
 
 // ── UC frame helpers ──
-function appendUCFrameCards(frames) {
-  const info = document.getElementById("uc-selection-info");
-  let list = info.querySelector(".frame-list");
-  if (!list) { info.innerHTML=""; list=document.createElement("div"); list.className="frame-list"; info.appendChild(list); }
-  frames.forEach((f) => {
-    const card = document.createElement("div");
-    card.className = "frame-card"; card.dataset.frameId = f.id; card.dataset.frameUid = f._uid;
-    const num = ucFrames.findIndex((x) => x._uid === f._uid) + 1;
-    card.innerHTML = `
-      <div class="frame-thumb">
-        <img src="" alt=""/>
-        <div class="frame-thumb-placeholder"><div class="thumb-spinner"></div></div>
-        <div class="frame-number">${num}</div>
-        <button class="btn-remove-frame">
-          <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-            <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
-          </svg>
-        </button>
-      </div>
-      <div class="frame-meta"><span class="frame-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</span></div>`;
-    card.querySelector(".btn-remove-frame").addEventListener("click", () => removeUCFrame(f._uid));
-    list.appendChild(card);
-  });
-  document.getElementById("uc-frame-count").textContent = `${ucFrames.length} frames`;
+function setActiveUCCard(idx) {
+  activeUCCard = idx;
+  renderUCCardZone(0); renderUCCardZone(1); renderUCCardZone(2);
 }
-function removeUCFrame(uid) {
-  ucFrames = ucFrames.filter((f) => f._uid !== uid);
-  const el = document.querySelector(`#uc-selection-info .frame-card[data-frame-uid="${uid}"]`);
-  if (el) el.remove();
-  if (!ucFrames.length) {
-    document.getElementById("uc-selection-info").innerHTML =
-      '<div class="empty-state">Figma에서 프레임을 선택하세요<span>최대 8개까지 선택 가능합니다</span></div>';
+function renderUCCardZone(cardIdx) {
+  const zone = document.getElementById(`uc-card-zone-${cardIdx}`);
+  const countEl = document.getElementById(`uc-card-count-${cardIdx}`);
+  const frames = ucCards[cardIdx].frames;
+  const isActive = cardIdx === activeUCCard;
+  document.querySelectorAll(".uc-flow-card").forEach((c, i) => c.classList.toggle("active-card", i === activeUCCard));
+  zone.classList.toggle("active-zone", isActive);
+  zone.innerHTML = "";
+  if (!frames.length) {
+    const wrap = document.createElement("span");
+    wrap.className = "ab-zone-empty";
+    wrap.innerHTML = isActive
+      ? '<span class="ab-zone-empty-active">여기에 추가됩니다</span><span class="ab-zone-empty-hint">Figma에서 프레임 선택 → 카드에 배정</span>'
+      : '<span class="ab-zone-empty-hint">Figma에서 프레임 선택 → 카드에 배정</span>';
+    zone.appendChild(wrap);
+  } else {
+    const list = document.createElement("div");
+    list.className = "frame-list";
+    frames.forEach((f, idx) => {
+      const card = document.createElement("div");
+      card.className = "frame-card"; card.dataset.frameId = f.id; card.dataset.frameUid = f._uid;
+      const preview = f.previewBase64 || f.imageBase64 || "";
+      const imgSrc = preview ? "data:image/png;base64," + preview : "";
+      card.innerHTML = `
+        <div class="frame-thumb">
+          <img src="${imgSrc}" alt="" style="display:${imgSrc ? "block" : "none"}"/>
+          <div class="frame-thumb-placeholder" style="display:${imgSrc ? "none" : ""}"><div class="thumb-spinner"></div></div>
+          <div class="frame-number">${idx + 1}</div>
+          <button class="btn-remove-frame">
+            <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
+            </svg>
+          </button>
+        </div>
+        <div class="frame-meta"><span class="frame-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</span></div>`;
+      card.querySelector(".btn-remove-frame").addEventListener("click", (e) => {
+        e.stopPropagation();
+        removeUCCardFrame(cardIdx, f._uid);
+      });
+      list.appendChild(card);
+    });
+    zone.appendChild(list);
   }
-  document.getElementById("uc-frame-count").textContent = `${ucFrames.length} frames`;
+  countEl.textContent = `${frames.length} frames`;
+}
+function removeUCCardFrame(cardIdx, uid) {
+  ucCards[cardIdx].frames = ucCards[cardIdx].frames.filter((f) => f._uid !== uid);
+  renderUCCardZone(cardIdx);
   updateUCBtn();
 }
-function updateUCFramePreviews(frames) {
-  frames.forEach((f) => {
-    document.querySelectorAll(`#uc-selection-info .frame-card[data-frame-id="${f.id}"]`).forEach((card) => {
-      const img = card.querySelector("img"); const ph = card.querySelector(".frame-thumb-placeholder");
-      if (img && f.previewBase64) { img.src = "data:image/png;base64," + f.previewBase64; img.style.display="block"; if(ph) ph.style.display="none"; }
+function toggleUCCard(idx) {
+  const body = document.getElementById(`uc-card-body-${idx}`);
+  const toggle = document.getElementById(`uc-card-toggle-${idx}`);
+  body.classList.toggle("collapsed");
+  toggle.classList.toggle("collapsed");
+}
+function updateUCFramePreviewsInCards(frames) {
+  ucCards.forEach((card, idx) => {
+    card.frames.forEach((cf) => {
+      const match = frames.find((f) => f.id === cf.id);
+      if (match && match.imageBase64) cf.previewBase64 = match.imageBase64;
+    });
+    frames.forEach((f) => {
+      document.querySelectorAll(`#uc-card-zone-${idx} .frame-card[data-frame-id="${f.id}"]`).forEach((el) => {
+        const img = el.querySelector("img"); const ph = el.querySelector(".frame-thumb-placeholder");
+        if (img && f.imageBase64) { img.src = "data:image/png;base64," + f.imageBase64; img.style.display="block"; if(ph) ph.style.display="none"; }
+      });
     });
   });
 }
 function updateUCBtn() {
-  document.getElementById("btn-uc-run").disabled = (ucFrames.length === 0);
+  document.getElementById("btn-uc-run").disabled = ucCards.flatMap((c) => c.frames).length === 0;
 }
+
 
 function updateFramePreviews(frames) {
   frames.forEach((f) => {
@@ -1697,8 +2280,6 @@ async function callOAICompat(frames, systemPrompt, userPrompt, isAB) {
 function buildReviewSystemPrompt() {
   const parts = [
     `You are a mobile app UX expert. Analyze the provided screenshots and write a UX review. ${t("prompt_lang")}`,
-    UC_ARCHETYPES,
-    `연령대 조건이 입력된 경우, 해당 연령대의 아키타입 가중치를 반영하여 분석하세요.`,
     `## 플로우 차트 인식
 제공된 이미지 중 플로우 차트가 포함된 경우(번호·화살표·라인·클릭 포인트·인터랙션 노드가 보이는 경우), 분석 전 다음 요소를 먼저 인식하세요:
 - 번호/라벨: 각 단계의 순서와 명칭
@@ -1732,6 +2313,7 @@ function buildReviewUserPrompt(reviewType, markets, additionalContext, frames) {
   p += "\n";
   if (additionalContext) p += `추가 맥락:\n${additionalContext}\n\n`;
   p += instructions[reviewType]||"";
+  p += buildAttachmentPrompt(reviewAttachments);
   return p;
 }
 
@@ -1854,6 +2436,7 @@ function setActiveAbGroup(group) {
 
 document.querySelectorAll(".ab-market-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
 document.querySelectorAll(".ab-age-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
+document.querySelectorAll(".ab-gender-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
 document.querySelectorAll(".ab-pattern-chip").forEach((c) => c.addEventListener("click", () => {
   const isSelected = c.classList.contains("selected");
   document.querySelectorAll(".ab-pattern-chip").forEach((x) => x.classList.remove("selected"));
@@ -1887,6 +2470,7 @@ function getABPersona() {
   return {
     markets:         [...document.querySelectorAll(".ab-market-chip.selected")].map((c) => c.dataset.market),
     ageGroups:       [...document.querySelectorAll(".ab-age-chip.selected")].map((c) => c.dataset.age),
+    gender:          [...document.querySelectorAll(".ab-gender-chip.selected")].map((c) => c.dataset.gender),
     usagePattern:    document.querySelector(".ab-pattern-chip.selected")?.dataset.pattern || "",
     subscriptionExp: document.querySelector(".ab-sub-chip.selected")?.dataset.sub || "",
     sampleSize:      document.querySelector(".ab-sample-chip.selected")?.dataset.size || "5000",
@@ -1935,47 +2519,89 @@ const UC_ARCHETYPES = `## 유저 행동 아키타입
 | 40대 | 목적 집중형, 신중한 검증형 | 수동적 가이드형 | 빠른 스캔형 |
 | 50대+ | 수동적 가이드형, 신중한 검증형 | 목적 집중형 | 능동적 탐험가형 |`;
 
-// 칩 이벤트
-document.querySelectorAll(".uc-mode-chip").forEach((c) => c.addEventListener("click", () => {
-  const sel = c.classList.contains("selected");
-  document.querySelectorAll(".uc-mode-chip").forEach((x) => x.classList.remove("selected"));
-  if (!sel) c.classList.add("selected");
+// UC 서브탭 이벤트
+let activeUCMode = "단일 화면";
+document.querySelectorAll(".uc-subtab").forEach((st) => st.addEventListener("click", () => {
+  document.querySelectorAll(".uc-subtab").forEach((s) => s.classList.remove("active"));
+  st.classList.add("active");
+  activeUCMode = st.dataset.ucmode;
+  const isFlow = activeUCMode === "플로우";
+  document.getElementById("uc-flow-notice").classList.toggle("visible", isFlow);
+  const prefix = (activeUCMode === "단일 화면") ? "단일 화면" : "Flow";
+  document.querySelectorAll(".uc-flow-card-label").forEach((el, i) => { el.textContent = `${prefix} ${i + 1}`; });
 }));
+
+// UC 초기화 버튼
+document.getElementById("btn-clear-uc").addEventListener("click", () => {
+  ucCards = [{ frames: [] }, { frames: [] }, { frames: [] }];
+  activeUCCard = 0;
+  renderUCCardZone(0); renderUCCardZone(1); renderUCCardZone(2);
+  document.getElementById("uc-loading").style.display = "none";
+  document.getElementById("uc-result-area").style.display = "none";
+  document.getElementById("uc-result-feedback").style.display = "none";
+  document.getElementById("uc-result-feedback-input").value = "";
+  document.getElementById("uc-btn-re-review").disabled = true;
+  document.querySelectorAll(".uc-flow-desc, .uc-flow-component").forEach((el) => el.value = "");
+  document.querySelectorAll(".uc-flow-goal").forEach((el) => el.value = "");
+  document.querySelectorAll(".uc-market-chip,.uc-age-chip,.uc-gender-chip,.uc-sub-chip").forEach((c) => c.classList.remove("selected"));
+  document.getElementById("uc-target-extra").value = "";
+  document.getElementById("uc-task-context").value = "";
+  clearAttachments("uc");
+  updateUCBtn();
+});
+document.querySelectorAll(".uc-market-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
 document.querySelectorAll(".uc-age-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
+document.querySelectorAll(".uc-gender-chip").forEach((c) => c.addEventListener("click", () => c.classList.toggle("selected")));
 document.querySelectorAll(".uc-sub-chip").forEach((c) => c.addEventListener("click", () => {
   const sel = c.classList.contains("selected");
   document.querySelectorAll(".uc-sub-chip").forEach((x) => x.classList.remove("selected"));
   if (!sel) c.classList.add("selected");
 }));
+// UC 카드 존 이벤트
+[0, 1, 2].forEach((idx) => {
+  const zone = document.getElementById(`uc-card-zone-${idx}`);
+  zone.addEventListener("click", () => setActiveUCCard(idx));
+  zone.addEventListener("focus", () => setActiveUCCard(idx));
+});
+// UC 카드 접기/펼치기
+document.querySelectorAll("[data-card-toggle]").forEach((hdr) => {
+  hdr.addEventListener("click", (e) => {
+    if (e.target.closest(".uc-card-zone")) return;
+    toggleUCCard(parseInt(hdr.dataset.cardToggle));
+  });
+});
 
 // 실행 버튼
 document.getElementById("btn-uc-run").addEventListener("click", () => {
-  if (!ucFrames.length) return;
+  const allFrames = ucCards.flatMap((c) => c.frames);
+  if (!allFrames.length) return;
   document.getElementById("uc-loading").style.display = "block";
   document.getElementById("uc-result-area").style.display = "none";
   document.getElementById("btn-uc-run").disabled = true;
   window._ucExportPending = true;
   parent.postMessage({ pluginMessage: {
     type: "export-frames-for-review",
-    frameIds: ucFrames.map((f) => f.id),
+    frameIds: allFrames.map((f) => f.id),
     scale: parseFloat(settings.exportScale) || 1,
   }}, "*");
 });
 
 // 새 검증
 document.getElementById("btn-uc-new").addEventListener("click", () => {
-  ucFrames = [];
-  document.getElementById("uc-selection-info").innerHTML =
-    '<div class="empty-state">Figma에서 프레임을 선택하세요<span>최대 8개까지 선택 가능합니다</span></div>';
-  document.getElementById("uc-frame-count").textContent = "0 frames";
+  ucCards = [{ frames: [] }, { frames: [] }, { frames: [] }];
+  activeUCCard = 0;
+  renderUCCardZone(0); renderUCCardZone(1); renderUCCardZone(2);
   document.getElementById("uc-loading").style.display = "none";
   document.getElementById("uc-result-area").style.display = "none";
-  // 입력 필드만 초기화 (항목 구조는 유지)
-  document.querySelectorAll(".uc-item-name").forEach((el) => el.value = "");
-  document.querySelectorAll(".uc-item-goal").forEach((el) => el.value = "");
-  document.querySelectorAll(".uc-mode-chip,.uc-age-chip,.uc-sub-chip").forEach((c) => c.classList.remove("selected"));
+  document.getElementById("uc-result-feedback").style.display = "none";
+  document.getElementById("uc-result-feedback-input").value = "";
+  document.getElementById("uc-btn-re-review").disabled = true;
+  document.querySelectorAll(".uc-flow-desc, .uc-flow-component").forEach((el) => el.value = "");
+  document.querySelectorAll(".uc-flow-goal").forEach((el) => el.value = "");
+  document.querySelectorAll(".uc-market-chip,.uc-age-chip,.uc-gender-chip,.uc-sub-chip").forEach((c) => c.classList.remove("selected"));
   document.getElementById("uc-target-extra").value = "";
   document.getElementById("uc-task-context").value = "";
+  clearAttachments("uc");
   document.getElementById("btn-uc-run").disabled = true;
 });
 
@@ -1984,12 +2610,59 @@ document.getElementById("uc-btn-copy").addEventListener("click", () => {
   if (lastUCResultText) navigator.clipboard.writeText(lastUCResultText).catch(() => {});
 });
 
+// UC 피드백 & 재검증
+document.getElementById("uc-result-feedback-input").addEventListener("input", function() {
+  document.getElementById("uc-btn-re-review").disabled = !this.value.trim();
+});
+
+document.getElementById("uc-btn-re-review").addEventListener("click", async () => {
+  if (!lastUCParams) return;
+  const feedback = document.getElementById("uc-result-feedback-input").value.trim();
+  if (!feedback) return;
+  document.getElementById("uc-result-feedback-input").value = "";
+  document.getElementById("uc-btn-re-review").disabled = true;
+  document.getElementById("uc-loading").style.display = "block";
+  document.getElementById("uc-result-area").style.display = "none";
+  document.getElementById("btn-uc-run").disabled = true;
+  try {
+    const params = lastUCParams;
+    const allFrames = params.allFrames || [];
+    let addCtx = "";
+    if (lastUCResultText) addCtx += `\n\n## 이전 분석 결과:\n${lastUCResultText}`;
+    addCtx += `\n\n## 디자이너 피드백:\n${feedback}\n\n위 피드백을 반영하여 재분석해주세요.`;
+    const sysPrompt = buildUCSystemPrompt(params.ageGroups);
+    let userPrompt = buildUCUserPrompt(allFrames, params);
+    userPrompt += addCtx;
+    let rawText;
+    if (settings.apiMode === "openai" || settings.apiMode === "gateway") {
+      rawText = await callOAICompat(allFrames, sysPrompt, userPrompt, false);
+    } else {
+      rawText = await callClaudeAPI(allFrames, sysPrompt, userPrompt, 3000);
+    }
+    lastUCResultText = rawText;
+    renderUCResult(rawText);
+  } catch(e) {
+    document.getElementById("uc-result-status").className = "result-status error";
+    document.getElementById("uc-result-area").style.display = "block";
+    document.getElementById("uc-summary-wrap").style.display = "block";
+    document.getElementById("uc-summary").textContent = e.message || "알 수 없는 오류";
+  } finally {
+    document.getElementById("uc-loading").style.display = "none";
+    document.getElementById("btn-uc-run").disabled = false;
+  }
+});
+
 function buildUCSystemPrompt(ageGroups) {
   return `너는 LINE App 화면에 대해 사용성 사전 점검을 수행하는 AI 보조도구다.
 전달받은 단일 화면, 복수 화면, 단일 Flow, 복수 Flow, 복수 상황을 사용성 관점에서 진단하여 디자이너에게 실질적인 인사이트를 제공한다.
 여러 케이스를 함께 전달받은 경우 각 케이스를 독립적으로 검토한 뒤 공통 이슈와 차이점을 비교 정리한다.
 Flow의 경우 화살표나 번호를 인식하여 흐름의 순서를 판단한다.
 비교를 요청한 경우 단순 나열이 아니라 어느 케이스에서 어떤 문제가 더 크게 발생하는지, 타겟별로 해석이 어떻게 달라지는지 함께 정리한다.
+
+## 타겟 조건 반영
+- 타겟 시장(JP/TH/TW 등)이 설정된 경우: 해당 시장의 문화적 특성, 정보 밀도 허용도, 사용 패턴을 반영하여 분석
+- 성별이 설정된 경우: 해당 성별의 일반적인 사용 성향과 선호를 고려하여 분석
+- 여러 조건이 조합된 경우: 조건 간 교차 영향을 고려 (예: JP 20대 여성의 사용 패턴)
 
 ${UC_ARCHETYPES}
 
@@ -2019,10 +2692,24 @@ ${UC_ARCHETYPES}
       "idea": "디자이너가 참고할 수 있는 구체적인 대안"
     }
   ],
-  "summary": "핵심 내용을 간결하게 표 형태로 정리"
+  "summary": "핵심 내용을 간결하게 표 형태로 정리",
+  "archetypes": [
+    {
+      "name": "아키타입 이름",
+      "trait": "한 줄 성향 설명",
+      "reaction": "이 화면에서의 반응 2~3줄",
+      "user_voice": "혼잣말 형태의 사용자 반응 (나이, 성별)"
+    }
+  ]
 }
 
 keep, improve 각각 최대 3개.
+
+## archetypes 규칙
+- 연령대가 선택된 경우: 해당 연령대의 주력 아키타입 2개 + 보조 아키타입 1개, 총 3개만 포함
+- 연령대가 미선택인 경우: 전체 5개 아키타입 모두 포함
+- 각 아키타입의 reaction은 전달받은 화면/Flow를 기준으로 해당 아키타입이 어떻게 반응하는지 구체적으로 작성
+- user_voice는 해당 아키타입 사용자의 실제 혼잣말처럼 작성 (나이, 성별 포함)
 
 ## 문체 원칙
 - 리포트 본문은 음슴체로 작성
@@ -2034,67 +2721,91 @@ keep, improve 각각 최대 3개.
 - 한국어로 출력`;
 }
 
-function buildUCUserPrompt(frames, params) {
-  const { mode, ageGroups, subscription, targetExtra, checkItems, taskContext } = params;
-  const order = frames.map((f, i) => `이미지 ${i+1}: ${f.name}`).join("\n");
+function buildUCUserPrompt(allFrames, params) {
+  const { mode, markets, ageGroups, gender, subscription, targetExtra, flowCards, taskContext } = params;
   let p = "";
-  if (mode)           p += `검토 방식: ${mode}\n`;
+  if (mode)             p += `검토 방식: ${mode}\n`;
+  if (markets && markets.length) p += `타겟 시장: ${markets.join(", ")}\n`;
   if (ageGroups.length) p += `타겟 연령대: ${ageGroups.join(", ")}\n`;
-  if (subscription)   p += `LYP 구독 여부: ${subscription}\n`;
-  if (targetExtra)    p += `추가 타겟 조건: ${targetExtra}\n`;
-  p += `\n이미지 순서:\n${order}\n\n`;
-  if (checkItems.length) {
-    p += "점검 항목 및 UX Goal:\n";
-    checkItems.forEach((it, i) => {
-      const label = it.label ? `[${it.label}] ` : `${i+1}. `;
-      p += `${label}${it.name || "(이름 없음)"}\nGoal: ${it.goal || "(없음)"}\n`;
-    });
-    p += "\n";
-  }
-  if (taskContext) p += `상황 설정(Task):\n${taskContext}\n\n`;
-  p += "위 항목과 UX Goal을 기준으로 Usability를 분석하세요.";
+  if (gender && gender.length)   p += `성별: ${gender.join(", ")}\n`;
+  if (subscription)     p += `LYP 구독 여부: ${subscription}\n`;
+  if (targetExtra)      p += `추가 타겟 조건: ${targetExtra}\n`;
+  let imgOffset = 0;
+  flowCards.forEach((card) => {
+    p += `\n## ${card.label}\n`;
+    if (card.desc)      p += `Flow 설명: ${card.desc}\n`;
+    if (card.goal)      p += `UX Goal: ${card.goal}\n`;
+    if (card.component) p += `집중 컴포넌트: ${card.component}\n`;
+    if (card.frames.length) {
+      p += "이미지:\n";
+      card.frames.forEach((f, i) => { p += `  이미지 ${imgOffset + i + 1}: ${f.name}\n`; });
+      imgOffset += card.frames.length;
+    }
+  });
+  if (taskContext) p += `\n상황 설정(Task):\n${taskContext}\n`;
+
+  // 모드별 분석 지시
+  const instructions = {
+    "단일 화면": `\n위 화면에 대해 Usability를 분석하세요.
+- 각 화면의 정보 위계, 태스크 효율성, 인지 부하를 중심으로 진단
+- 여러 화면이 있으면 각각 독립적으로 검토한 뒤 공통 이슈를 정리`,
+    "플로우": `\n위 Flow와 UX Goal을 기준으로 Usability를 분석하세요.
+- 단계 간 연결성, 이탈 가능 지점, 불필요한 단계를 중심으로 진단
+- 플로우 차트가 포함된 경우 번호·화살표·클릭 포인트를 인식하여 흐름을 파악한 뒤 분석`,
+  };
+  p += instructions[mode] || "\n위 화면에 대해 Usability를 분석하세요.";
+  p += buildAttachmentPrompt(ucAttachments);
   return p;
 }
 
 function getUCParams() {
-  const mode         = (document.querySelector(".uc-mode-chip.selected") || {}).dataset.mode || "";
+  const mode         = activeUCMode || "";
+  const markets      = [...document.querySelectorAll(".uc-market-chip.selected")].map((c) => c.dataset.market);
   const ageGroups    = [...document.querySelectorAll(".uc-age-chip.selected")].map((c) => c.dataset.age);
-  const subscription = (document.querySelector(".uc-sub-chip.selected") || {}).dataset.sub || "";
+  const gender       = [...document.querySelectorAll(".uc-gender-chip.selected")].map((c) => c.dataset.gender);
+  const subscription = document.querySelector(".uc-sub-chip.selected")?.dataset?.sub || "";
   const targetExtra  = document.getElementById("uc-target-extra").value.trim();
   const taskContext  = document.getElementById("uc-task-context").value.trim();
-  const checkItems   = [...document.querySelectorAll(".uc-check-item")].map((el) => ({
-    label: (el.querySelector(".uc-check-item-num") || {}).textContent || "",
-    name:  el.querySelector(".uc-item-name").value.trim(),
-    goal:  el.querySelector(".uc-item-goal").value.trim(),
-  })).filter((it) => it.name || it.goal);
-  return { mode, ageGroups, subscription, targetExtra, checkItems, taskContext };
+
+  const prefix = (activeUCMode === "단일 화면") ? "단일 화면" : "Flow";
+  const flowCards = ucCards.map((card, i) => ({
+    label: `${prefix} ${i + 1}`,
+    desc:      (document.getElementById(`uc-flow-desc-${i}`) || {}).value?.trim() || "",
+    goal:      (document.getElementById(`uc-flow-goal-${i}`) || {}).value?.trim() || "",
+    component: (document.getElementById(`uc-flow-comp-${i}`) || {}).value?.trim() || "",
+    frames:    card.frames,
+  })).filter((c) => c.frames.length > 0 || c.desc || c.goal);
+  return { mode, markets, ageGroups, gender, subscription, targetExtra, flowCards, taskContext };
 }
 
-async function runUCAnalysis(frames) {
-  const params = getUCParams();
-  lastUCParams = { frames: frames.map((f) => ({ id:f.id, name:f.name, imageBase64:f.imageBase64, width:f.width, height:f.height })), ...params };
-  const sysPrompt  = buildUCSystemPrompt(params.ageGroups);
-  const userPrompt = buildUCUserPrompt(frames, params);
+async function runUCAnalysis() {
   try {
+    const params = getUCParams();
+    const allFrames = ucCards.flatMap((c) => c.frames);
+    lastUCParams = { ...params, allFrames: allFrames.map((f) => ({ id:f.id, name:f.name, imageBase64:f.imageBase64, width:f.width, height:f.height })) };
+    const sysPrompt  = buildUCSystemPrompt(params.ageGroups);
+    const userPrompt = buildUCUserPrompt(allFrames, params);
     let rawText;
     if (settings.apiMode === "openai" || settings.apiMode === "gateway") {
-      rawText = await callOpenAICompatAPI(frames, sysPrompt, userPrompt, 3000);
+      rawText = await callOAICompat(allFrames, sysPrompt, userPrompt, false);
     } else {
-      rawText = await callClaudeAPI(frames, sysPrompt, userPrompt, 3000);
+      rawText = await callClaudeAPI(allFrames, sysPrompt, userPrompt, 3000);
     }
     lastUCResultText = rawText;
     renderUCResult(rawText);
   } catch(e) {
-    document.getElementById("uc-loading").style.display = "none";
     document.getElementById("uc-result-status").className = "result-status error";
     document.getElementById("uc-result-area").style.display = "block";
     document.getElementById("uc-keep-section").style.display = "none";
     document.getElementById("uc-improve-section").style.display = "none";
     document.getElementById("uc-target-badge").style.display = "none";
     document.getElementById("uc-summary-wrap").style.display = "none";
-    document.getElementById("btn-uc-run").disabled = false;
+    document.getElementById("uc-archetype-section").style.display = "none";
+    const summaryEl = document.getElementById("uc-summary");
+    if (summaryEl) { summaryEl.textContent = e.message || "알 수 없는 오류"; document.getElementById("uc-summary-wrap").style.display = "block"; }
   } finally {
     document.getElementById("uc-loading").style.display = "none";
+    document.getElementById("btn-uc-run").disabled = false;
   }
 }
 
@@ -2107,6 +2818,7 @@ function renderUCResult(rawText) {
     document.getElementById("uc-keep-section").style.display = "none";
     document.getElementById("uc-improve-section").style.display = "none";
     document.getElementById("uc-summary-wrap").style.display = "none";
+    document.getElementById("uc-archetype-section").style.display = "none";
     document.getElementById("uc-result-area").style.display = "block";
     document.getElementById("btn-uc-run").disabled = false;
     return;
@@ -2158,9 +2870,31 @@ function renderUCResult(rawText) {
     document.getElementById("uc-summary-wrap").style.display = "block";
   }
 
+  // 유저 유형별 반응
+  const arcCards = document.getElementById("uc-archetype-cards");
+  arcCards.innerHTML = "";
+  if (parsed.archetypes && parsed.archetypes.length) {
+    parsed.archetypes.forEach((a) => {
+      const card = document.createElement("div");
+      card.className = "uc-archetype-card";
+      card.innerHTML = `
+        <div class="uc-archetype-header">
+          <span class="uc-archetype-name">${escapeHtml(a.name||"")}</span>
+          <span class="uc-archetype-trait">${escapeHtml(a.trait||"")}</span>
+        </div>
+        <div class="uc-archetype-reaction">${escapeHtml(a.reaction||"")}</div>
+        ${a.user_voice ? `<div class="uc-archetype-voice">${escapeHtml(a.user_voice)}</div>` : ""}`;
+      arcCards.appendChild(card);
+    });
+    document.getElementById("uc-archetype-section").style.display = "block";
+  }
+
   document.getElementById("uc-result-status").className = "result-status";
   document.getElementById("uc-result-area").style.display = "block";
+  document.getElementById("uc-result-feedback").style.display = "block";
+  document.getElementById("uc-btn-re-review").style.display = "block";
   document.getElementById("uc-result-footer").style.display = "flex";
+  document.getElementById("uc-btn-report").style.display = "block";
   document.getElementById("btn-uc-run").disabled = false;
   setTimeout(() => document.getElementById("uc-result-area").scrollIntoView({ behavior:"smooth", block:"start" }), 100);
 }
@@ -2228,7 +2962,7 @@ persona_breakdown 규칙:
 function buildABUserPrompt(framesA, framesB, framesC, mode, persona, additionalContext) {
   framesC = framesC || [];
   const hasC = framesC.length > 0;
-  const { markets, ageGroups, usagePattern, subscriptionExp, sampleSize, descA, descB } = persona;
+  const { markets, ageGroups, gender, usagePattern, subscriptionExp, sampleSize, descA, descB } = persona;
   const descC = document.getElementById("ab-desc-c")?.value.trim() || "";
   const orderLines = [
     ...framesA.map((f,i)=>`이미지 ${i+1}: [Group A] ${f.name}`),
@@ -2239,6 +2973,7 @@ function buildABUserPrompt(framesA, framesB, framesC, mode, persona, additionalC
   let p = `비교 유형: ${mode==="flow"?`플로우 variant ${groups} 비교`:`화면 단위 ${groups} 비교`}\n`;
   if (markets.length)    p += `타겟 시장: ${markets.join(", ")}\n`;
   if (ageGroups.length)  p += `연령대: ${ageGroups.join(", ")}\n`;
+  if (gender && gender.length) p += `성별: ${gender.join(", ")}\n`;
   if (usagePattern)      p += `사용 패턴: ${usagePattern}\n`;
   if (subscriptionExp)   p += `구독 경험: ${subscriptionExp}\n`;
   if (sampleSize)        p += `표본 수 기준: ${parseInt(sampleSize).toLocaleString()}명\n`;
@@ -2253,6 +2988,7 @@ function buildABUserPrompt(framesA, framesB, framesC, mode, persona, additionalC
   } else {
     p += `동일 화면의 ${groups} 디자인 방향입니다. [Group A] / [Group B]${hasC?" / [Group C]":""} 를 구분해 비교하세요.`;
   }
+  p += buildAttachmentPrompt(abAttachments);
   return p;
 }
 
@@ -2681,6 +3417,7 @@ document.getElementById("ab-preset-select").addEventListener("change", function(
 // ══════════════════════════════════════════════════════
 document.getElementById("btn-clear-all").addEventListener("click", () => {
   selectedFrames = []; renderEmptyState(); updateReviewBtn(); hideResult(); showLoading(false);
+  clearAttachments("review");
 });
 document.getElementById("btn-clear-ab").addEventListener("click", () => {
   abFrames = {a:[],b:[],c:[]};
@@ -2689,14 +3426,17 @@ document.getElementById("btn-clear-ab").addEventListener("click", () => {
   document.getElementById("ab-desc-b").value = "";
   document.getElementById("ab-desc-c").value = "";
   updateABBtn(); hideABResult(); showABLoading(false);
+  clearAttachments("ab");
 });
 document.getElementById("btn-reset").addEventListener("click", () => {
   selectedFrames=[]; renderEmptyState(); updateReviewBtn(); hideResult(); showLoading(false);
+  clearAttachments("review");
 });
 document.getElementById("ab-btn-reset").addEventListener("click", () => {
   abFrames={a:[],b:[],c:[]};
   renderABZone("a"); renderABZone("b"); renderABZone("c");
   updateABBtn(); hideABResult(); showABLoading(false);
+  clearAttachments("ab");
 });
 
 
@@ -2805,6 +3545,7 @@ document.querySelectorAll("#section-market .chip").forEach((c) => c.addEventList
 // ══════════════════════════════════════════════════════
 async function init() {
   renderEmptyState(); renderABZone("a"); renderABZone("b"); renderABZone("c");
+  renderUCCardZone(0); renderUCCardZone(1); renderUCCardZone(2);
 
   const savedSettings = await storageGet("ux-review-settings");
   if (savedSettings) settings={...settings,...savedSettings};
@@ -2858,31 +3599,66 @@ function generateReviewReport() {
 
 function generateABReport() {
   if (!lastABParams || !lastABResultText) return;
-  const { framesA, framesB, mode, persona } = lastABParams;
+  const { framesA, framesB, framesC, mode, persona } = lastABParams;
   let parsed = {};
   try { parsed = JSON.parse(lastABResultText.replace(/```json|```/g, "").trim()); } catch(e) { parsed = { detail: lastABResultText }; }
   const modeLabel = { screen: "화면 비교", flow: "플로우 비교" }[mode] || mode;
   const markets = Array.from(document.querySelectorAll(".ab-market-chip.selected")).map((m) => m.dataset.market);
   const btn = document.getElementById("ab-btn-report");
   btn.textContent = "생성 중..."; btn.disabled = true;
-  parent.postMessage({ pluginMessage: {
-    type: "create-figma-report",
-    data: {
-      type: "ab",
-      date: getDateStr(),
-      mode,
-      modeLabel,
-      markets,
-      framesA: framesA.map((f) => ({ id: f.id, name: f.name, imageBase64: f.imageBase64, width: f.width, height: f.height })),
-      framesB: framesB.map((f) => ({ id: f.id, name: f.name, imageBase64: f.imageBase64, width: f.width, height: f.height })),
-      winner: (parsed.winner || "TIE").toUpperCase(),
-      winnerReason: parsed.winner_reason || "",
-      scores: parsed.scores || [],
-      personaBreakdown: parsed.persona_breakdown || [],
-      detail: (parsed.detail || "").replace(/\\n/g, "\n"),
-    }
-  }}, "*");
+  const data = {
+    type: "ab",
+    date: getDateStr(),
+    mode,
+    modeLabel,
+    markets,
+    ageGroups: persona.ageGroups || [],
+    gender: persona.gender || [],
+    usagePattern: persona.usagePattern || "",
+    subscriptionExp: persona.subscriptionExp || "",
+    sampleSize: persona.sampleSize || "",
+    framesA: framesA.map((f) => ({ id: f.id, name: f.name, imageBase64: f.imageBase64, width: f.width, height: f.height })),
+    framesB: framesB.map((f) => ({ id: f.id, name: f.name, imageBase64: f.imageBase64, width: f.width, height: f.height })),
+    winner: (parsed.winner || "TIE").toUpperCase(),
+    winnerReason: parsed.winner_reason || "",
+    scores: parsed.scores || [],
+    personaBreakdown: parsed.persona_breakdown || [],
+    detail: (parsed.detail || "").replace(/\\n/g, "\n"),
+  };
+  if (framesC && framesC.length) {
+    data.framesC = framesC.map((f) => ({ id: f.id, name: f.name, imageBase64: f.imageBase64, width: f.width, height: f.height }));
+  }
+  parent.postMessage({ pluginMessage: { type: "create-figma-report", data } }, "*");
 }
+
+function generateUCReport() {
+  if (!lastUCParams || !lastUCResultText) return;
+  let parsed = {};
+  try { parsed = JSON.parse(lastUCResultText.replace(/```json|```/g, "").trim()); } catch(e) { return; }
+  const { mode, markets, ageGroups, gender, subscription, targetExtra, flowCards, allFrames } = lastUCParams;
+  const btn = document.getElementById("uc-btn-report");
+  btn.textContent = "생성 중..."; btn.disabled = true;
+  const data = {
+    type: "uc",
+    date: getDateStr(),
+    mode: mode || "—",
+    markets: markets || [],
+    ageGroups: ageGroups || [],
+    gender: gender || [],
+    subscription: subscription || "",
+    targetExtra: targetExtra || "",
+    targetSummary: parsed.target_summary || "",
+    frames: (allFrames || []).map((f) => ({ id: f.id, name: f.name, imageBase64: f.imageBase64, width: f.width, height: f.height })),
+    flowCards: (flowCards || []).map((c) => ({ label: c.label, desc: c.desc, goal: c.goal, component: c.component })),
+    keep: parsed.keep || [],
+    improve: parsed.improve || [],
+    summary: parsed.summary || "",
+    archetypes: parsed.archetypes || [],
+  };
+  parent.postMessage({ pluginMessage: { type: "create-figma-report", data } }, "*");
+}
+
+document.getElementById("uc-btn-report").addEventListener("click", generateUCReport);
 
 // ── (legacy HTML report functions removed — now uses Figma direct draw) ──
 function buildReportStyles() {
