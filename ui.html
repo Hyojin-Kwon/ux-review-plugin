@@ -1292,8 +1292,9 @@
           <input type="text" id="api-key" placeholder="sk-ant-..." />
         </div>
         <div class="settings-row" id="section-openai-key" style="display:none">
-          <label data-i18n="label_openai_api_key">OpenAI API Key</label>
-          <input type="text" id="openai-api-key" placeholder="sk-..." />
+          <div style="font-size:11px;color:#888;line-height:1.5;padding:8px 0">사내 API가 내장되어 있어 별도 설정 없이 바로 사용 가능합니다.</div>
+          <input type="hidden" id="openai-api-key" />
+          <input type="hidden" id="openai-proxy-url" />
         </div>
         <div class="settings-row" id="section-gateway" style="display:none">
           <label data-i18n="label_gateway_url">Gateway URL</label>
@@ -1620,7 +1621,7 @@ const storageCallbacks = {};
 
 let settings = {
   apiMode: "anthropic", apiKey: "", bedrockProxyUrl: "",
-  openaiApiKey: "", gatewayUrl: "", gatewayPat: "",
+  openaiApiKey: "", openaiProxyUrl: "", gatewayUrl: "", gatewayPat: "",
   model: "claude-sonnet-4-20250514", exportScale: "1", maxFrames: 8, lang: "ko",
 };
 
@@ -1822,6 +1823,7 @@ function storageGet(key) {
     parent.postMessage({ pluginMessage: { type:"storage-get", key } }, "*");
   });
 }
+
 
 
 // ══════════════════════════════════════════════════════
@@ -2302,16 +2304,27 @@ async function callClaudeAPI(frames, systemPrompt, userPrompt, maxTokens) {
   return data.content[0].text;
 }
 
+const OPENAI_PROXY = "https://holy-lake-737b.bymyhyo.workers.dev";
+
 async function callOAICompat(frames, systemPrompt, userPrompt, isAB) {
-  const { apiMode, openaiApiKey, gatewayUrl, gatewayPat, model } = settings;
-  let endpoint, authToken;
-  if (apiMode==="openai") { endpoint="https://api.openai.com/v1/chat/completions"; authToken=openaiApiKey; if (!authToken) throw new Error("OpenAI API Key가 입력되지 않았습니다."); }
-  else { const base=gatewayUrl.replace(/\/$/,""); endpoint=`${base}/chat/completions`; authToken=gatewayPat; if (!base) throw new Error("Gateway URL이 입력되지 않았습니다."); if (!authToken) throw new Error("PAT 토큰이 입력되지 않았습니다."); }
+  const { apiMode, gatewayUrl, gatewayPat, model } = settings;
+  let endpoint, headers;
+  if (apiMode==="openai") {
+    endpoint = OPENAI_PROXY;
+    headers = { "Content-Type":"application/json" };
+  } else {
+    const base = gatewayUrl.replace(/\/$/,"");
+    if (!base) throw new Error("Gateway URL이 입력되지 않았습니다.");
+    if (!gatewayPat) throw new Error("PAT 토큰이 입력되지 않았습니다.");
+    endpoint = `${base}/chat/completions`;
+    headers = { "Content-Type":"application/json", "Authorization":`Bearer ${gatewayPat}` };
+  }
   const userContent = [
     ...frames.map((f) => ({ type:"image_url", image_url:{ url:`data:${f._mimeType||"image/png"};base64,${f.imageBase64}` } })),
     { type:"text", text:userPrompt },
   ];
-  const res = await fetch(endpoint, { method:"POST", headers:{ "Content-Type":"application/json","Authorization":`Bearer ${authToken}` }, body:JSON.stringify({ model, max_tokens:isAB?3000:2048, messages:[{ role:"system", content:systemPrompt },{ role:"user", content:userContent }] }) });
+  const body = JSON.stringify({ model, max_tokens:isAB?3000:2048, messages:[{ role:"system", content:systemPrompt },{ role:"user", content:userContent }] });
+  const res = await fetch(endpoint, { method:"POST", headers, body });
   const data = await res.json().catch(() => { throw new Error(`파싱 실패 (${res.status})`); });
   if (!res.ok) throw new Error(`API 오류 (${res.status}): ${data.error?.message||""}`);
   return data.choices[0].message.content;
@@ -3588,7 +3601,7 @@ function updateModelOptions(mode) {
 function updateSettingsStatus() {
   const m=settings.apiMode; let ok=false,label="";
   if      (m==="anthropic"&&settings.apiKey)                              {ok=true;label=t("status_anthropic_ok");}
-  else if (m==="openai"   &&settings.openaiApiKey)                        {ok=true;label=t("status_openai_ok");}
+  else if (m==="openai")                                                    {ok=true;label=t("status_openai_ok");}
   else if (m==="gateway"  &&settings.gatewayUrl&&settings.gatewayPat)     {ok=true;label=t("status_gateway_ok");}
   else if (m==="bedrock"  &&settings.bedrockProxyUrl)                     {ok=true;label=t("status_bedrock_ok");}
   else if (m==="anthropic") label=t("status_need_anthropic");
@@ -3612,7 +3625,7 @@ document.getElementById("btn-delete-all-presets").addEventListener("click", func
 document.getElementById("btn-save-settings").addEventListener("click", () => {
   settings = {
     apiMode:document.getElementById("api-mode").value, apiKey:document.getElementById("api-key").value,
-    bedrockProxyUrl:document.getElementById("bedrock-proxy-url").value, openaiApiKey:document.getElementById("openai-api-key").value,
+    bedrockProxyUrl:document.getElementById("bedrock-proxy-url").value, openaiApiKey:document.getElementById("openai-api-key").value, openaiProxyUrl:document.getElementById("openai-proxy-url").value,
     gatewayUrl:document.getElementById("gateway-url").value, gatewayPat:document.getElementById("gateway-pat").value,
     model:document.getElementById("model-select").value, exportScale:document.getElementById("export-scale").value,
     maxFrames:parseInt(document.getElementById("max-frames-select").value,10), lang:document.getElementById("lang-select").value,
@@ -3628,6 +3641,7 @@ function applySettings() {
   document.getElementById("api-key").value=settings.apiKey||"";
   document.getElementById("bedrock-proxy-url").value=settings.bedrockProxyUrl||"";
   document.getElementById("openai-api-key").value=settings.openaiApiKey||"";
+  document.getElementById("openai-proxy-url").value=settings.openaiProxyUrl||"";
   document.getElementById("gateway-url").value=settings.gatewayUrl||"";
   document.getElementById("gateway-pat").value=settings.gatewayPat||"";
   document.getElementById("export-scale").value=settings.exportScale||"1";

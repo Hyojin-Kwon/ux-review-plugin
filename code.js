@@ -117,6 +117,7 @@ figma.ui.onmessage = async (msg) => {
   if (msg.type === "close-plugin") {
     figma.closePlugin();
   }
+
 };
 
 // ── Figma Report Builder ────────────────────────────────
